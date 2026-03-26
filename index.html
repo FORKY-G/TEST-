@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>한월환해도 (최적화본)</title>
+    <title>한월환해도 (0326 업데이트)</title>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
@@ -11,14 +11,24 @@
     <style>
       html, body, #map { width:100%; height:100%; margin:0; padding:0; background: #ffffff; }
       .leaflet-popup-content { font-family: 'Malgun Gothic', sans-serif; text-align: center; }
-      .poi-title { font-weight: bold; font-size: 15px; color: #333; }
-      .herb-title { font-weight: bold; font-size: 15px; color: #8e44ad; }
+      
+      /* 툴팁 스타일 (마우스 올렸을 때 나타나는 창) */
+      .custom-tooltip {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid #e67e22 !important; /* 십이간지 포인트 색상 */
+        font-weight: bold;
+        color: #333;
+        padding: 5px 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
     <div id="map"></div>
     <script type="text/javascript">
-      // [1] 지도 설정 및 이미지 정보
+      // [1] 지도 기본 설정 (7300 x 6494 해상도 적용)
       var imageUrl = 'map.jpg'; 
       var imgW = 7300;
       var imgH = 6494;
@@ -30,18 +40,16 @@
 
       var map = new L.Map('map', {
         maxZoom: 12,
-        minZoom: -5, // [수정] 마이너스 값을 더 낮춰서 아주 작게까지 축소 가능하게 함
+        minZoom: -5, // 축소 기능 강화
         crs: crs,
         noWrap: true,
-        zoomSnap: 0.25 // [추가] 줌 조절을 더 부드럽게 세밀하게 조정
+        zoomSnap: 0.25
       });
 
-      var mapLayer = L.imageOverlay(imageUrl, imageBounds).addTo(map);
-      
-      // [수정] 이미지가 화면에 꽉 차게 보이도록 설정하는 함수
+      L.imageOverlay(imageUrl, imageBounds).addTo(map);
       map.fitBounds(imageBounds);
 
-      // [2] 스폰 픽셀 좌표 기준 변환 함수
+      // [2] 좌표 변환 기준 (다겸님이 주신 새로운 스폰 픽셀 좌표)
       var mcSpawnPxX = 3218; 
       var mcSpawnPxY = 2874; 
       var mcSpawnCoordX = -971;
@@ -54,22 +62,39 @@
         return [-(mcSpawnPxY + deltaZ), mcSpawnPxX + deltaX];
       }
 
-      // [3] 아이콘 생성 함수
+      // [3] 아이콘 생성 함수 (광산, 약초용)
       function createHtmlIcon(color, label, isHerb = false) {
         return L.divIcon({
           className: 'custom-icon',
-          html: isHerb ? 
-            `<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" stroke="#6c3483" stroke-width="2"/></svg>
-             <span style="position:absolute; top:-22px; left:50%; transform:translateX(-50%); background:white; padding:1px 5px; border-radius:8px; border:2px solid ${color}; font-size:11px; color:${color}; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${label}</span>` :
-            `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="${color}" stroke="white" stroke-width="1"/></svg>
-             <span style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); background:white; padding:1px 6px; border-radius:10px; border:2px solid ${color}; font-size:12px; color:${color}; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${label}</span>`,
-          iconSize: isHerb ? [20, 20] : [24, 24], iconAnchor: isHerb ? [10, 20] : [12, 24], popupAnchor: [0, -20]
+          html: `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="${color}" stroke="white" stroke-width="1"/></svg>
+                 <span style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); background:white; padding:1px 6px; border-radius:10px; border:2px solid ${color}; font-size:12px; color:${color}; font-weight:bold; white-space:nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${label}</span>`,
+          iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -20]
         });
       }
 
-      // [4] 데이터 레이어 설정
-      var poiLayers = { '스폰': L.layerGroup(), '녹 지점': L.layerGroup(), '청 지점': L.layerGroup(), '황 지점': L.layerGroup(), '적 지점': L.layerGroup(), '약초 지점': L.layerGroup() };
+      // [추가] 십이간지 전용 아이콘 생성 함수 (마커 없애기)
+      function createZodiacIcon(label) {
+        return L.divIcon({
+          className: 'zodiac-icon',
+          // SVG 마커는 지우고, 라벨만 표시 (평소에는 안 보임)
+          html: `<span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:white; padding:2px 8px; border-radius:10px; border:2px solid #e67e22; font-size:12px; color:#e67e22; font-weight:bold; white-space:nowrap; opacity:0; transition:opacity 0.2s;">${label}</span>`,
+          iconSize: [1, 1], // 아이콘 크기를 최소화하여 클릭 영역을 없앰
+          iconAnchor: [0, 0]
+        });
+      }
 
+      // [4] 데이터 레이어 생성
+      var poiLayers = { 
+        '스폰': L.layerGroup(), 
+        '녹 지점': L.layerGroup(), 
+        '청 지점': L.layerGroup(), 
+        '황 지점': L.layerGroup(), 
+        '적 지점': L.layerGroup(), 
+        '약초 지점': L.layerGroup(),
+        '십이간지': L.layerGroup() 
+      };
+
+      // 광산 데이터
       var poiData = [
         { name: "스폰", type: "스폰", color: "#333", coords: mcToPx(-971, -965) },
         { name: "1", type: "녹", color: "#2ecc71", coords: mcToPx(-1093, -701) }, { name: "2", type: "녹", color: "#2ecc71", coords: mcToPx(-1038, -14) },
@@ -107,6 +132,7 @@
         { name: "65", type: "황", color: "#f1c40f", coords: mcToPx(-790, 4284) }
       ];
 
+      // 약초 데이터
       var herbData = [
         { name: "빙백설화", label: "빙", coords: mcToPx(6630, -264) }, { name: "빙백설화", label: "빙", coords: mcToPx(6017, -203) },
         { name: "철목영지", label: "철", coords: mcToPx(-3901, 2699) }, { name: "월계엽", label: "월", coords: mcToPx(-1622, -6433) },
@@ -127,25 +153,62 @@
         { name: "백향초", label: "백", coords: mcToPx(-5488, 4162) }
       ];
 
+      // 십이간지 데이터 (라벨/좌표만 호버 시 표시)
+      var zodiacData = [
+        { name: "소", x: -616, z: 3889 }, { name: "닭", x: 5075, z: -344 },
+        { name: "토끼", x: 4590, z: -3397 }, { name: "뱀", x: 2685, z: -4051 },
+        { name: "돼지", x: -3657, z: 1112 }, { name: "개", x: -4455, z: -2376 },
+        { name: "말", x: -2365, z: 3968 }, { name: "원숭이", x: 3280, z: 2952 },
+        { name: "양", x: 5093, z: 2092 }, { name: "호랑이", x: -5500, z: -1600 },
+        { name: "용", x: -891, z: -536 }, { name: "쥐", x: -2900, z: -4600 }
+      ];
+
       // [5] 마커 렌더링
+      // 광산 마커
       poiData.forEach(function(poi) {
         var groupKey = poi.type === '스폰' ? '스폰' : poi.type + ' 지점';
         L.marker(poi.coords, {icon: createHtmlIcon(poi.color, poi.name)}).addTo(poiLayers[groupKey])
           .bindPopup(`<div class="poi-title">${poi.name}번 광산</div>`);
       });
 
+      // 약초 마커
       herbData.forEach(function(herb) {
         L.marker(herb.coords, {icon: createHtmlIcon('#8e44ad', herb.label, true)}).addTo(poiLayers['약초 지점'])
           .bindPopup(`<div class="herb-title">${herb.name}</div>`);
       });
 
+      // 십이간지 마커 (마커 없애고 툴팁/호버만 설정)
+      zodiacData.forEach(function(z) {
+        var pos = mcToPx(z.x, z.z);
+        L.marker(pos, { 
+            icon: createZodiacIcon(z.name), // 마커 없는 투명 아이콘 적용
+            riseOnHover: true // 마우스 올리면 라벨이 위로 올라오게 함
+        })
+          .addTo(poiLayers['십이간지'])
+          .bindTooltip(`<b>${z.name}</b><br>좌표: ${z.x}, ${z.z}`, {
+            direction: 'top',
+            className: 'custom-tooltip',
+            sticky: true,
+            opacity: 0.9
+          })
+          .on('mouseover', function(e) {
+            // 마우스 올리면 아이콘 내 숨겨진 라벨 표시
+            this.getElement().querySelector('span').style.opacity = 1;
+          })
+          .on('mouseout', function(e) {
+            // 마우스 떼면 다시 숨김
+            this.getElement().querySelector('span').style.opacity = 0;
+          });
+      });
+
+      // [6] 레이어 컨트롤 및 기타 설정
       for (var key in poiLayers) { poiLayers[key].addTo(map); }
       L.control.layers(null, poiLayers, {collapsed: false}).addTo(map);
-      L.control.mousePosition({position: 'bottomleft', separator: ', ', prefix: '좌표: '}).addTo(map);
+      L.control.mousePosition({position: 'bottomleft', separator: ', ', prefix: '마우스 위치: '}).addTo(map);
 
-      // [추가] 브라우저 창 크기가 바뀌어도 지도가 중앙을 유지하도록 설정
+      // 창 크기 조절 대응
       window.addEventListener('resize', function() {
-        map.fitBounds(imageBounds);
+        map.invalidateSize();
       });
     </script>
   </body>
