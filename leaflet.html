@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>한월서버 완전지도</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" type="text/javascript"></script>
+    <script src="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.js" type="text/javascript"></script>
+    <style>
+      html, body, #map { width:100%; height:100%; margin:0; padding:0; z-index: 1; background: #ffffff; }
+      #slider{ position: absolute; top: 10px; right: 10px; z-index: 1000; width: 150px; }
+      .leaflet-popup-content { font-family: 'Malgun Gothic', sans-serif; font-size: 14px; line-height: 1.4; text-align: center; }
+      .poi-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #333; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <input id="slider" type="range" min="0" max="1" step="0.1" value="1" oninput="mapLayer.setOpacity(this.value)">
+    
+    <script type="text/javascript">
+      // [1] 지도 물리적 설정
+      var mapExtent = [0.00000000, -14575.00000000, 16384.00000000, 0.00000000];
+      var mapMaxZoom = 9;
+      var mapMaxResolution = 0.12500000;
+      var mapMinResolution = Math.pow(2, mapMaxZoom) * mapMaxResolution;
+      var tileExtent = [0.00000000, -14575.00000000, 16384.00000000, 0.00000000];
+
+      var crs = L.CRS.Simple;
+      crs.transformation = new L.Transformation(1, -tileExtent[0], -1, tileExtent[3]);
+      crs.scale = function(zoom) { return Math.pow(2, zoom) / mapMinResolution; };
+      crs.zoom = function(scale) { return Math.log(scale * mapMinResolution) / Math.LN2; };
+
+      var map = new L.Map('map', { maxZoom: mapMaxZoom, minZoom: 0, crs: crs });
+
+      var mapLayer = L.tileLayer('{z}/{x}/{y}.png', { minZoom: 0, maxZoom: mapMaxZoom, noWrap: true, tms: false }).addTo(map);
+
+      map.fitBounds([
+        crs.unproject(L.point(mapExtent[2], mapExtent[3])),
+        crs.unproject(L.point(mapExtent[0], mapExtent[1]))
+      ]);
+
+      // [2] 좌표 변환 기준 (다겸님이 찾은 픽셀 좌표 적용)
+      var mcSpawnPxX = 7225; 
+      var mcSpawnPxY = 6453; 
+      var mcSpawnCoordX = -971;
+      var mcSpawnCoordZ = -965;
+
+      function mcToPx(mcX, mcZ) {
+          var deltaX = mcX - mcSpawnCoordX;
+          var deltaZ = mcZ - mcSpawnCoordZ;
+          return [-(mcSpawnPxY + deltaZ), mcSpawnPxX + deltaX];
+      }
+
+      // [3] 색상 아이콘 생성 함수 (라벨에 번호가 들어감)
+      function createHtmlIcon(color, labelText) {
+        return L.divIcon({
+          className: 'custom-icon',
+          html: `<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="${color}" stroke="white" stroke-width="1"/>
+                 </svg>
+                 <span style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); background:white; padding:1px 6px; border-radius:10px; border:2px solid ${color}; font-size:12px; white-space:nowrap; color:${color}; font-weight:bold; box-shadow: 0px 2px 4px rgba(0,0,0,0.2);">${labelText}</span>`,
+          iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24]
+        });
+      }
+
+      // [4] 다겸님의 포인트 데이터 (번호 문구 적용)
+      var poiData = [
+        { name: "스폰", type: "스폰", color: "#333", coords: mcToPx(-971, -965) },
+        { name: "1번", type: "녹", color: "#2ecc71", coords: mcToPx(-1093, -701) }, { name: "2번", type: "녹", color: "#2ecc71", coords: mcToPx(-1038, -14) },
+        { name: "3번", type: "녹", color: "#2ecc71", coords: mcToPx(-1837, -944) }, { name: "4번", type: "녹", color: "#2ecc71", coords: mcToPx(-2599, -2691) },
+        { name: "5번", type: "녹", color: "#2ecc71", coords: mcToPx(-4001, -1579) }, { name: "6번", type: "녹", color: "#2ecc71", coords: mcToPx(1085, 199) },
+        { name: "7번", type: "녹", color: "#2ecc71", coords: mcToPx(-775, -1986) }, { name: "8번", type: "녹", color: "#2ecc71", coords: mcToPx(2605, -1142) },
+        { name: "9번", type: "녹", color: "#2ecc71", coords: mcToPx(752, -1272) }, { name: "10번", type: "청", color: "#3498db", coords: mcToPx(-4322, -2810) },
+        { name: "11번", type: "황", color: "#f1c40f", coords: mcToPx(815, 2558) }, { name: "12번", type: "황", color: "#f1c40f", coords: mcToPx(-1913, 3153) },
+        { name: "13번", type: "황", color: "#f1c40f", coords: mcToPx(-3094, 855) }, { name: "14번", type: "청", color: "#3498db", coords: mcToPx(7137, -1668) },
+        { name: "15번", type: "청", color: "#3498db", coords: mcToPx(6123, 486) }, { name: "16번", type: "청", color: "#3498db", coords: mcToPx(5709, -3342) },
+        { name: "17번", type: "적", color: "#e74c3c", coords: mcToPx(3806, 5436) }, { name: "18번", type: "적", color: "#e74c3c", coords: mcToPx(3542, 6378) },
+        { name: "19번", type: "적", color: "#e74c3c", coords: mcToPx(-6250, 2367) }, { name: "20번", type: "적", color: "#e74c3c", coords: mcToPx(-7547, 623) },
+        { name: "21번", type: "청", color: "#3498db", coords: mcToPx(-2854, -5529) }, { name: "22번", type: "청", color: "#3498db", coords: mcToPx(-5186, 1256) },
+        { name: "23번", type: "녹", color: "#2ecc71", coords: mcToPx(4301, -3381) }, { name: "24번", type: "청", color: "#3498db", coords: mcToPx(5584, 3322) },
+        { name: "25번", type: "적", color: "#e74c3c", coords: mcToPx(1998, 4657) }, { name: "26번", type: "녹", color: "#2ecc71", coords: mcToPx(2201, -2740) },
+        { name: "27번", type: "적", color: "#e74c3c", coords: mcToPx(-6540, 516) }, { name: "28번", type: "황", color: "#f1c40f", coords: mcToPx(3701, 2080) },
+        { name: "29번", type: "황", color: "#f1c40f", coords: mcToPx(-4084, 3035) }, { name: "30번", type: "적", color: "#e74c3c", coords: mcToPx(6217, 4562) },
+        { name: "31번", type: "녹", color: "#2ecc71", coords: mcToPx(-563, -6176) }, { name: "32번", type: "녹", color: "#2ecc71", coords: mcToPx(1472, -6472) },
+        { name: "33번", type: "녹", color: "#2ecc71", coords: mcToPx(4214, -4596) }, { name: "34번", type: "녹", color: "#2ecc71", coords: mcToPx(1941, -5632) },
+        { name: "35번", type: "청", color: "#3498db", coords: mcToPx(-4657, -4523) }, { name: "36번", type: "청", color: "#3498db", coords: mcToPx(-4830, -4303) },
+        { name: "37번", type: "청", color: "#3498db", coords: mcToPx(-5480, -1720) }, { name: "38번", type: "적", color: "#e74c3c", coords: mcToPx(-6696, -1145) },
+        { name: "39번", type: "녹", color: "#2ecc71", coords: mcToPx(-559, -4593) }, { name: "40번", type: "적", color: "#e74c3c", coords: mcToPx(1487, 5300) },
+        { name: "41번", type: "적", color: "#e74c3c", coords: mcToPx(1601, 5485) }, { name: "42번", type: "적", color: "#e74c3c", coords: mcToPx(2129, 6598) },
+        { name: "43번", type: "황", color: "#f1c40f", coords: mcToPx(-960, 2033) }, { name: "44번", type: "황", color: "#f1c40f", coords: mcToPx(-2468, 4433) },
+        { name: "45번", type: "적", color: "#e74c3c", coords: mcToPx(-5443, 4139) }, { name: "46번", type: "적", color: "#e74c3c", coords: mcToPx(4024, 3356) },
+        { name: "47번", type: "황", color: "#f1c40f", coords: mcToPx(658, 3900) }, { name: "48번", type: "녹", color: "#2ecc71", coords: mcToPx(-2121, -3837) },
+        { name: "49번", type: "청", color: "#3498db", coords: mcToPx(4886, 954) }, { name: "50번", type: "청", color: "#3498db", coords: mcToPx(4942, -1189) },
+        { name: "51번", type: "황", color: "#f1c40f", coords: mcToPx(677, 1433) }, { name: "52번", type: "녹", color: "#2ecc71", coords: mcToPx(-762, -6601) },
+        { name: "53번", type: "녹", color: "#2ecc71", coords: mcToPx(2657, -5891) }, { name: "54번", type: "녹", color: "#2ecc71", coords: mcToPx(2036, -3624) },
+        { name: "55번", type: "청", color: "#3498db", coords: mcToPx(-4098, -55) }, { name: "56번", type: "녹", color: "#2ecc71", coords: mcToPx(-2006, 127) },
+        { name: "57번", type: "녹", color: "#2ecc71", coords: mcToPx(-2264, -1571) }, { name: "58번", type: "녹", color: "#2ecc71", coords: mcToPx(3885, -1415) },
+        { name: "59번", type: "청", color: "#3498db", coords: mcToPx(-5054, -2598) }, { name: "60번", type: "적", color: "#e74c3c", coords: mcToPx(3323, 3939) },
+        { name: "61번", type: "적", color: "#e74c3c", coords: mcToPx(5258, 5723) }, { name: "62번", type: "녹", color: "#2ecc71", coords: mcToPx(1014, -2648) },
+        { name: "63번", type: "황", color: "#f1c40f", coords: mcToPx(2705, 2461) }, { name: "64번", type: "황", color: "#f1c40f", coords: mcToPx(-4029, 2321) },
+        { name: "65번", type: "황", color: "#f1c40f", coords: mcToPx(-790, 4284) }
+      ];
+
+      var poiLayers = { '스폰': L.layerGroup(), '녹 지점': L.layerGroup(), '청 지점': L.layerGroup(), '황 지점': L.layerGroup(), '적 지점': L.layerGroup() };
+
+      poiData.forEach(function(poi) {
+        var groupKey = poi.type === '스폰' ? '스폰' : poi.type + ' 지점';
+        var icon = createHtmlIcon(poi.color, poi.name);
+        L.marker(poi.coords, {icon: icon}).addTo(poiLayers[groupKey])
+          .bindPopup(`<div class="poi-title">${poi.name} (${poi.type})</div>`);
+      });
+
+      for (var key in poiLayers) { poiLayers[key].addTo(map); }
+      L.control.layers(null, poiLayers, {collapsed: false}).addTo(map);
+      L.control.mousePosition({position: 'bottomleft', separator: ', ', prefix: '좌표: '}).addTo(map);
+    </script>
+  </body>
+</html>
