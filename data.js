@@ -6,9 +6,21 @@ const mcToPx = (mcX, mcZ) => {
     return [-(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), mcSpawnPxX + (mcX - mcSpawnCoordX) * scale]; 
 };
 
-/** 2. 산(비석) 데이터 **/
-const mountainData = [{ name: "천보산", x: -2030, z: -4142 }, { name: "망운산", x: -2662, z: -1556 }, { name: "신운산", x: -2984, z: 72 }, { name: "봉래산", x: -5278, z: -2042 }, { name: "사성산", x: 4356, z: 3515 }, { name: "용문산", x: 5378, z: 3731 }, { name: "도덕산", x: 6498, z: 67 }, { name: "삼악산", x: 5917, z: 2453 }, 
-// 추가된 동상 데이터  { name: "???", file: "statue3.png", x: 1513, z: 3593, type: "statue" }, { name: "???", file: "statue1.png", x: 2903, z: 714, type: "statue" }, { name: "???", file: "statue2.png", x: -334, z: -5519, type: "statue" }];
+/** 2. 산(비석) 데이터 (동상 포함) **/
+var mountainData = [
+    { name: "천보산", x: -2030, z: -4142 }, 
+    { name: "망운산", x: -2662, z: -1556 }, 
+    { name: "신운산", x: -2984, z: 72 }, 
+    { name: "봉래산", x: -5278, z: -2042 }, 
+    { name: "사성산", x: 4356, z: 3515 }, 
+    { name: "용문산", x: 5378, z: 3731 }, 
+    { name: "도덕산", x: 6498, z: 67 }, 
+    { name: "삼악산", x: 5917, z: 2453 },
+    // 동상 데이터 추가
+    { name: "???", file: "statue3.png", x: 1513, z: 3593, type: "statue" },
+    { name: "???", file: "statue1.png", x: 2903, z: 714, type: "statue" },
+    { name: "???", file: "statue2.png", x: -334, z: -5519, type: "statue" }
+];
 
 /** 3. 광산 및 포인트 데이터 **/
 const poiData = [ 
