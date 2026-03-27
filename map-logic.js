@@ -1,13 +1,14 @@
 /** 1. 설정 및 기본 변수 **/
 var imgW = 7300, imgH = 6494;
 var imageBounds = [[-imgH, 0], [0, imgW]];
-/** 지도 초기 설정 **/
+
+/** 1. 지도 설정 **/
 var map = new L.Map('map', { 
     maxZoom: 12, 
     minZoom: -2, 
     crs: L.CRS.Simple, 
     noWrap: true, 
-    zoomSnap: 0.1,
+    zoomSnap: 0.1, // <--- 이 끝에 쉼표(,)가 있는지 꼭 확인하세요!
     maxBounds: imageBounds 
 });
 
