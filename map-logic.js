@@ -21,13 +21,13 @@ map.setView([-imgH/2, imgW/2], -1);
 L.imageOverlay('map.jpg', imageBounds).addTo(map);
 
 // 실제 이미지 크기에 딱 맞게 화면을 재조정합니다.
-map.fitBounds(imageBounds, { padding: [100, 100] });
+map.fitBounds(imageBounds, { padding: [200, 200] });
 
 var initialZoom = map.getZoom();
-map.setZoom(initialZoom - 5); // 0.7만큼 더 멀리서 시작합니다.
+map.setZoom(initialZoom - 10); // 0.7만큼 더 멀리서 시작합니다.
 
 // 3. 최소 줌 고정 (사용자가 더 축소하고 싶을 수도 있으니 여유를 둡니다)
-map.setMinZoom(map.getZoom() - 5);
+map.setMinZoom(map.getZoom() - 10);
 
 /** 2. 아이콘 생성 함수 **/
 function createHtmlIcon(color) {
