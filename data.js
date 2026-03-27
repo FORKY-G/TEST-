@@ -19,7 +19,7 @@ var mountainData = [
     // 동상 데이터 추가
 { name: "UNKNOWN", file: "statue3.png", x: 1513, z: 3593, type: "statue" },
     { name: "UNKNOWN", file: "statue1.png", x: 2903, z: 714, type: "statue" },
-    { name: "UNKNOWN", file: "statue2.png", x: -334, z: -5519, type: "statue" }
+    { name: "UNKNOWN", file: "statue2.png", coords: [-849, 1279], x: -334, z: -5519, type: "statue" }
 ];
 
 /** 3. 광산 및 포인트 데이터 **/
