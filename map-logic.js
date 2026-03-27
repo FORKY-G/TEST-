@@ -69,3 +69,30 @@ huntingInfo.forEach(info => {
 
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
+
+/** 메뉴 UI 구성 (순서 및 라벨 설정) **/
+var menuOrder = {
+    "스폰": poiLayers['스폰'], 
+    "십이간지": poiLayers['십이간지'],
+    "<span class='divider-line'></span>": L.layerGroup(),
+    "⛰️ 산(비석)": mountainLayers,
+    "<span class='divider-line'></span> ": L.layerGroup(),
+    "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
+    "<span style='color: #2ecc71;'>녹색광산</span>": poiLayers['녹색광산'],
+    "<span style='color: #3498db;'>청색광산</span>": poiLayers['청색광산'],
+    "<span style='color: #f1c40f;'>황색광산</span>": poiLayers['황색광산'],
+    "<span style='color: #e74c3c;'>적색광산</span>": poiLayers['적색광산'],
+    "<span class='divider-line'></span>  ": L.layerGroup(),
+    "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
+};
+
+// 약초 목록 자동 추가 로직
+Object.keys(herbLayers).sort().forEach(name => {
+    var herb = herbData.find(h => h.name === name);
+    var isRare = ["월계엽", "철목영지", "금향과", "빙백설화"].includes(name);
+    var rareHtml = isRare ? ` <span style="color:#e74c3c; font-size:10px;">(희귀)</span>` : "";
+    
+    // 클릭 시 해당 위치로 이동하고 정보창을 띄우는 라벨 생성
+    var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
+    menuOrder[htmlLabel] = herbLayers[name];
+});
