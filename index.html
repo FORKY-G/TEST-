@@ -1,168 +1,74 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <title>한월환해도(0328 업데이트)</title>
     <meta charset="utf-8">
-    <title>한월환해도 (0328 업데이트)</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
     <link rel="stylesheet" href="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.js"></script>
     <style>
-        /* 1. 기본 레이아웃 및 지도 설정 */
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
         #map { width: 100vw; height: 100vh; background: #f0f0f0; }
-
-        /* 2. 마인크래프트 스타일 UI */
-        .leaflet-popup-content-wrapper {
-            background: #C6C6C6 !important;
-            border: 3px solid #000000 !important;
-            box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff !important;
-            border-radius: 0px !important;
-        }
+        .leaflet-popup-content-wrapper { background: #C6C6C6 !important; border: 3px solid #000000 !important; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff !important; border-radius: 0px !important; }
         .leaflet-popup-tip-container { display: none; } 
         .leaflet-popup-content { margin: 12px 15px !important; color: #3F3F3F !important; font-weight: bold; text-shadow: 1px 1px 0px #ffffff; }
-
-        .custom-tooltip {
-            background: #C6C6C6 !important;
-            border: 3px solid #000000 !important;
-            box-shadow: inset -3px -3px 0px #555555, inset 3px 3px 0px #ffffff !important;
-            border-radius: 0px !important;
-            color: #3F3F3F !important; font-weight: bold !important; text-shadow: 1px 1px 0px #ffffff;
-            padding: 5px 10px !important; opacity: 1 !important;
-        }
+        .custom-tooltip { background: #C6C6C6 !important; border: 3px solid #000000 !important; box-shadow: inset -3px -3px 0px #555555, inset 3px 3px 0px #ffffff !important; border-radius: 0px !important; color: #3F3F3F !important; font-weight: bold !important; text-shadow: 1px 1px 0px #ffffff; padding: 5px 10px !important; opacity: 1 !important; }
         .custom-tooltip:before { display: none !important; }
-
-        /* 레이어 컨트롤 커스텀 */
-        .leaflet-control-layers {
-            width: 180px; background: #C6C6C6 !important; border: 3px solid #000 !important;
-            box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff !important;
-            border-radius: 0px !important; padding: 10px;
-        }
+        .leaflet-control-layers { width: 180px; background: #C6C6C6 !important; border: 3px solid #00 !important; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff !important; border-radius: 0px !important; padding: 10px; }
         .leaflet-control-layers-overlays { font-size: 14px; font-weight: bold; max-height: 400px; overflow-y: auto; }
-        .leaflet-control-layers-overlays::-webkit-scrollbar { width: 12px; }
-        .leaflet-control-layers-overlays::-webkit-scrollbar-track { background: #313131; border: 2px solid #000; }
-        .leaflet-control-layers-overlays::-webkit-scrollbar-thumb { background: #8B8B8B; border: 2px solid #ffffff; box-shadow: inset -3px -3px 0px #404040; }
-
-        /* 정보 패널 */
-        .info-panel {
-            position: absolute; top: 100px; left: 20px; z-index: 3000;
-            background: #C6C6C6 !important; padding: 15px; border: 3px solid #000 !important;
-            box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff !important;
-            min-width: 250px; display: none;
-        }
-        .info-panel button {
-            margin-top: 15px; cursor: pointer; width: 100%; padding: 8px;
-            background: #C6C6C6; border: 2px solid #000;
-            box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff;
-            color: #3F3F3F; font-weight: bold;
-        }
-
-        /* 메뉴 라벨 및 검색 UI */
+        .info-panel { position: absolute; top: 100px; left: 20px; z-index: 3000; background: #C6C6C6 !important; padding: 15px; border: 3px solid #000 !important; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff !important; min-width: 250px; display: none; }
+        .info-panel button { margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold; }
         .hunt-group-label { color: #e74c3c; border-bottom: 2px solid #e74c3c; display: block; margin-top: 10px; margin-bottom: 5px; }
         .herb-group-label { color: #8e44ad; border-bottom: 2px solid #8e44ad; display: block; margin-top: 10px; margin-bottom: 5px; }
         .mine-group-label { color: #27ae60; border-bottom: 2px solid #27ae60; display: block; margin-top: 10px; margin-bottom: 5px; }
         .divider-line { border-bottom: 1px solid #ccc; display: block; margin: 5px 0; }
-        
         .hunt-name-clickable { cursor: pointer; }
         .hunt-name-clickable:hover { text-decoration: underline; }
-
-        /* 검색 컨테이너 스타일 */
-        #search-container {
-            position: absolute; top: 20px; left: 20px; z-index: 3000;
-            display: flex; gap: 5px;
-        }
         #search-container input { background: #000; color: #fff; border: 2px solid #fff; padding: 10px 15px; font-size: 16px; outline: none; }
         #search-container button { background: #C6C6C6; color: #3F3F3F; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; font-weight: bold; padding: 10px 20px; cursor: pointer; }
-
-        /* 마커 아이콘 스타일 */
         .mine-clickable-area { display: flex; justify-content: center; align-items: center; }
         .mine-dot { width: 14px; height: 14px; border: 1px solid #000; box-shadow: inset -1px -1px 0px #555, inset 1px 1px 0px #fff; }
         .stele-body { width: 20px; height: 28px; background: #8B8B8B; border: 2px solid #000; box-shadow: inset -3px -3px 0px #555555, inset 3px 3px 0px #ffffff; }
-
-        /* 약초 들여쓰기 */
         .leaflet-control-layers-overlays label:has(.herb-name-clickable) { padding-left: 25px !important; display: block; margin-bottom: 2px; }
-        
-        /* 모바일 최적화 */
-        @media (max-width: 767px) {
-            .leaflet-control-layers-expanded { max-height: 60vh !important; overflow-y: auto; width: 180px !important; font-size: 12px; }
-            #hunting-info-panel { width: 80% !important; right: 10px !important; top: 10px !important; max-height: 50vh; overflow-y: auto; }
-        }
+        .leaflet-control-layers-overlays label:has(.herb-name-clickable) input, .leaflet-control-layers-overlays label:has(.herb-group-label) input, .leaflet-control-layers-overlays label:has(.hunt-group-label) input, .leaflet-control-layers-overlays label:has(.mine-group-label) input, .leaflet-control-layers-overlays label:has(.divider-line) input { display: none !important; }
+        @media (max-width: 767px) { .leaflet-control-layers-expanded { max-height: 60vh !important; overflow-y: auto; width: 180px !important; font-size: 12px; } #hunting-info-panel { width: 80% !important; right: 10px !important; top: 10px !important; max-height: 50vh; overflow-y: auto; } }
     </style>
 </head>
 <body>
-
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="광산 또는 약초 검색..." onkeyup="if(event.keyCode==13) executeSearch()">
+    <div id="search-container" style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; gap: 5px;">
+        <input type="text" id="search-input" placeholder="사냥터, 광산, 약초 검색..." onkeypress="if(event.keyCode==13) executeSearch();">
         <button onclick="executeSearch()">검색</button>
     </div>
-
-    <div id="hunting-info-panel" class="info-panel">
-        <h4 id="panel-name" style="margin: 0;"></h4>
-        <div id="panel-lv"></div>
-        <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
-    </div>
-
     <div id="map"></div>
-
     <div id="hunting-info-panel" class="info-panel">
         <h4 id="panel-name" style="margin: 0;"></h4>
         <div id="panel-lv"></div>
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
     </div>
-
     <div id="hunting-list-container" style="position: absolute; top: 440px; right: 10px; z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 10px; width: 180px;">
         <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
             ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
         </div>
         <div id="hunting-content" style="display: none; margin-top: 10px;">
-            <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">
-                모든 사냥터 해제
-            </button>
+            <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">모든 사냥터 해제</button>
             <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto;"></ul>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-    <script src="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.js"></script>
-
     <script src="data.js"></script>
     <script src="map-logic.js"></script>
     <script src="ui-control.js"></script>
-    
-   <script>
-        window.onload = function() {
-            if (typeof map !== 'undefined') {
-                // 1. 기본 레이어 활성화
-                poiLayers['스폰'].addTo(map);
-                poiLayers['십이간지'].addTo(map);
-                mountainLayers.addTo(map);
-                
-                // 2. 사냥터 목록 생성 (좌측 하단 패널용)
-                if (typeof generateHuntingList === 'function') {
-                    generateHuntingList();
-                }
-
-                // 3. 좌표 표시 컨트롤
-                L.control.mousePosition({ 
-                    position: 'bottomleft', 
-                    separator: ', ', 
-                    prefix: '좌표: ' 
-                }).addTo(map);
-
-                // 4. 메뉴 컨트롤 추가 (핵심 수정 부분)
-                // 모바일 여부 확인
-                var isMobile = window.innerWidth < 768;
-                
-                // map-logic.js에서 구성한 menuOrder를 사용하여 레이어 컨트롤 생성
-                L.control.layers(null, menuOrder, { 
-                    collapsed: isMobile 
-                }).addTo(map);
-
-                // 지도 크기 보정
-                setTimeout(() => { map.invalidateSize(); }, 200);
-            }
-        };
+    <script>
+        poiLayers['스폰'].addTo(map);
+        poiLayers['십이간지'].addTo(map);
+        mountainLayers.addTo(map);
+        generateHuntingList();
+        var isMobile = window.innerWidth < 768;
+        L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
+        L.control.mousePosition({ position: 'bottomleft', separator: ', ', prefix: '좌표: ' }).addTo(map);
+        window.addEventListener('resize', () => map.invalidateSize());
     </script>
 </body>
 </html>
