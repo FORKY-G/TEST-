@@ -11,33 +11,38 @@
     
     <script src="ui-control.js"></script>
     
-    <script>
-        // 초기 레이어 설정
-        poiLayers['스폰'].addTo(map);
-        poiLayers['십이간지'].addTo(map);
-        mountainLayers.addTo(map);
-        
-        // 목록 생성 및 기타 설정
-        generateHuntingList();
-        
-        L.control.mousePosition({ 
-            position: 'bottomleft', 
-            separator: ', ', 
-            prefix: '좌표: ' 
-        }).addTo(map);
+<script>
+        // 모든 파일이 로드되었는지 확인 후 실행
+        window.onload = function() {
+            if (typeof map !== 'undefined') {
+                poiLayers['스폰'].addTo(map);
+                poiLayers['십이간지'].addTo(map);
+                mountainLayers.addTo(map);
+                
+                if (typeof generateHuntingList === 'function') {
+                    generateHuntingList();
+                }
 
-        // 레이어 컨트롤 추가
-        L.control.layers(null, {
-            "비석(산)": mountainLayers,
-            "스폰": poiLayers['스폰'],
-            "십이간지": poiLayers['십이간지'],
-            "녹색광산": poiLayers['녹색광산'],
-            "청색광산": poiLayers['청색광산'],
-            "황색광산": poiLayers['황색광산'],
-            "적색광산": poiLayers['적색광산']
-        }, { collapsed: false }).addTo(map);
+                L.control.mousePosition({ 
+                    position: 'bottomleft', 
+                    separator: ', ', 
+                    prefix: '좌표: ' 
+                }).addTo(map);
 
-        window.addEventListener('resize', () => map.invalidateSize());
+                // 레이어 컨트롤
+                L.control.layers(null, {
+                    "비석(산)": mountainLayers,
+                    "스폰": poiLayers['스폰'],
+                    "십이간지": poiLayers['십이간지'],
+                    "녹색광산": poiLayers['녹색광산'],
+                    "청색광산": poiLayers['청색광산'],
+                    "황색광산": poiLayers['황색광산'],
+                    "적색광산": poiLayers['적색광산']
+                }, { collapsed: false }).addTo(map);
+
+                map.invalidateSize();
+            }
+        };
     </script>
 </body>
 </html>
