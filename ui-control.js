@@ -130,3 +130,30 @@ window.toggleHuntingList = function() {
     if (content.style.display === "none") { content.style.display = "block"; icon.innerText = "▲"; } 
     else { content.style.display = "none"; icon.innerText = "▼"; }
 };
+
+/** 8. 광산 상세 정보창 표시 **/
+window.showMineInfo = function(poi) {
+    var panel = document.getElementById('hunting-info-panel');
+    var detail = mineDetailInfo[poi.type];
+    var common = mineDetailInfo["공통"];
+
+    if (!detail) return;
+
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="border-bottom:3px solid ${poi.color}; padding-bottom:8px; margin-bottom:12px;">
+            <b style="font-size:20px; color:#3F3F3F;">${detail.title} <span style="font-size:16px;">(${poi.name}번)</span></b>
+            <div style="font-size:12px; color:#666; margin-top:2px;">좌표: X ${poi.mcX} / Z ${poi.mcZ}</div>
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <div style="color:#e74c3c; font-weight:bold; font-size:15px; margin-bottom:5px;">${detail.unique}</div>
+            <div style="color:#8e44ad; font-size:12px; font-weight:normal;">${common}</div>
+        </div>
+
+        <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                style="width:100%; cursor:pointer; background:#C6C6C6; border:2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; font-weight:bold; padding:8px;">
+            닫기
+        </button>
+    `;
+};
