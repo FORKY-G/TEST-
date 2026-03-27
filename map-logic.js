@@ -33,9 +33,20 @@ mountainData.forEach(m => {
 // 광산 및 스폰
 poiData.forEach(poi => {
     var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
+    
     if(key) {
-        L.marker(poi.coords, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key])
-         .bindPopup(`<b>${poi.name === "스폰" ? "스폰 지점" : poi.name + " 광산"}</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
+        var marker = L.marker(poi.coords, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
+        
+        if (poi.type === '스폰') {
+            marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
+        } else {
+            // 광산 클릭 시 상세 정보창 함수 호출
+            marker.on('click', function() {
+                showMineInfo(poi);
+            });
+            // 마우스 올렸을 때 번호만 살짝 보이게 툴팁 추가 (선택 사항)
+            marker.bindTooltip(`${poi.name}번 광산`, { direction: 'top', offset: [0, -10] });
+        }
     }
 });
 
