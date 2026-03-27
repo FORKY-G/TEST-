@@ -5,7 +5,7 @@ var imageBounds = [[-imgH, 0], [0, imgW]];
 /** 1. 지도 설정 **/
 var map = new L.Map('map', { 
     maxZoom: 12, 
-    minZoom: -2, 
+    minZoom: -3, 
     crs: L.CRS.Simple, 
     noWrap: true, 
     zoomSnap: 0.1, // <--- 이 끝에 쉼표(,)가 있는지 꼭 확인하세요!
