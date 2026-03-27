@@ -1,29 +1,73 @@
-// [map-logic.js]
-
-/** 1. 지도 및 레이어 초기화 **/
+/** 1. 설정 및 기본 변수 **/
 var imgW = 7300, imgH = 6494;
 var imageBounds = [[-imgH, 0], [0, imgW]];
-var map = new L.Map('map', { maxZoom: 12, minZoom: -5, crs: L.CRS.Simple, noWrap: true, zoomSnap: 0.25 });
+var map = new L.Map('map', { 
+    maxZoom: 12, minZoom: -5, crs: L.CRS.Simple, noWrap: true, zoomSnap: 0.25 
+});
+
 L.imageOverlay('map.jpg', imageBounds).addTo(map);
 map.fitBounds(imageBounds);
 
-/** 2. 아이콘 생성 함수들 (기존과 동일) **/
-function createHtmlIcon(color) { return L.divIcon({ className: 'mine-clickable-area', html: `<div class="mine-dot" style="background:${color};"></div>`, iconSize: [30, 30], iconAnchor: [15, 15] }); }
-function createSteleIcon() { return L.divIcon({ className: 'stele-icon-container', html: `<div class="stele-body"></div>`, iconSize: [24, 34], iconAnchor: [12, 34] }); }
+/** 2. 아이콘 생성 함수 **/
+function createHtmlIcon(color) {
+    return L.divIcon({ className: 'mine-clickable-area', html: `<div class="mine-dot" style="background:${color};"></div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
+}
+function createSteleIcon() {
+    return L.divIcon({ className: 'stele-icon-container', html: `<div class="stele-body"></div>`, iconSize: [24, 34], iconAnchor: [12, 34] });
+}
 
-/** 3. 레이어 그룹 준비 **/
+/** 3. 레이어 그룹 설정 **/
 var poiLayers = { '스폰': L.layerGroup(), '십이간지': L.layerGroup(), '녹색광산': L.layerGroup(), '청색광산': L.layerGroup(), '황색광산': L.layerGroup(), '적색광산': L.layerGroup() };
 var herbLayers = {};
 var huntingLayers = {};
 var mountainLayers = L.layerGroup();
 
-/** 4. 데이터 기반 마커 생성 (생략 - 기존 로직 그대로 사용) **/
-// ... mountainData.forEach, poiData.forEach, herbData.forEach 등 ...
+/** 4. 레이어 초기화 로직 (마커 생성 등) **/
 
-/** 5. 메뉴 UI 구성 (질문하신 누락된 코드 부분) **/
+// 산(비석)
+mountainData.forEach(m => {
+    L.marker(mcToPx(m.x, m.z), { icon: createSteleIcon() }).addTo(mountainLayers)
+     .bindTooltip(`<b style="font-size:16px;">${m.name}</b><br>X: ${m.x}, Z: ${m.z}`, { direction: 'top', className: 'custom-tooltip' });
+});
+
+// 광산 및 스폰
+poiData.forEach(poi => {
+    var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
+    if(key) {
+        L.marker(poi.coords, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key])
+         .bindPopup(`<b>${poi.name === "스폰" ? "스폰 지점" : poi.name + " 광산"}</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
+    }
+});
+
+// 약초
+herbData.forEach(herb => {
+    var hCol = herbColors[herb.name] || '#8e44ad';
+    var imgOverlay = L.imageOverlay(herb.file, imageBounds, { opacity: 0.6, interactive: false });
+    var dotMarker = L.circleMarker(herb.coords, { radius: 3, color: "#000", weight: 1, fillColor: hCol, fillOpacity: 1 });
+    dotMarker.bindPopup(`<b style="color:${hCol}; font-size:14px;">${herb.name}</b><br><span style="color:#555; font-size:12px;">[ ${herb.mcX}, ${herb.mcZ} ]</span>`);
+    if (!herbLayers[herb.name]) herbLayers[herb.name] = L.layerGroup();
+    herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
+});
+
+// 십이간지
+zodiacData.forEach(z => {
+    L.marker(mcToPx(z.x, z.z), { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지'])
+     .bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
+});
+
+// 사냥터
+huntingInfo.forEach(info => {
+    var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+    var clickMarker = L.circleMarker(info.center, { radius: 35, color: '#e74c3c', weight: 1, fillOpacity: 0.1 });
+    imgOverlay.on('add', function() { showHuntingInfo(info); });
+    clickMarker.on('click', function() { showHuntingInfo(info); });
+    imgOverlay.on('remove', function() { document.getElementById('hunting-info-panel').style.display = 'none'; });
+    huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+});
+
+/** 5. 메뉴 UI 구성 **/
 var menuOrder = {
-    "스폰": poiLayers['스폰'], 
-    "십이간지": poiLayers['십이간지'],
+    "스폰": poiLayers['스폰'], "십이간지": poiLayers['십이간지'],
     "<span class='divider-line'></span>": L.layerGroup(),
     "⛰️ 산(비석)": mountainLayers,
     "<span class='divider-line'></span> ": L.layerGroup(),
@@ -36,7 +80,7 @@ var menuOrder = {
     "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
 };
 
-// 약초 목록 자동 추가
+// 약초 목록 추가
 Object.keys(herbLayers).sort().forEach(name => {
     var herb = herbData.find(h => h.name === name);
     var isRare = ["월계엽", "철목영지", "금향과", "빙백설화"].includes(name);
