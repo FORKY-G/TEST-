@@ -25,7 +25,7 @@ map.fitBounds(imageBounds, { padding: [50, 50] });
 
 // [핵심] 계산된 줌 레벨보다 한 단계 더 낮게(작게) 최소 줌을 고정합니다.
 var idealZoom = map.getBoundsZoom(imageBounds, false); 
-map.setMinZoom(idealZoom - 0.5); // 0.5 정도 더 축소 가능하게 설정
+map.setMinZoom(idealZoom - 2.5); // 0.5 정도 더 축소 가능하게 설정
 map.setZoom(idealZoom); // 초기 상태는 화면에 맞춤
 
 /** 2. 아이콘 생성 함수 **/
