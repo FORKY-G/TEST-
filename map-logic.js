@@ -1,27 +1,29 @@
 /** 1. 설정 및 기본 변수 **/
 var imgW = 7300, imgH = 6494;
 var imageBounds = [[-imgH, 0], [0, imgW]];
-
-// 지도가 이미지 밖으로 살짝 더 나갈 수 있게 여유(Pad)를 줍니다.
-// 0.1은 10%, 0.2는 20% 정도의 여백입니다.
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.1); 
 
+// 지도를 생성합니다.
 var map = new L.Map('map', { 
     maxZoom: 12, 
     minZoom: -2, 
     crs: L.CRS.Simple, 
     noWrap: true, 
     zoomSnap: 0.1,
-    maxBounds: paddedBounds, // paddedBounds가 위에서 잘 정의되었는지 확인
+    maxBounds: paddedBounds,
     maxBoundsViscosity: 0.5
 });
 
+// [중요] 지도가 사라지지 않게 임시 중심점을 먼저 설정합니다.
+map.setView([-imgH/2, imgW/2], -1); 
+
+// 이미지 레이어를 올립니다.
 L.imageOverlay('map.jpg', imageBounds).addTo(map);
 
-// 처음 화면에 맞출 때는 원본 이미지 크기에 맞춥니다.
+// 실제 이미지 크기에 딱 맞게 화면을 재조정합니다.
 map.fitBounds(imageBounds);
 
-// 최소 줌 고정 (이전과 동일)
+// 조정한 후의 줌 레벨을 최소 줌으로 고정합니다.
 map.setMinZoom(map.getBoundsZoom(imageBounds));
 
 /** 2. 아이콘 생성 함수 **/
