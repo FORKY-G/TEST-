@@ -6,7 +6,7 @@ var paddedBounds = L.latLngBounds(imageBounds).pad(0.1);
 // 지도를 생성합니다.
 var map = new L.Map('map', { 
     maxZoom: 12, 
-    minZoom: -3, 
+    minZoom: -5, 
     crs: L.CRS.Simple, 
     noWrap: true, 
     zoomSnap: 0.1,
@@ -21,11 +21,11 @@ map.setView([-imgH/2, imgW/2], -1);
 L.imageOverlay('map.jpg', imageBounds).addTo(map);
 
 // 실제 이미지 크기에 딱 맞게 화면을 재조정합니다.
-map.fitBounds(imageBounds, { padding: [50, 50] });
+map.fitBounds(imageBounds, { padding: [100, 100] });
 
 // [핵심] 계산된 줌 레벨보다 한 단계 더 낮게(작게) 최소 줌을 고정합니다.
 var idealZoom = map.getBoundsZoom(imageBounds, false); 
-map.setMinZoom(idealZoom - 2.5); // 0.5 정도 더 축소 가능하게 설정
+map.setMinZoom(idealZoom - 5); // 0.5 정도 더 축소 가능하게 설정
 map.setZoom(idealZoom); // 초기 상태는 화면에 맞춤
 
 /** 2. 아이콘 생성 함수 **/
