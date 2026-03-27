@@ -157,6 +157,25 @@
     }
 }
 
+/* 비석 아이콘 스타일 */
+.stele-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.stele-body {
+    width: 20px;
+    height: 28px;
+    background: #8B8B8B;
+    border: 2px solid #000;
+    box-shadow: inset -3px -3px 0px #555555, inset 3px 3px 0px #ffffff;
+    position: relative;
+}
+
+
+
     </style>
 </head>
 
@@ -233,6 +252,30 @@
             });
         }
 
+// 산 데이터 정의
+var mountainData = [
+    { name: "천보산", x: -2030, z: -4142 },
+    { name: "망운산", x: -2662, z: -1556 },
+    { name: "신운산", x: -2984, z: 72 },
+    { name: "봉래산", x: -5278, z: -2042 },
+    { name: "사성산", x: 4356, z: 3515 },
+    { name: "용문산", x: 5378, z: 3731 },
+    { name: "도덕산", x: 6498, z: 67 },
+    { name: "삼악산", x: 5917, z: 2453 }
+];
+
+// 비석 모양 아이콘 함수
+function createSteleIcon() {
+    return L.divIcon({
+        className: 'stele-icon-container',
+        html: `<div class="stele-body"></div>`,
+        iconSize: [24, 34],
+        iconAnchor: [12, 34] // 하단 중앙 기준
+    });
+}
+
+
+
         var herbColors = { "빙백설화": "#3498db", "철목영지": "#e67e22", "월계엽": "#2ecc71", "금향과": "#f1c40f", "녹태": "#16a085", "황초": "#f39c12", "적주과": "#e74c3c", "옥취엽": "#d35400", "옥향초": "#8e44ad", "인삼": "#c0392b", "자운초": "#9b59b6", "생강": "#7f8c8d", "민들레": "#e67e22", "영군버섯": "#2980b9", "금양광초": "#f1c40f", "권엽": "#27ae60", "흑성과": "#2c3e50", "백향초": "#ecf0f1" };
         
         var poiData = [ 
@@ -300,12 +343,12 @@ var herbData = [
 
         var zodiacData = [ { name: "소", x: -616, z: 3889 }, { name: "닭", x: 5075, z: -344 }, { name: "토끼", x: 4590, z: -3397 }, { name: "뱀", x: 2685, z: -4051 }, { name: "돼지", x: -3657, z: 1112 }, { name: "개", x: -4455, z: -2376 }, { name: "말", x: -2365, z: 3968 }, { name: "원숭이", x: 3280, z: 2952 }, { name: "양", x: 5093, z: 2092 }, { name: "호랑이", x: -5500, z: -1600 }, { name: "용", x: -891, z: -536 }, { name: "쥐", x: -2900, z: -4600 } ];
 
-   var huntingInfo = [
+        var huntingInfo = [
             { name: "경작지", lv: "0~5", monsters: "참새(Lv.0), 허수아비(Lv.5)", file: "map2.png", center: mcToPx(-954, -666) },
             { name: "화수원", lv: "10~20", monsters: "다람쥐(Lv.10), 흙토끼(Lv.15), 백토끼(Lv.20)", file: "map3.png", center: mcToPx(-586, 446) },
-            { name: "괴암곡", lv: "25~35", monsters: "하급쥐(Lv.25), 중급쥐(Lv.30), 상급쥐(Lv.35)<br><span style='color: #e74c3c;'>*정예쥐 출현</span>", file: "map4.png", center: mcToPx(1320, -1598) },
-            { name: "멸문", lv: "40~50", monsters: "뱀(Lv.40), 청사(Lv.45), 적사(Lv.50)<br><span style='color: #e74c3c;'>*구렁이 출현</span>", file: "map5.png", center: mcToPx(3862, -2644) },
-            { name: "신선원", lv: "55~65", monsters: "새싹삼(Lv.55), 진삼(Lv.60), 대장삼(Lv.65)<br><span style='color: #e74c3c;'>*거대삼 출현</span>", file: "map6.png", center: mcToPx(-3628, -3094) },
+            { name: "괴암곡", lv: "25~35", monsters: "하급쥐(Lv.25), 중급쥐(Lv.30), 상급쥐(Lv.35)", file: "map4.png", center: mcToPx(1320, -1598) },
+            { name: "멸문", lv: "40~50", monsters: "뱀(Lv.40), 청사(Lv.45), 적사(Lv.50)", file: "map5.png", center: mcToPx(3862, -2644) },
+            { name: "신선원", lv: "55~65", monsters: "새싹삼(Lv.55), 진삼(Lv.60), 대장삼(Lv.65)", file: "map6.png", center: mcToPx(-3628, -3094) },
             { name: "천웅성", lv: "70~80", monsters: "비웅(Lv.70), 겸웅(Lv.75), 꼬마유령(Lv.80)", file: "map7.png", center: mcToPx(5700, 5198) },
             { name: "매화곡", lv: "85~90", monsters: "천도원숭이(Lv.85), 황도원숭이(Lv.90)", file: "map8.png", center: mcToPx(4256, 392) },
             { name: "이매궁", lv: "100~110", monsters: "도깨비(Lv.100), 청깨비(Lv.105), 진깨비(Lv.110)", file: "map9.png", center: mcToPx(1634, 336) },
@@ -319,6 +362,20 @@ var herbData = [
 
         var poiLayers = { '스폰': L.layerGroup(), '십이간지': L.layerGroup(), '녹색광산': L.layerGroup(), '청색광산': L.layerGroup(), '황색광산': L.layerGroup(), '적색광산': L.layerGroup() };
         var herbLayers = {}, huntingLayers = {}, allHerbsGroup = L.layerGroup();
+var mountainLayers = L.layerGroup();
+
+mountainData.forEach(function(m) {
+    var coords = mcToPx(m.x, m.z);
+    L.marker(coords, { icon: createSteleIcon() })
+     .addTo(mountainLayers)
+     .bindTooltip(`<div style="text-align:center;"><b style="font-size:16px;">${m.name}</b><br>X: ${m.x}, Z: ${m.z}</div>`, { 
+         direction: 'top', 
+         className: 'custom-tooltip' 
+     });
+});
+
+// 기본으로 지도에 표시하고 싶다면 아래 줄 추가
+mountainLayers.addTo(map);
 
         function showHuntingInfo(info) {
             document.getElementById('panel-name').innerHTML = `<span style="font-size: 24px;"><b>${info.name}</b></span> <span style="font-size: 16px; color: #666;">(${info.lv})</span>`;
@@ -396,8 +453,9 @@ var menuOrder = {
     "<span style='color: #3498db; font-weight: bold;'>청색광산</span>": poiLayers['청색광산'], 
     "<span style='color: #f1c40f; font-weight: bold;'>황색광산</span>": poiLayers['황색광산'], 
     "<span style='color: #e74c3c; font-weight: bold;'>적색광산</span>": poiLayers['적색광산'],
-    
     "<span class='divider-line'></span> ": L.layerGroup(),
+"⛰️ 산(비석)": mountainLayers, // 이 줄을 적절한 위치에 추가
+    "<span class='divider-line'></span>": L.layerGroup(),
     // 카테고리 제목 옆에 초기화 버튼 배치 (flex 설정으로 간격 조절)
     "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px; background:#eee; border:1px solid #999;'>초기화</button></span>": L.layerGroup()
 };
@@ -437,21 +495,14 @@ L.control.layers(null, menuOrder, {
         }
         generateHuntingList();
 
-// 사냥터 클릭 시 이동 및 정보 표시 함수
-window.moveAndShowHunt = function(name) {
-    var info = huntingInfo.find(h => h.name === name);
-    if (info) {
-        // 1. 해당 사냥터 레이어 켜기
-        if (!map.hasLayer(huntingLayers[name])) {
-            map.addLayer(huntingLayers[name]);
-            updateLayerCheckbox(name, true);
-        }
-        // 2. 해당 위치로 이동 (줌 레벨은 현재 설정에 맞춰 -1로 유지)
-        map.setView(info.center, -1);
-        // 3. 정보창 표시
-        showHuntingInfo(info);
-    }
-};
+        window.resetHuntingLayers = function() {
+            Object.keys(huntingLayers).forEach(function(name) {
+                if (map.hasLayer(huntingLayers[name])) map.removeLayer(huntingLayers[name]);
+                updateLayerCheckbox(name, false);
+            });
+            document.getElementById('hunting-info-panel').style.display = 'none';
+        };
+
         window.toggleHuntingList = function() {
             var content = document.getElementById('hunting-content');
             var icon = document.getElementById('toggle-icon');
@@ -459,31 +510,35 @@ window.moveAndShowHunt = function(name) {
             else { content.style.display = "none"; icon.innerText = "▼"; }
         };
 
-// 모든 사냥터 레이어 해제 및 체크박스 초기화
-window.resetHuntingLayers = function() {
-    Object.keys(huntingLayers).forEach(function(name) {
-        // 1. 지도에서 레이어 제거
-        if (map.hasLayer(huntingLayers[name])) {
-            map.removeLayer(huntingLayers[name]);
-        }
-        // 2. 우측 메뉴의 체크박스 체크 해제 (이게 빠져있었을 겁니다)
-        updateLayerCheckbox(name, false);
-    });
-    // 정보창 닫기
-    document.getElementById('hunting-info-panel').style.display = 'none';
+// 사냥터 목록 클릭 시 해당 위치로 이동하고 정보를 표시하는 함수
+window.moveAndShowHunt = function(name) {
+    var info = huntingInfo.find(h => h.name === name);
+    if (!info) return;
+
+    // 1. 해당 사냥터 레이어가 꺼져있다면 켜기
+    if (!map.hasLayer(huntingLayers[name])) {
+        map.addLayer(huntingLayers[name]);
+        // 체크박스 상태 동기화
+        updateLayerCheckbox(name, true);
+    }
+
+    // 2. 해당 사냥터 위치로 지도 이동 (줌 레벨은 적절히 조절 가능)
+    map.setView(info.center, -1);
+
+    // 3. 정보창 표시
+    showHuntingInfo(info);
 };
 
-// 모든 약초 레이어 초기화 및 체크박스 해제
+// 모든 약초 레이어 초기화 함수
 window.resetHerbLayers = function() {
     Object.keys(herbLayers).forEach(function(name) {
         if (map.hasLayer(herbLayers[name])) {
             map.removeLayer(herbLayers[name]);
         }
-        // 약초 목록의 체크박스(혹은 선택 상태)도 함께 초기화
-        updateLayerCheckbox(name, false);
     });
     document.getElementById('hunting-info-panel').style.display = 'none';
 };
+
 // 약초 전용 정보 표시 함수 (이동 제거 + 이름 검정 통일 + 희귀/일반 약초 맞춤형 문구 출력)
 window.moveAndShowHerb = function(name, mcX, mcZ, color, coords) {
     // 1. 해당 약초 레이어가 꺼져있다면 켜기
