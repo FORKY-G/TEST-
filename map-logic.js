@@ -12,8 +12,8 @@ var map = new L.Map('map', {
     crs: L.CRS.Simple, 
     noWrap: true, 
     zoomSnap: 0.1,
-    maxBounds: paddedBounds, // 타이트한 imageBounds 대신 여유 있는 paddedBounds 적용
-    maxBoundsViscosity: 0.5   // 이 값을 0~1 사이로 조절하면 경계에서 튕기는 느낌을 부드럽게 만들 수 있습니다.
+    maxBounds: paddedBounds, // paddedBounds가 위에서 잘 정의되었는지 확인
+    maxBoundsViscosity: 0.5
 });
 
 L.imageOverlay('map.jpg', imageBounds).addTo(map);
