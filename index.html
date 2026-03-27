@@ -437,13 +437,21 @@ L.control.layers(null, menuOrder, {
         }
         generateHuntingList();
 
-        window.resetHuntingLayers = function() {
-            Object.keys(huntingLayers).forEach(function(name) {
-                if (map.hasLayer(huntingLayers[name])) map.removeLayer(huntingLayers[name]);
-                updateLayerCheckbox(name, false);
-            });
-            document.getElementById('hunting-info-panel').style.display = 'none';
-        };
+// 사냥터 클릭 시 이동 및 정보 표시 함수
+window.moveAndShowHunt = function(name) {
+    var info = huntingInfo.find(h => h.name === name);
+    if (info) {
+        // 1. 해당 사냥터 레이어 켜기
+        if (!map.hasLayer(huntingLayers[name])) {
+            map.addLayer(huntingLayers[name]);
+            updateLayerCheckbox(name, true);
+        }
+        // 2. 해당 위치로 이동 (줌 레벨은 현재 설정에 맞춰 -1로 유지)
+        map.setView(info.center, -1);
+        // 3. 정보창 표시
+        showHuntingInfo(info);
+    }
+};
 
         window.toggleHuntingList = function() {
             var content = document.getElementById('hunting-content');
