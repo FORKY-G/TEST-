@@ -40,9 +40,20 @@ html, body {
         .leaflet-control-layers-overlays label:has(.herb-name-clickable) { padding-left: 25px !important; display: block; margin-bottom: 2px; }
         .leaflet-control-layers-overlays label:has(.herb-name-clickable) input, .leaflet-control-layers-overlays label:has(.herb-group-label) input, .leaflet-control-layers-overlays label:has(.hunt-group-label) input, .leaflet-control-layers-overlays label:has(.mine-group-label) input, .leaflet-control-layers-overlays label:has(.divider-line) input { display: none !important; }
         @media (max-width: 767px) { .leaflet-control-layers-expanded { max-height: 60vh !important; overflow-y: auto; width: 180px !important; font-size: 12px; } #hunting-info-panel { width: 80% !important; right: 10px !important; top: 10px !important; max-height: 50vh; overflow-y: auto; } }
-statue-icon {
-    width: 30px; height: 30px; background: #a0a0a0; border: 2px solid #333; border-radius: 50% 50% 0 0; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
-.statue-icon::after {content: '🗿'; /* 동상 아이콘 */}
+/* 동상 아이콘 모양 */
+.statue-icon {
+    background: #a0a0a0;
+    border: 2px solid #333;
+    border-radius: 50% 50% 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.statue-icon::after {
+    content: '🗿';
+    font-size: 16px;
+}
     
     </style>
 </head>
