@@ -141,6 +141,22 @@
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
     </div>
 
+<div id="hunting-list-container" style="position: absolute; top: 440px; right: 10px; z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 10px; width: 180px;">
+    
+    <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
+        ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
+    </div>
+    
+    <div id="hunting-content" style="display: none; margin-top: 10px;">
+        <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px; color: #3F3F3F; text-shadow: 1px 1px 0px #ffffff;">
+            모든 사냥터 해제
+        </button>
+
+        <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto; padding-right: 5px;">
+            </ul>
+    </div>
+</div>
+
 <script>
         // 1. 기본 맵 설정
         var imgW = 7300, imgH = 6494;
@@ -301,15 +317,11 @@ var herbData = [
             "<span class='divider-line'></span>": L.layerGroup(), 
             "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
             "녹색광산": poiLayers['녹색광산'], "청색광산": poiLayers['청색광산'], "황색광산": poiLayers['황색광산'], "적색광산": poiLayers['적색광산'],
-            "<span class='hunt-group-label'>⚔️ 사냥터 구역</span>": L.layerGroup()
+            
         };
 
         // 사냥터 메뉴 이름 클릭 시 이동 이벤트 추가
-        huntingInfo.forEach(function(info) { 
-            var labelHtml = `<span class="hunt-name-clickable" onclick="moveAndShowHunt('${info.name}')">${info.name}</span>`;
-            menuOrder[labelHtml] = huntingLayers[info.name]; 
-        });
-
+        
         menuOrder["<span class='herb-group-label'>🌿 약초 서식지 </span>"] = allHerbsGroup;
         Object.keys(herbLayers).sort().forEach(function(name) { menuOrder[name] = herbLayers[name]; });
 
@@ -328,6 +340,60 @@ var herbData = [
                 }
             }
         };
+
+// 페이지 로드 시 사냥터 목록을 생성하는 함수
+function generateHuntingList() {
+    const listElement = document.getElementById('hunting-list');
+    
+    huntingInfo.forEach(function(info) {
+        const li = document.createElement('li');
+        li.style.margin = "5px 0";
+        li.style.padding = "5px";
+        li.style.borderBottom = "1px solid #888";
+        
+        // 사냥터 이름 클릭 시 해당 위치로 이동하는 기능 연결
+        li.innerHTML = `
+            <span class="hunt-name-clickable" style="font-size: 14px; display: block;" 
+                  onclick="moveAndShowHunt('${info.name}')">
+                ${info.name} <small style="color:#666;">(${info.lv})</small>
+            </span>
+        `;
+        listElement.appendChild(li);
+    });
+}
+
+// 초기화 시 실행
+generateHuntingList();
+
+window.resetHuntingLayers = function() {
+    // 1. 모든 사냥터 레이어를 지도에서 제거
+    Object.keys(huntingLayers).forEach(function(name) {
+        if (map.hasLayer(huntingLayers[name])) {
+            map.removeLayer(huntingLayers[name]);
+        }
+        // 2. 우측 레이어 컨트롤의 체크박스 UI도 해제 상태로 동기화
+        updateLayerCheckbox(name, false);
+    });
+
+    // 3. 열려있는 사냥터 정보 패널 닫기
+    document.getElementById('hunting-info-panel').style.display = 'none';
+
+    // 4. (선택사항) 지도를 처음 스폰 위치로 되돌리고 싶다면 실행
+    // map.setView(mcToPx(-971, -965), -1); 
+};
+
+window.toggleHuntingList = function() {
+    var content = document.getElementById('hunting-content');
+    var icon = document.getElementById('toggle-icon');
+    
+    if (content.style.display === "none") {
+        content.style.display = "block";
+        icon.innerText = "▲"; // 열렸을 때 화살표 방향 변경
+    } else {
+        content.style.display = "none";
+        icon.innerText = "▼"; // 닫혔을 때 화살표 방향 변경
+    }
+};
 
         // 7. 검색 기능
         function executeSearch() {
