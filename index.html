@@ -9,11 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.js"></script>
     <style>
-        /* 기본 레이아웃 */
-        html, body, #map { width:100%; height:100%; margin:0; padding:0; background: #fff; }
-        body { font-family: 'Malgun Gothic', sans-serif; }
+        /* 1. 화면 전체 여백 제거 및 지도 풀스크린 설정 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 스크롤바 제거 */
+        }
 
-        /* 1. 팝업창 디자인 (마인크래프트 스타일) */
+        #map {
+            width: 100vw;   /* 가로 100% */
+            height: 100vh;  /* 세로 100% */
+            background: #f0f0f0;
+        }
+
+        /* 2. 기존 마인크래프트 스타일 UI 유지 */
         .leaflet-popup-content-wrapper {
             background: #C6C6C6 !important;
             border: 3px solid #000000 !important;
@@ -23,7 +34,6 @@
         .leaflet-popup-tip-container { display: none; } 
         .leaflet-popup-content { margin: 12px 15px !important; color: #3F3F3F !important; font-weight: bold; text-shadow: 1px 1px 0px #ffffff; }
 
-        /* 2. 툴팁 디자인 */
         .custom-tooltip {
             background: #C6C6C6 !important;
             border: 3px solid #000000 !important;
@@ -37,7 +47,6 @@
         }
         .custom-tooltip:before { display: none !important; }
 
-        /* 3. 레이어 컨트롤 박스 */
         .leaflet-control-layers {
             width: 180px;
             background: #C6C6C6 !important;
@@ -46,7 +55,6 @@
             border-radius: 0px !important;
             padding: 10px;
             max-height: none !important;
-            overflow: visible !important;
         }
 
         .leaflet-control-layers-overlays { 
@@ -54,17 +62,13 @@
             font-weight: bold; 
             max-height: 400px; 
             overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 5px;
         }
 
-        /* 마인크래프트 스타일 커스텀 스크롤바 */
+        /* 스크롤바 스타일 */
         .leaflet-control-layers-overlays::-webkit-scrollbar { width: 12px; }
         .leaflet-control-layers-overlays::-webkit-scrollbar-track { background: #313131; border: 2px solid #000; }
         .leaflet-control-layers-overlays::-webkit-scrollbar-thumb { background: #8B8B8B; border: 2px solid #ffffff; box-shadow: inset -3px -3px 0px #404040; }
-        .leaflet-control-layers-overlays::-webkit-scrollbar-thumb:hover { background: #AAAAAA; }
 
-        /* 4. 사냥터 정보 패널 */
         .info-panel {
             position: absolute; 
             top: 100px; 
@@ -74,18 +78,18 @@
             padding: 15px;
             border: 3px solid #000 !important;
             box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff !important;
-            border-radius: 0px !important;
             min-width: 250px; 
             display: none;
         }
+
         .info-panel button {
             margin-top: 15px; cursor: pointer; width: 100%; padding: 8px;
             background: #C6C6C6; border: 2px solid #000;
             box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff;
-            color: #3F3F3F; font-weight: bold; text-shadow: 1px 1px 0px #ffffff;
+            color: #3F3F3F; font-weight: bold;
         }
 
-        /* 5. 메뉴 라벨 스타일 (사냥터 이름에 포인터 추가) */
+/* 5. 메뉴 라벨 스타일 (사냥터 이름에 포인터 추가) */
         .hunt-group-label { color: #e74c3c; border-bottom: 2px solid #e74c3c; display: block; margin-top: 10px; margin-bottom: 5px; }
         .herb-group-label { color: #8e44ad; border-bottom: 2px solid #8e44ad; display: block; margin-top: 10px; margin-bottom: 5px; }
         .mine-group-label { color: #27ae60; border-bottom: 2px solid #27ae60; display: block; margin-top: 10px; margin-bottom: 5px; }
@@ -98,8 +102,6 @@
 
         .hunt-name-clickable { cursor: pointer; }
         .hunt-name-clickable:hover { text-decoration: underline; }
-
-        /* 6. 검색창 스타일 */
         #search-container input {
             background: #000; color: #fff; border: 2px solid #fff;
             padding: 10px 15px; font-size: 16px; outline: none;
@@ -110,20 +112,8 @@
             font-weight: bold; padding: 10px 20px; cursor: pointer;
         }
 
-        /* 7. 광산 마커 클릭 범위 최적화 */
-        .mine-clickable-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
-        .mine-dot {
-            width: 14px;
-            height: 14px;
-            border: 1px solid #000;
-            box-shadow: inset -1px -1px 0px #555, inset 1px 1px 0px #fff;
-        }
+        .mine-clickable-area { display: flex; justify-content: center; align-items: center; }
+        .mine-dot { width: 14px; height: 14px; border: 1px solid #000; box-shadow: inset -1px -1px 0px #555, inset 1px 1px 0px #fff; }
     </style>
 </head>
 <body>
@@ -141,30 +131,39 @@
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
     </div>
 
-<div id="hunting-list-container" style="position: absolute; top: 440px; right: 10px; z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 10px; width: 180px;">
-    
-    <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
-        ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
+    <div id="hunting-list-container" style="position: absolute; top: 440px; right: 10px; z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 10px; width: 180px;">
+        <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
+            ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
+        </div>
+        <div id="hunting-content" style="display: none; margin-top: 10px;">
+            <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">
+                모든 사냥터 해제
+            </button>
+            <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto;"></ul>
+        </div>
     </div>
-    
-    <div id="hunting-content" style="display: none; margin-top: 10px;">
-        <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px; color: #3F3F3F; text-shadow: 1px 1px 0px #ffffff;">
-            모든 사냥터 해제
-        </button>
 
-        <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto; padding-right: 5px;">
-            </ul>
-    </div>
-</div>
-
-<script>
-        // 1. 기본 맵 설정
+    <script>
+        // 1. 기본 맵 설정 (Leaflet용)
         var imgW = 7300, imgH = 6494;
         var imageBounds = [[-imgH, 0], [0, imgW]];
-        var map = new L.Map('map', { maxZoom: 12, minZoom: -5, crs: L.CRS.Simple, noWrap: true, zoomSnap: 0.25 });
+        var map = new L.Map('map', { 
+            maxZoom: 12, 
+            minZoom: -5, 
+            crs: L.CRS.Simple, 
+            noWrap: true, 
+            zoomSnap: 0.25 
+        });
+
         L.imageOverlay('map.jpg', imageBounds).addTo(map);
         map.fitBounds(imageBounds);
 
+        // 윈도우 크기 변경 시 리플릿 지도가 영역을 다시 계산하도록 설정
+        window.addEventListener('resize', function() {
+            map.invalidateSize();
+        });
+
+        // --- 이하 기존 데이터 및 함수 동일 ---
         function mcToPx(mcX, mcZ) {
             var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
             var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
@@ -184,13 +183,12 @@
         function createHerbIcon(color) {
             return L.divIcon({
                 className: 'herb-clickable-area',
-                html: `<div style="background:${color}; width:10px; height:10px; border-radius:50%; border:2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>`,
+                html: `<div style="background:${color}; width:10px; height:10px; border-radius:50%; border:2px solid white;"></div>`,
                 iconSize: [36, 36], 
                 iconAnchor: [18, 18]
             });
         }
 
-        // 2. 데이터 정의
         var herbColors = { "빙백설화": "#3498db", "철목영지": "#e67e22", "월계엽": "#2ecc71", "금향과": "#f1c40f", "녹태": "#16a085", "황초": "#f39c12", "적주과": "#e74c3c", "옥취엽": "#d35400", "옥향초": "#8e44ad", "인삼": "#c0392b", "자운초": "#9b59b6", "생강": "#7f8c8d", "민들레": "#e67e22", "영군버섯": "#2980b9", "금양광초": "#f1c40f", "권엽": "#27ae60", "흑성과": "#2c3e50", "백향초": "#ecf0f1" };
         
         var poiData = [ 
@@ -204,44 +202,8 @@
             { name: "61", type: "적", color: "#e74c3c", coords: mcToPx(5258, 5723), mcX: 5258, mcZ: 5723 }, { name: "62", type: "녹", color: "#2ecc71", coords: mcToPx(1014, -2648), mcX: 1014, mcZ: -2648 }, { name: "63", type: "황", color: "#f1c40f", coords: mcToPx(2705, 2461), mcX: 2705, mcZ: 2461 }, { name: "64", type: "황", color: "#f1c40f", coords: mcToPx(-4029, 2321), mcX: -4029, mcZ: 2321 }, { name: "65", type: "황", color: "#f1c40f", coords: mcToPx(-790, 4284), mcX: -790, mcZ: 4284 } 
         ];
 
-var herbData = [ 
-            { name: "권엽", file: "hub1.png", coords: mcToPx(-4543, -694), mcX: -4543, mcZ: -694 },
-            { name: "권엽", file: "hub1.png", coords: mcToPx(-4386, 142), mcX: -4386, mcZ: 142 },
-            { name: "금양광초", file: "hub2.png", coords: mcToPx(3633, 1015), mcX: 3633, mcZ: 1015 },
-            { name: "금양광초", file: "hub2.png", coords: mcToPx(3362, 2698), mcX: 3362, mcZ: 2698 },
-            { name: "녹태", file: "hub3.png", coords: mcToPx(-306, -1122), mcX: -306, mcZ: -1122 },
-            { name: "녹태", file: "hub3.png", coords: mcToPx(1110, -2830), mcX: 1110, mcZ: -2830 },
-            { name: "녹태", file: "hub3.png", coords: mcToPx(-1934, 26), mcX: -1934, mcZ: 26 },
-            { name: "민들레", file: "hub4.png", coords: mcToPx(-3128, -5376), mcX: -3128, mcZ: -5376 },
-            { name: "민들레", file: "hub4.png", coords: mcToPx(1352, -6136), mcX: 1352, mcZ: -6136 },
-            { name: "백향초", file: "hub5.png", coords: mcToPx(-5488, 4162), mcX: -5488, mcZ: 4162 },
-            { name: "생강", file: "hub6.png", coords: mcToPx(1248, 5784), mcX: 1248, mcZ: 5784 },
-            { name: "생강", file: "hub6.png", coords: mcToPx(-4713, 2168), mcX: -4713, mcZ: 2168 },
-            { name: "생강", file: "hub6.png", coords: mcToPx(1485, 3133), mcX: 1485, mcZ: 3133 },
-            { name: "영군버섯", file: "hub7.png", coords: mcToPx(-1744, -6288), mcX: -1744, mcZ: -6288 },
-            { name: "영군버섯", file: "hub7.png", coords: mcToPx(733, 5074), mcX: 733, mcZ: 5074 },
-            { name: "옥취엽", file: "hub8.png", coords: mcToPx(-3884, -2432), mcX: -3884, mcZ: -2432 },
-            { name: "옥취엽", file: "hub8.png", coords: mcToPx(800, -2112), mcX: 800, mcZ: -2112 },
-            { name: "옥취엽", file: "hub8.png", coords: mcToPx(-1323, -588), mcX: -1323, mcZ: -588 },
-            { name: "옥향초", file: "hub9.png", coords: mcToPx(6408, 4024), mcX: 6408, mcZ: 4024 },
-            { name: "옥향초", file: "hub9.png", coords: mcToPx(4800, 3752), mcX: 4800, mcZ: 3752 },
-            { name: "인삼", file: "hub10.png", coords: mcToPx(1432, 4072), mcX: 1432, mcZ: 4072 },
-            { name: "인삼", file: "hub10.png", coords: mcToPx(-4705, 765), mcX: -4705, mcZ: 765 },
-            { name: "자운초", file: "hub11.png", coords: mcToPx(2744, 4672), mcX: 2744, mcZ: 4672 },
-            { name: "자운초", file: "hub11.png", coords: mcToPx(4032, 4176), mcX: 4032, mcZ: 4176 },
-            { name: "적주과", file: "hub12.png", coords: mcToPx(-1070, 752), mcX: -1070, mcZ: 752 },
-            { name: "적주과", file: "hub12.png", coords: mcToPx(-3964, 1223), mcX: -3964, mcZ: 1223 },
-            { name: "황초", file: "hub13.png", coords: mcToPx(-1376, -346), mcX: -1376, mcZ: -346 },
-            { name: "황초", file: "hub13.png", coords: mcToPx(3348, -4641), mcX: 3348, mcZ: -4641 },
-            { name: "황초", file: "hub13.png", coords: mcToPx(-4178, -4879), mcX: -4178, mcZ: -4879 },
-            { name: "흑성과", file: "hub14.png", coords: mcToPx(-1671, -3534), mcX: -1671, mcZ: -3534 },
-            { name: "흑성과", file: "hub14.png", coords: mcToPx(1578, -128), mcX: 1578, mcZ: -128 },
-            { name: "월계엽", file: "hub15.png", coords: mcToPx(-1622, -6433), mcX: -1622, mcZ: -6433 },
-            { name: "철목영지", file: "hub16.png", coords: mcToPx(-3901, 2699), mcX: -3901, mcZ: 2699 },
-            { name: "금향과", file: "hub17.png", coords: mcToPx(-702, 730), mcX: -702, mcZ: 730 },
-            { name: "금향과", file: "hub17.png", coords: mcToPx(-772, 1917), mcX: -772, mcZ: 1917 },
-            { name: "빙백설화", file: "hub18.png", coords: mcToPx(6630, -264), mcX: 6630, mcZ: -264 },
-            { name: "빙백설화", file: "hub18.png", coords: mcToPx(6017, -203), mcX: 6017, mcZ: -203 }
+        var herbData = [ 
+            { name: "권엽", coords: mcToPx(-4543, -694), mcX: -4543, mcZ: -694 }, { name: "권엽", coords: mcToPx(-4386, 142), mcX: -4386, mcZ: 142 }, { name: "금양광초", coords: mcToPx(3633, 1015), mcX: 3633, mcZ: 1015 }, { name: "금양광초", coords: mcToPx(3362, 2698), mcX: 3362, mcZ: 2698 }, { name: "녹태", coords: mcToPx(-306, -1122), mcX: -306, mcZ: -1122 }, { name: "녹태", coords: mcToPx(1110, -2830), mcX: 1110, mcZ: -2830 }, { name: "녹태", coords: mcToPx(-1934, 26), mcX: -1934, mcZ: 26 }, { name: "민들레", coords: mcToPx(-3128, -5376), mcX: -3128, mcZ: -5376 }, { name: "민들레", coords: mcToPx(1352, -6136), mcX: 1352, mcZ: -6136 }, { name: "백향초", coords: mcToPx(-5488, 4162), mcX: -5488, mcZ: 4162 }, { name: "생강", coords: mcToPx(1248, 5784), mcX: 1248, mcZ: 5784 }, { name: "생강", coords: mcToPx(-4713, 2168), mcX: -4713, mcZ: 2168 }, { name: "생강", coords: mcToPx(1485, 3133), mcX: 1485, mcZ: 3133 }, { name: "영군버섯", coords: mcToPx(-1744, -6288), mcX: -1744, mcZ: -6288 }, { name: "영군버섯", coords: mcToPx(733, 5074), mcX: 733, mcZ: 5074 }, { name: "옥취엽", coords: mcToPx(-3884, -2432), mcX: -3884, mcZ: -2432 }, { name: "옥취엽", coords: mcToPx(800, -2112), mcX: 800, mcZ: -2112 }, { name: "옥취엽", coords: mcToPx(-1323, -588), mcX: -1323, mcZ: -588 }, { name: "옥향초", coords: mcToPx(6408, 4024), mcX: 6408, mcZ: 4024 }, { name: "옥향초", coords: mcToPx(4800, 3752), mcX: 4800, mcZ: 3752 }, { name: "인삼", coords: mcToPx(1432, 4072), mcX: 1432, mcZ: 4072 }, { name: "인삼", coords: mcToPx(-4705, 765), mcX: -4705, mcZ: 765 }, { name: "자운초", coords: mcToPx(2744, 4672), mcX: 2744, mcZ: 4672 }, { name: "자운초", coords: mcToPx(4032, 4176), mcX: 4032, mcZ: 4176 }, { name: "적주과", coords: mcToPx(-1070, 752), mcX: -1070, mcZ: 752 }, { name: "적주과", coords: mcToPx(-3964, 1223), mcX: -3964, mcZ: 1223 }, { name: "황초", coords: mcToPx(-1376, -346), mcX: -1376, mcZ: -346 }, { name: "황초", coords: mcToPx(3348, -4641), mcX: 3348, mcZ: -4641 }, { name: "황초", coords: mcToPx(-4178, -4879), mcX: -4178, mcZ: -4879 }, { name: "흑성과", coords: mcToPx(-1671, -3534), mcX: -1671, mcZ: -3534 }, { name: "흑성과", coords: mcToPx(1578, -128), mcX: 1578, mcZ: -128 }, { name: "월계엽", coords: mcToPx(-1622, -6433), mcX: -1622, mcZ: -6433 }, { name: "철목영지", coords: mcToPx(-3901, 2699), mcX: -3901, mcZ: 2699 }, { name: "금향과", coords: mcToPx(-702, 730), mcX: -702, mcZ: 730 }, { name: "금향과", coords: mcToPx(-772, 1917), mcX: -772, mcZ: 1917 }, { name: "빙백설화", coords: mcToPx(6630, -264), mcX: 6630, mcZ: -264 }, { name: "빙백설화", coords: mcToPx(6017, -203), mcX: 6017, mcZ: -203 }
         ];
 
         var zodiacData = [ { name: "소", x: -616, z: 3889 }, { name: "닭", x: 5075, z: -344 }, { name: "토끼", x: 4590, z: -3397 }, { name: "뱀", x: 2685, z: -4051 }, { name: "돼지", x: -3657, z: 1112 }, { name: "개", x: -4455, z: -2376 }, { name: "말", x: -2365, z: 3968 }, { name: "원숭이", x: 3280, z: 2952 }, { name: "양", x: 5093, z: 2092 }, { name: "호랑이", x: -5500, z: -1600 }, { name: "용", x: -891, z: -536 }, { name: "쥐", x: -2900, z: -4600 } ];
@@ -249,9 +211,9 @@ var herbData = [
         var huntingInfo = [
             { name: "경작지", lv: "0~5", monsters: "참새(Lv.0), 허수아비(Lv.5)", file: "map2.png", center: mcToPx(-954, -666) },
             { name: "화수원", lv: "10~20", monsters: "다람쥐(Lv.10), 흙토끼(Lv.15), 백토끼(Lv.20)", file: "map3.png", center: mcToPx(-586, 446) },
-            { name: "괴암곡", lv: "25~35", monsters: "하급쥐(Lv.25), 중급쥐(Lv.30), 상급쥐(Lv.35)<br><span style='color: #e74c3c;'>*정예쥐 출현</span>", file: "map4.png", center: mcToPx(1320, -1598) },
-            { name: "멸문", lv: "40~50", monsters: "뱀(Lv.40), 청사(Lv.45), 적사(Lv.50)<br><span style='color: #e74c3c;'>*구렁이 출현</span>", file: "map5.png", center: mcToPx(3862, -2644) },
-            { name: "신선원", lv: "55~65", monsters: "새싹삼(Lv.55), 진삼(Lv.60), 대장삼(Lv.65)<br><span style='color: #e74c3c;'>*거대삼 출현</span>", file: "map6.png", center: mcToPx(-3628, -3094) },
+            { name: "괴암곡", lv: "25~35", monsters: "하급쥐(Lv.25), 중급쥐(Lv.30), 상급쥐(Lv.35)", file: "map4.png", center: mcToPx(1320, -1598) },
+            { name: "멸문", lv: "40~50", monsters: "뱀(Lv.40), 청사(Lv.45), 적사(Lv.50)", file: "map5.png", center: mcToPx(3862, -2644) },
+            { name: "신선원", lv: "55~65", monsters: "새싹삼(Lv.55), 진삼(Lv.60), 대장삼(Lv.65)", file: "map6.png", center: mcToPx(-3628, -3094) },
             { name: "천웅성", lv: "70~80", monsters: "비웅(Lv.70), 겸웅(Lv.75), 꼬마유령(Lv.80)", file: "map7.png", center: mcToPx(5700, 5198) },
             { name: "매화곡", lv: "85~90", monsters: "천도원숭이(Lv.85), 황도원숭이(Lv.90)", file: "map8.png", center: mcToPx(4256, 392) },
             { name: "이매궁", lv: "100~110", monsters: "도깨비(Lv.100), 청깨비(Lv.105), 진깨비(Lv.110)", file: "map9.png", center: mcToPx(1634, 336) },
@@ -263,11 +225,9 @@ var herbData = [
             { name: "운해궁", lv: "만렙", monsters: "최종구역", file: "map15.png", center: mcToPx(-1422, 5612) }
         ];
 
-        // 3. 레이어 초기화
         var poiLayers = { '스폰': L.layerGroup(), '십이간지': L.layerGroup(), '녹색광산': L.layerGroup(), '청색광산': L.layerGroup(), '황색광산': L.layerGroup(), '적색광산': L.layerGroup() };
         var herbLayers = {}, huntingLayers = {}, allHerbsGroup = L.layerGroup();
 
-        // 4. 사냥터 레이어 생성 및 정보 표시 함수
         function showHuntingInfo(info) {
             document.getElementById('panel-name').innerHTML = `<span style="font-size: 24px;"><b>${info.name}</b></span> <span style="font-size: 16px; color: #666;">(${info.lv})</span>`;
             document.getElementById('panel-lv').innerHTML = `<div style="margin-top: 8px; font-size: 16px; color: #444;">${info.monsters}</div>`;
@@ -277,15 +237,12 @@ var herbData = [
         huntingInfo.forEach(function(info) {
             var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
             var clickMarker = L.circleMarker(info.center, { radius: 35, color: '#e74c3c', weight: 1, fillOpacity: 0.1 });
-            
             imgOverlay.on('add', function() { showHuntingInfo(info); });
             imgOverlay.on('remove', function() { document.getElementById('hunting-info-panel').style.display = 'none'; });
             clickMarker.on('click', function() { showHuntingInfo(info); });
-
             huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
         });
 
-        // 5. 광산 마커 생성
         poiData.forEach(function(poi) {
             var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
             if(key) {
@@ -294,7 +251,6 @@ var herbData = [
             }
         });
 
-        // 약초 마커
         herbData.forEach(function(herb) {
             var hCol = herbColors[herb.name] || '#8e44ad';
             if (!herbLayers[herb.name]) herbLayers[herb.name] = L.layerGroup();
@@ -302,13 +258,11 @@ var herbData = [
              .bindPopup(`<div style="text-align:center;"><b style="color:${hCol}">${herb.name}</b><br>[ ${herb.mcX}, ${herb.mcZ} ]</div>`);
         });
 
-        // 십이간지 마커
         zodiacData.forEach(function(z) {
             L.marker(mcToPx(z.x, z.z), { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지'])
              .bindTooltip(`<div style="text-align:center;"><b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}</div>`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
         });
 
-        // 6. 레이어 컨트롤 구성
         poiLayers['스폰'].addTo(map);
         poiLayers['십이간지'].addTo(map);
 
@@ -317,17 +271,12 @@ var herbData = [
             "<span class='divider-line'></span>": L.layerGroup(), 
             "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
             "녹색광산": poiLayers['녹색광산'], "청색광산": poiLayers['청색광산'], "황색광산": poiLayers['황색광산'], "적색광산": poiLayers['적색광산'],
-            
+            "<span class='herb-group-label'>🌿 약초 서식지 </span>": allHerbsGroup
         };
 
-        // 사냥터 메뉴 이름 클릭 시 이동 이벤트 추가
-        
-        menuOrder["<span class='herb-group-label'>🌿 약초 서식지 </span>"] = allHerbsGroup;
         Object.keys(herbLayers).sort().forEach(function(name) { menuOrder[name] = herbLayers[name]; });
-
         L.control.layers(null, menuOrder, {collapsed: false}).addTo(map);
 
-        // 사냥터 클릭 이동 함수
         window.moveAndShowHunt = function(huntName) {
             var info = huntingInfo.find(h => h.name === huntName);
             if (info) {
@@ -335,90 +284,98 @@ var herbData = [
                 if (!map.hasLayer(huntingLayers[info.name])) {
                     map.addLayer(huntingLayers[info.name]);
                     updateLayerCheckbox(info.name, true);
-                } else {
-                    showHuntingInfo(info);
-                }
+                } else { showHuntingInfo(info); }
             }
         };
 
-// 페이지 로드 시 사냥터 목록을 생성하는 함수
-function generateHuntingList() {
-    const listElement = document.getElementById('hunting-list');
-    
-    huntingInfo.forEach(function(info) {
-        const li = document.createElement('li');
-        li.style.margin = "5px 0";
-        li.style.padding = "5px";
-        li.style.borderBottom = "1px solid #888";
-        
-        // 사냥터 이름 클릭 시 해당 위치로 이동하는 기능 연결
-        li.innerHTML = `
-            <span class="hunt-name-clickable" style="font-size: 14px; display: block;" 
-                  onclick="moveAndShowHunt('${info.name}')">
-                ${info.name} <small style="color:#666;">(${info.lv})</small>
-            </span>
-        `;
-        listElement.appendChild(li);
-    });
-}
-
-// 초기화 시 실행
-generateHuntingList();
-
-window.resetHuntingLayers = function() {
-    // 1. 모든 사냥터 레이어를 지도에서 제거
-    Object.keys(huntingLayers).forEach(function(name) {
-        if (map.hasLayer(huntingLayers[name])) {
-            map.removeLayer(huntingLayers[name]);
+        function generateHuntingList() {
+            const listElement = document.getElementById('hunting-list');
+            huntingInfo.forEach(function(info) {
+                const li = document.createElement('li');
+                li.style.margin = "5px 0"; li.style.padding = "5px"; li.style.borderBottom = "1px solid #888";
+                li.innerHTML = `<span class="hunt-name-clickable" style="font-size: 14px; display: block;" onclick="moveAndShowHunt('${info.name}')">${info.name} <small style="color:#666;">(${info.lv})</small></span>`;
+                listElement.appendChild(li);
+            });
         }
-        // 2. 우측 레이어 컨트롤의 체크박스 UI도 해제 상태로 동기화
-        updateLayerCheckbox(name, false);
-    });
+        generateHuntingList();
 
-    // 3. 열려있는 사냥터 정보 패널 닫기
-    document.getElementById('hunting-info-panel').style.display = 'none';
+        window.resetHuntingLayers = function() {
+            Object.keys(huntingLayers).forEach(function(name) {
+                if (map.hasLayer(huntingLayers[name])) map.removeLayer(huntingLayers[name]);
+                updateLayerCheckbox(name, false);
+            });
+            document.getElementById('hunting-info-panel').style.display = 'none';
+        };
 
-    // 4. (선택사항) 지도를 처음 스폰 위치로 되돌리고 싶다면 실행
-    // map.setView(mcToPx(-971, -965), -1); 
-};
+        window.toggleHuntingList = function() {
+            var content = document.getElementById('hunting-content');
+            var icon = document.getElementById('toggle-icon');
+            if (content.style.display === "none") { content.style.display = "block"; icon.innerText = "▲"; } 
+            else { content.style.display = "none"; icon.innerText = "▼"; }
+        };
 
-window.toggleHuntingList = function() {
-    var content = document.getElementById('hunting-content');
-    var icon = document.getElementById('toggle-icon');
-    
-    if (content.style.display === "none") {
-        content.style.display = "block";
-        icon.innerText = "▲"; // 열렸을 때 화살표 방향 변경
-    } else {
-        content.style.display = "none";
-        icon.innerText = "▼"; // 닫혔을 때 화살표 방향 변경
-    }
-};
-
-        // 7. 검색 기능
-        function executeSearch() {
+function executeSearch() {
             var input = document.getElementById('search-input');
-            var query = input.value.trim(); if (!query) return;
+            var query = input.value.trim(); 
+            if (!query) return;
+
             var found = false, target = null, targetMarker = null;
 
+            // 1. 사냥터 검색 (기존 로직 유지)
             huntingInfo.forEach(function(info) {
                 if (info.name.includes(query)) {
-                    target = info.center; found = true;
-                    if (!map.hasLayer(huntingLayers[info.name])) { map.addLayer(huntingLayers[info.name]); updateLayerCheckbox(info.name, true); }
+                    target = info.center; 
+                    found = true;
+                    if (!map.hasLayer(huntingLayers[info.name])) { 
+                        map.addLayer(huntingLayers[info.name]); 
+                        updateLayerCheckbox(info.name, true); 
+                    }
                 }
             });
+
+            // 2. 광산(poiData) 검색
             if (!found) {
-                poiData.forEach(function(poi) {
-                    if (poi.name === query || (poi.name + "번").includes(query)) {
-                        target = poi.coords; found = true;
-                        var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
-                        if (key) {
-                            if (!map.hasLayer(poiLayers[key])) { map.addLayer(poiLayers[key]); updateLayerCheckbox(key, true); }
-                            poiLayers[key].eachLayer(function(l) { if (l instanceof L.Marker && l.getLatLng().equals(target)) targetMarker = l; });
+                // [방법 수정] 숫자인 경우 '완전 일치'하는 놈을 먼저 찾음
+                var exactMatch = poiData.find(p => p.name === query);
+                
+                if (exactMatch) {
+                    // 1순위: 이름이 완전히 똑같은 경우 (예: 1 검색 시 1번 광산)
+                    var poi = exactMatch;
+                    target = poi.coords; 
+                    found = true;
+                    var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
+                    if (key) {
+                        if (!map.hasLayer(poiLayers[key])) { 
+                            map.addLayer(poiLayers[key]); 
+                            updateLayerCheckbox(key, true); 
                         }
+                        poiLayers[key].eachLayer(function(l) { 
+                            if (l instanceof L.Marker && l.getLatLng().equals(target)) targetMarker = l; 
+                        });
                     }
-                });
+                } else {
+                    // 2순위: 완전 일치가 없으면 '번'을 포함해서 검색 (기존 로직)
+                    poiData.forEach(function(poi) {
+                        if (found) return;
+                        if ((poi.name + "번").includes(query)) {
+                            target = poi.coords; 
+                            found = true;
+                            var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
+                            if (key) {
+                                if (!map.hasLayer(poiLayers[key])) { 
+                                    map.addLayer(poiLayers[key]); 
+                                    updateLayerCheckbox(key, true); 
+                                }
+                                poiLayers[key].eachLayer(function(l) { 
+                                    if (l instanceof L.Marker && l.getLatLng().equals(target)) targetMarker = l; 
+                                });
+                            }
+                        }
+                    });
+                }
             }
+
+            // 3. 약초 검색 (누락 방지)
             if (!found) {
                 herbData.forEach(function(herb) {
                     if (herb.name.includes(query)) {
@@ -428,8 +385,14 @@ window.toggleHuntingList = function() {
                     }
                 });
             }
-            if (found) { map.setView(target, -1); if (targetMarker) targetMarker.openPopup(); input.value = ""; } 
-            else { alert("검색 결과가 없습니다."); }
+
+            if (found) { 
+                map.setView(target, -1); 
+                if (targetMarker) targetMarker.openPopup(); 
+                input.value = ""; 
+            } else { 
+                alert("검색 결과가 없습니다."); 
+            }
         }
 
         function updateLayerCheckbox(name, isAdd) {
@@ -442,8 +405,7 @@ window.toggleHuntingList = function() {
             });
         }
 
-        // 8. 좌표 표시
         L.control.mousePosition({ position: 'bottomleft', separator: ', ', prefix: '좌표: ' }).addTo(map);
-</script>
+    </script>
 </body>
 </html>
