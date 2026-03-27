@@ -460,6 +460,20 @@ window.moveAndShowHunt = function(name) {
             else { content.style.display = "none"; icon.innerText = "▼"; }
         };
 
+// 모든 사냥터 레이어 해제 및 체크박스 초기화
+window.resetHuntingLayers = function() {
+    Object.keys(huntingLayers).forEach(function(name) {
+        // 1. 지도에서 레이어 제거
+        if (map.hasLayer(huntingLayers[name])) {
+            map.removeLayer(huntingLayers[name]);
+        }
+        // 2. 우측 메뉴의 체크박스 체크 해제 (이게 빠져있었을 겁니다)
+        updateLayerCheckbox(name, false);
+    });
+    // 정보창 닫기
+    document.getElementById('hunting-info-panel').style.display = 'none';
+};
+
 // 모든 약초 레이어 초기화 함수
 window.resetHerbLayers = function() {
     Object.keys(herbLayers).forEach(function(name) {
