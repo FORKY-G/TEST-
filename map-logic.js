@@ -43,45 +43,50 @@ var mountainLayers = L.layerGroup();
 
 /** 4. 레이어 초기화 로직 (마커 생성 등) **/
 
-// --- [추가 시작] 모든 경로 선을 담을 전역 객체 ---
-var routeLines = {};
+/** 7. 광산 동선 생성 및 그룹 호버 이벤트 **/
 
-// order가 있는 광산만 골라내고 순서대로 정렬합니다.
+// 모든 경로 선을 그룹별로 담을 객체 (예: { "녹": [line1, line2...], "청": [...] })
+var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
+
+// [1] 데이터 정리 및 선 생성
 const sortedMines = poiData
     .filter(p => p.order !== undefined)
     .sort((a, b) => a.order - b.order);
 
-// 정렬된 광산들을 돌면서 선을 미리 만듭니다.
 sortedMines.forEach((mine, index) => {
-    if (index === sortedMines.length - 1) return; // 마지막은 다음이 없음
+    if (index === sortedMines.length - 1) return;
     var nextMine = sortedMines[index + 1];
 
+    // 같은 그룹(색상)일 때만 선을 긋고 싶다면 아래 조건을 유지, 
+    // 만약 그룹 상관없이 전체를 잇는 거라면 mine.type을 쓰시면 됩니다.
     var lineStyle = {
-        color: '#ff6b6b', // 선 색상
+        color: '#ff6b6b', 
         weight: 3,
-        opacity: 0,       // 처음엔 숨김
-        dashArray: nextMine.lineType === "dotted" ? "5, 10" : null // T지점이면 점선
+        opacity: 0, // 숨김
+        dashArray: nextMine.lineType === "dotted" ? "5, 10" : null
     };
 
     var line = L.polyline([mine.coords, nextMine.coords], lineStyle).addTo(map);
-    var lineId = mine.name + '-' + nextMine.name;
-    routeLines[lineId] = line;
+
+    // [중요] 현재 광산의 타입(녹, 청, 황, 적) 그룹에 이 선을 저장합니다.
+    if (routeLinesByGroup[mine.type]) {
+        routeLinesByGroup[mine.type].push(line);
+    }
 });
 
-// 호버 이벤트 함수 정의
-function addRouteHoverEvent(marker, mineName) {
+// [2] 그룹 호버 이벤트 함수
+function addGroupRouteHover(marker, groupType) {
     marker.on('mouseover', function () {
-        for (var lineId in routeLines) {
-            if (lineId.startsWith(mineName + '-') || lineId.endsWith('-' + mineName)) {
-                routeLines[lineId].setStyle({ opacity: 1 });
-            }
+        // 해당 그룹(예: "녹")에 속한 모든 선을 보여줍니다.
+        if (routeLinesByGroup[groupType]) {
+            routeLinesByGroup[groupType].forEach(line => line.setStyle({ opacity: 1 }));
         }
     });
+
     marker.on('mouseout', function () {
-        for (var lineId in routeLines) {
-            if (lineId.startsWith(mineName + '-') || lineId.endsWith('-' + mineName)) {
-                routeLines[lineId].setStyle({ opacity: 0 });
-            }
+        // 해당 그룹의 모든 선을 다시 숨깁니다.
+        if (routeLinesByGroup[groupType]) {
+            routeLinesByGroup[groupType].forEach(line => line.setStyle({ opacity: 0 }));
         }
     });
 }
@@ -116,8 +121,8 @@ poiData.forEach(poi => {
     
     if(key) {
         var marker = L.marker(poi.coords, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
-        if (poi.order !== undefined) {
-            addRouteHoverEvent(marker, poi.name);
+      if (poi.order !== undefined) {
+            addGroupRouteHover(marker, poi.type); 
         }
         if (poi.type === '스폰') {
             marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
