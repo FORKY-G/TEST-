@@ -154,10 +154,27 @@ herbData.forEach(herb => {
     herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
 });
 
-// 십이간지
+// 십이간지 (map-logic.js 내부)
 zodiacData.forEach(z => {
-    L.marker(mcToPx(z.x, z.z), { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지'])
-     .bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
+    var marker = L.marker(mcToPx(z.x, z.z), { 
+        icon: L.divIcon({ 
+            className: 'zodiac-icon', 
+            html: `<div style="width:60px; height:60px;"></div>`, 
+            iconSize: [60, 60], 
+            iconAnchor: [30, 30] 
+        }) 
+    }).addTo(poiLayers['십이간지']);
+
+    // [추가] 툴팁은 그대로 두고, 클릭했을 때 정보창 띄우기
+    marker.on('click', function() {
+        showZodiacInfo(z); 
+    });
+
+    marker.bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { 
+        direction: 'top', 
+        className: 'custom-tooltip', 
+        opacity: 0.95 
+    });
 });
 
 // 사냥터
