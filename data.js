@@ -144,4 +144,3 @@ var discoveryData = [
     { name: "항아리", x: 6426, y: 112, z: 2392, item: "연마사", tool: "탐령구" },
     { name: "항아리", x: 4171, y: 74, z: 2643, item: "마모된인장", tool: "탐령구" }
 ];
-];
