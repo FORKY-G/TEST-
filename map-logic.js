@@ -82,7 +82,9 @@ function addGroupRouteHover(marker, groupType) {
     marker.on('mouseover', function () {
         if (routeLinesByGroup[groupType]) {
             routeLinesByGroup[groupType].forEach(line => {
-                line.setStyle({ opacity: 1 });
+                var currentDash = line.options.dashArray;
+                line.setStyle({ opacity: 1,
+                              dashArray: currentDash});
             });
         }
     });
