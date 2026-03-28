@@ -268,6 +268,14 @@ var menuOrder = {
     "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
 };
 
+// 지도의 빈 곳을 클릭하면 모든 정보창 닫기
+map.on('click', function() {
+    var panel = document.getElementById('hunting-info-panel');
+    if (panel) {
+        panel.style.display = 'none';
+    }
+});
+
 // 약초 목록 추가
 Object.keys(herbLayers).sort().forEach(name => {
     var herb = herbData.find(h => h.name === name);
@@ -276,3 +284,5 @@ Object.keys(herbLayers).sort().forEach(name => {
     var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
     menuOrder[htmlLabel] = herbLayers[name];
 });
+
+
