@@ -263,4 +263,30 @@ window.showDiscoveryInfo = function(d) {
             닫기
         </button>
     `;
-}; //
+}; 
+
+/** 13. 적환단 정보창 표시 **/
+window.showRedHwanInfo = function(d) {
+    var panel = document.getElementById('hunting-info-panel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="border-bottom:3px solid #e74c3c; padding-bottom:8px; margin-bottom:12px;">
+            <b style="font-size:20px; color:#3F3F3F;">${d.name} 🔴</b>
+            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+                 title="좌표 복사"
+                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
+                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
+            </div>
+        </div>
+        
+        <div style="text-align:center; background:#eee; padding:5px; border:1px solid #999;">
+            <p style="font-size:11px; color:#666; margin:0 0 5px 0;">이미지 클릭 시 크게 보기</p>
+            <img src="./images/${d.file}" style="width:100%; cursor:pointer; border:1px solid #000;" 
+                 onclick="window.open('./images/${d.file}', '_blank')" 
+                 onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+        </div>
+
+        <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                style="margin-top: 15px;">닫기</button>
+    `;
+};
