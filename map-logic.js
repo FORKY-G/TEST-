@@ -41,6 +41,7 @@ var herbLayers = {};
 var huntingLayers = {};
 var mountainLayers = L.layerGroup();
 var discoveryLayers = L.layerGroup(); // 탐색 레이어 추가
+var redHwanLayers = L.layerGroup();
 
 /** 4. 레이어 초기화 로직 (마커 생성 등) **/
 
@@ -236,11 +237,26 @@ discoveryData.forEach(d => {
     });
 });
 
+// 적환단 마커 생성
+redHwanData.forEach(d => {
+    var marker = L.marker(mcToPx(d.x, d.z), {
+        icon: L.icon({
+            iconUrl: './images/red.png', // 적환단 기본 마커 이미지
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        })
+    }).addTo(redHwanLayers);
+
+    marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
+    marker.on('click', () => showRedHwanInfo(d));
+});
+
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
     "스폰": poiLayers['스폰'], "십이간지": poiLayers['십이간지'],
     "<span class='divider-line'></span>": L.layerGroup(),
     "⛰️ 산(비석)": mountainLayers,
+    "🔴 적환단": redHwanLayers,
     "🔍 탐색": discoveryLayers,
     "<span class='divider-line'></span> ": L.layerGroup(),
     "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
