@@ -57,29 +57,27 @@ sortedMines.forEach((mine, index) => {
     if (index === sortedMines.length - 1) return;
     var nextMine = sortedMines[index + 1];
 
-    var dashValue = (nextMine.lineType === "dotted") ? "5, 10" : null;
-    
-   var lineStyle = {
-        color: '#ff6b6b', 
-        weight: 3,
+    // [체크] 데이터가 잘 들어오는지 콘솔에 찍어봅니다 (F12에서 확인 가능)
+    // console.log(nextMine.name + "번의 타입: " + nextMine.lineType);
+
+    // 조건문을 더 단순하고 강력하게 바꿉니다.
+    var isDotted = (nextMine.lineType && nextMine.lineType.toLowerCase().includes("dot"));
+    var dashValue = isDotted ? "15, 20" : null; 
+
+    var lineStyle = {
+        color: '#ff4757', 
+        weight: 4, 
         opacity: 0, 
-        dashArray: dashValue, // 점선 값 적용
-        lineJoin: 'round',    // 선 꺾임 부드럽게
-        interactive: false
+        dashArray: dashValue, 
+        lineJoin: 'round',
+        interactive: false 
     };
 
-  var line = L.polyline([mine.coords, nextMine.coords], lineStyle).addTo(map);
+    var line = L.polyline([mine.coords, nextMine.coords], lineStyle).addTo(map);
 
-    // [핵심] 출발지(mine) 그룹에 이 선을 저장
-    if (routeLinesByGroup[mine.type]) {
-        routeLinesByGroup[mine.type].push(line);
-    }
-    
-    // [핵심] 도착지(nextMine) 그룹에도 이 선을 저장 (중복 방지 체크)
-    if (routeLinesByGroup[nextMine.type]) {
-        if (!routeLinesByGroup[nextMine.type].includes(line)) {
-            routeLinesByGroup[nextMine.type].push(line);
-        }
+    if (routeLinesByGroup[mine.type]) routeLinesByGroup[mine.type].push(line);
+    if (routeLinesByGroup[nextMine.type] && !routeLinesByGroup[nextMine.type].includes(line)) {
+        routeLinesByGroup[nextMine.type].push(line);
     }
 });
 
