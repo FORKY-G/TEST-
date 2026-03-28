@@ -136,30 +136,33 @@ poiData.forEach(poi => {
         if (poi.type === '스폰') {
             marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
         } else {
-            // 광산 클릭 시 상세 정보창 띄우기
+            // 광산 클릭 시 정보창 띄우기 (익명 함수 방식)
             marker.on('click', function() {
                 var panel = document.getElementById('mine-info-panel');
                 if (!panel) return;
 
-                // data.js에 네가 추가한 데이터를 여기서 불러오는 거야
+                // data.js에서 데이터 가져오기
                 const detail = mineDetailInfo[poi.type] || { title: poi.type, unique: "-", route: "-", desc: "" };
-                const common = mineDetailInfo["공통"];
+                const common = mineDetailInfo["공통"] || "";
 
-                // 이 부분이 네가 원하던 "정보창에 내용 추가" 핵심이야
+                // 네 사이트의 닫기 버튼과 스타일을 그대로 적용
                 panel.innerHTML = `
-                    <div style="padding:10px;">
-                        <h3 style="color: ${poi.color}; margin:0 0 10px 0;">${poi.name}번 광산 (${detail.title})</h3>
-                        <p><b>좌표:</b> [ ${poi.mcX}, ${poi.mcZ} ]</p>
-                        <p><b>고유광물:</b> ${detail.unique}</p>
-                        <p><b>공통광물:</b> ${common}</p>
+                    <div class="mine-info-content" style="position:relative; padding:15px; color:#fff;">
+                        <button class="close-btn" onclick="document.getElementById('mine-info-panel').style.display='none'" 
+                                style="position:absolute; right:10px; top:10px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">×</button>
                         
-                        <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                        <h3 style="color: ${poi.color}; margin:0 0 10px 0;">${poi.name}번 광산 (${detail.title})</h3>
+                        <p style="margin:5px 0;"><b>좌표:</b> [ ${poi.mcX}, ${poi.mcZ} ]</p>
+                        <p style="margin:5px 0;"><b>고유광물:</b> ${detail.unique}</p>
+                        <p style="margin:5px 0;"><b>공통광물:</b> ${common}</p>
+                        
+                        <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
 
-                        <div style="font-size: 14px; font-weight: bold; color: #333; word-break: break-all; margin-bottom: 5px;">
+                        <div style="font-size: 15px; font-weight: bold; color: #eee; word-break: break-all; line-height: 1.4;">
                             ${detail.route}
                         </div>
                         
-                        <div style="font-size: 11px; color: #666; line-height: 1.4;">
+                        <div style="font-size: 12px; color: #aaa; margin-top: 8px; line-height: 1.5;">
                             ${detail.desc}
                         </div>
                     </div>
