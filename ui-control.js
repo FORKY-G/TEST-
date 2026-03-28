@@ -132,7 +132,7 @@ window.executeSearch = function() {
         var pos = result.coords ? result.coords : mcToPx(result.x, result.z);
         map.setView(pos, 1); 
 
-        지도 위에 팝업(마커 말풍선) 띄우기
+        // 지도 위에 팝업(마커 말풍선) 띄우기
         var popupContent = `<b>${result.name}</b>`;
         if (result._category === 'poi') popupContent = `<b>${result.name}번 광산 💎</b>`;
         if (result._category === 'npc') popupContent = `<b>NPC: ${result.name} 👤</b>`;
