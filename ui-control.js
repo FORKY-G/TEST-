@@ -134,6 +134,7 @@ window.toggleHuntingList = function() {
 /** 8. 광산 상세 정보창 표시 **/
 window.showMineInfo = function(poi) {
     var panel = document.getElementById('hunting-info-panel');
+    // data.js에 있는 mineDetailInfo에서 데이터를 가져옴
     var detail = mineDetailInfo[poi.type];
     var common = mineDetailInfo["공통"];
 
@@ -147,12 +148,21 @@ window.showMineInfo = function(poi) {
         </div>
         
         <div style="margin-bottom:15px;">
-            <div style="color:#e74c3c; font-weight:bold; font-size:15px; margin-bottom:5px;">${detail.unique}</div>
-            <div style="color:#8e44ad; font-size:12px; font-weight:normal;">${common}</div>
+            <div style="color:#e74c3c; font-weight:bold; font-size:15px; margin-bottom:5px;">고유: ${detail.unique}</div>
+            <div style="color:#8e44ad; font-weight:bold; font-size:14px;">공통: ${common}</div>
         </div>
 
+        <div style="background:#f9f9f9; padding:10px; border-radius:5px; border-left:4px solid #555; margin-bottom:10px;">
+            <div style="font-weight:bold; color:#2c3e50; margin-bottom:4px; font-size:14px;">📍 권장 동선</div>
+            <div style="font-size:13px; color:#333; line-height:1.4; word-break:keep-all;">${detail.route || "정보 없음"}</div>
+        </div>
+
+        <div style="font-size:12px; color:#7f8c8d; line-height:1.5; padding:0 5px;">
+            ${detail.desc || ""}
+        </div>
+        
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
-                style="width:100%; cursor:pointer; background:#C6C6C6; border:2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; font-weight:bold; padding:8px;">
+                style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
             닫기
         </button>
     `;
