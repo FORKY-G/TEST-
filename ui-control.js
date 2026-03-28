@@ -98,61 +98,86 @@ window.resetHerbLayers = function() {
     document.getElementById('hunting-info-panel').style.display = 'none';
 };
 
-/** 통합 검색 기능 (숫자 완전 일치 우선 로직 포함) **/
+// 검색 실행 함수
+
 window.executeSearch = function() {
+
     var input = document.getElementById('search-input');
-    var query = input.value.trim().toLowerCase();
+
+    var query = input.value.trim();
+
     if (!query) return;
 
-    var allTargets = [];
-    
-    // 데이터 취합 (기존과 동일)
-    if (typeof huntingInfo !== 'undefined') allTargets = allTargets.concat(huntingInfo.map(d => ({...d, type: 'hunting'})));
-    if (typeof poiData !== 'undefined') allTargets = allTargets.concat(poiData.map(d => ({...d, type: 'poi'})));
-    if (typeof herbData !== 'undefined') allTargets = allTargets.concat(herbData.map(d => ({...d, type: 'herb'})));
-    if (typeof npcData !== 'undefined') allTargets = allTargets.concat(npcData.map(d => ({...d, type: 'npc'})));
-    if (typeof redHwanData !== 'undefined') allTargets = allTargets.concat(redHwanData.map(d => ({...d, type: 'redhwan'})));
-    if (typeof discoveryData !== 'undefined') allTargets = allTargets.concat(discoveryData.map(d => ({...d, type: 'discovery'})));
-    if (typeof mountainData !== 'undefined') allTargets = allTargets.concat(mountainData.map(d => ({...d, type: 'mountain'})));
+    var found = false, target = null, targetMarker = null;
 
-    // [핵심] 1단계: 이름이 검색어와 '정확히' 일치하는 것부터 찾기 (숫자 1 vs 11 문제 해결)
-    var result = allTargets.find(d => 
-        (d.name && d.name.toString().toLowerCase() === query)
-    );
 
-    // [핵심] 2단계: 정확히 일치하는게 없다면 '포함'되는 것 찾기 (부분 검색)
-    if (!result) {
-        result = allTargets.find(d => 
-            (d.name && d.name.toString().toLowerCase().includes(query)) || 
-            (d.item && d.item.toLowerCase().includes(query)) ||
-            (d.relation && d.relation.toLowerCase().includes(query))
-        );
-    }
 
-    if (result) {
-        var pos = result.coords ? result.coords : mcToPx(result.x, result.z);
-        
-        // 검색된 대상의 레이어가 꺼져 있다면 자동으로 켜주기 (기존 기능 유지)
-        if (result.type === 'hunting' && huntingLayers[result.name]) {
-            if (!map.hasLayer(huntingLayers[result.name])) map.addLayer(huntingLayers[result.name]);
+    huntingInfo.forEach(function(info) {
+
+        if (info.name.includes(query)) {
+
+            target = info.center; found = true;
+
+            if (!map.hasLayer(huntingLayers[info.name])) { map.addLayer(huntingLayers[info.name]); updateLayerCheckbox(info.name, true); }
+
+            setTimeout(() => showHuntingInfo(info), 100);
+
         }
 
-        map.setView(pos, 4); 
+    });
 
-        // 정보창 호출
-        if (result.type === 'npc') showNPCInfo(result);
-        else if (result.type === 'redhwan') showRedHwanInfo(result);
-        else if (result.type === 'discovery') showDiscoveryInfo(result);
-        else if (result.type === 'hunting') showHuntingInfo(result);
-        else if (result.type === 'poi') showMineInfo(result);
-        else {
-            L.popup().setLatLng(pos).setContent(`<b>${result.name}</b>`).openOn(map);
+
+
+    if (!found) {
+
+        var exactMatch = poiData.find(p => p.name === query);
+
+        if (exactMatch) {
+
+            target = exactMatch.coords; found = true;
+
+            var key = (exactMatch.type === '스폰') ? '스폰' : (exactMatch.type === '녹') ? '녹색광산' : (exactMatch.type === '청') ? '청색광산' : (exactMatch.type === '황') ? '황색광산' : (exactMatch.type === '적') ? '적색광산' : null;
+
+            if (key) {
+
+                if (!map.hasLayer(poiLayers[key])) { map.addLayer(poiLayers[key]); updateLayerCheckbox(key, true); }
+
+                poiLayers[key].eachLayer(function(l) { if (l instanceof L.Marker && l.getLatLng().equals(target)) targetMarker = l; });
+
+            }
+
         }
-        input.value = ""; 
-    } else {
-        alert("검색 결과가 없습니다: " + query);
+
     }
+
+
+
+    if (!found) {
+
+        herbData.forEach(function(herb) {
+
+            if (!found && herb.name.includes(query)) {
+
+                target = herb.coords; found = true;
+
+                if (!map.hasLayer(herbLayers[herb.name])) { map.addLayer(herbLayers[herb.name]); updateLayerCheckbox(herb.name, true); }
+
+                herbLayers[herb.name].eachLayer(function(l) { if (l instanceof L.Marker && l.getLatLng().equals(target)) targetMarker = l; });
+
+            }
+
+        });
+
+    }
+
+
+
+    if (found && target) { map.setView(target, -1); if (targetMarker) targetMarker.openPopup(); input.value = ""; } 
+
+    else { alert("검색 결과가 없습니다."); }
+
 };
+
 
 window.resetHuntingLayers = function() {
     Object.keys(huntingLayers).forEach(name => {
