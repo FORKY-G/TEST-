@@ -130,7 +130,19 @@ window.executeSearch = function() {
 
     if (result) {
         var pos = result.coords ? result.coords : mcToPx(result.x, result.z);
-        map.setView(pos, 2); 
+        map.setView(pos, 1); 
+
+        지도 위에 팝업(마커 말풍선) 띄우기
+        var popupContent = `<b>${result.name}</b>`;
+        if (result._category === 'poi') popupContent = `<b>${result.name}번 광산 💎</b>`;
+        if (result._category === 'npc') popupContent = `<b>NPC: ${result.name} 👤</b>`;
+        if (result._category === 'redhwan') popupContent = `<b>적환단: ${result.name} 🔴</b>`;
+        if (result.item) popupContent += `<br><span style="font-size:12px; color:blue;">획득: ${result.item}</span>`;
+
+        L.popup()
+            .setLatLng(pos)
+            .setContent(popupContent)
+            .openOn(map);
 
         // --- 정보창 강제 호출 로직 ---
         // 1. NPC (파일이 있고 relation이 있거나 category가 npc인 경우)
