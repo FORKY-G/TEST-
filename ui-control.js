@@ -269,24 +269,32 @@ window.showDiscoveryInfo = function(d) {
 window.showRedHwanInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
     panel.style.display = 'block';
+    panel.style.width = '220px'; 
+    panel.style.maxHeight = '400px'; 
+    panel.style.overflowY = 'auto'; 
+    panel.style.overflowX = 'hidden';
+    
     panel.innerHTML = `
-        <div style="border-bottom:3px solid #e74c3c; padding-bottom:8px; margin-bottom:12px;">
-            <b style="font-size:20px; color:#3F3F3F;">${d.name} 🔴</b>
+        <div style="border-bottom:3px solid #e74c3c; padding-bottom:8px; margin-bottom:12px; position:sticky; top:0; background:#C6C6C6; z-index:10;">
+            <b style="font-size:18px; color:#3F3F3F;">${d.name} 🔴</b>
+            <span style="float:right; cursor:pointer; font-weight:bold; font-size:18px;" onclick="document.getElementById('hunting-info-panel').style.display='none'">×</span>
             <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
                  title="좌표 복사"
-                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
-                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
+                 style="font-size:11px; color:#666; margin-top:5px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
+                좌표: <span style="text-decoration:underline; font-weight:bold;">${d.x}, ${d.y}, ${d.z}</span> 📋
             </div>
         </div>
         
-        <div style="text-align:center; background:#eee; padding:5px; border:1px solid #999;">
-            <p style="font-size:11px; color:#666; margin:0 0 5px 0;">이미지 클릭 시 크게 보기</p>
-            <img src="${d.file}" style="width:100%; cursor:pointer; border:1px solid #000;" 
+        <div style="text-align:center; background:#eee; padding:5px; border:1px solid #999; border-radius:5px; margin-bottom:10px;">
+            <p style="font-size:10px; color:#e74c3c; margin:0 0 5px 0;">📸 클릭 시 원본 보기</p>
+            <img src="${d.file}" style="width:100%; cursor:pointer; border:1px solid #000; display:block;" 
                  onclick="window.open('${d.file}', '_blank')" 
-                 onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                 onerror="this.src='https://via.placeholder.com/150?text=Image+Not+Found'">
         </div>
 
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
-                style="margin-top: 15px;">닫기</button>
+                style="margin-top: 5px; cursor: pointer; width: 100%; padding: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold; font-size:13px;">
+            닫기
+        </button>
     `;
 };
