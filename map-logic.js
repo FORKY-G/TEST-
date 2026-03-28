@@ -142,8 +142,8 @@ poiData.forEach(poi => {
                 if (!panel) return;
 
                 // data.js에 추가한 상세 정보를 가져옵니다.
-                const detail = mineDetailInfo[poi.type] || { title: poi.type, unique: "-", route: "-", desc: "" };
-                const common = mineDetailInfo["공통"] || "";
+                const detail = mineDetailinfo[poi.type] || { title: poi.type, unique: "-", route: "-", desc: "" };
+                const common = mineDetailinfo["공통"] || "";
 
                 // 기존 정보창 디자인에 동선/사냥터만 추가 (네 사이트 스타일에 맞춤)
                 panel.innerHTML = `
