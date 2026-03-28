@@ -47,24 +47,25 @@ var mountainLayers = L.layerGroup();
 
 var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
-// [수정] 각 그룹별로 루프를 돌며 선을 생성합니다.
+// [1] 각 그룹별로 루프를 돌며 선을 생성합니다.
 Object.keys(routeLinesByGroup).forEach(groupTag => {
-    // 1. 해당 그룹(색상)의 데이터만 추출해서 order 순으로 정렬
+    // 해당 그룹(색상)의 데이터만 추출해서 order 순으로 정렬
     const groupMines = poiData
         .filter(p => p.type === groupTag && p.order !== undefined)
         .sort((a, b) => a.order - b.order);
 
-    // 2. 해당 그룹 내에서 선 긋기
+    // 해당 그룹 내에서 선 긋기
     groupMines.forEach((mine, index) => {
         if (index === groupMines.length - 1) return;
         var nextMine = groupMines[index + 1];
 
+        // 점선 여부 판단 (LineType 또는 lineType 모두 체크)
         var typeValue = nextMine.lineType || nextMine.LineType || "";
         var isDotted = typeValue.toString().toLowerCase().trim() === "dotted";
         var dashValue = isDotted ? "15, 15" : null;
 
         var line = L.polyline([mine.coords, nextMine.coords], {
-            color: '#ff4757', 
+            color: '#ff4757',  // 모든 동선 기본색 (빨강)
             weight: 4, 
             opacity: 0, 
             dashArray: dashValue, 
@@ -76,28 +77,7 @@ Object.keys(routeLinesByGroup).forEach(groupTag => {
     });
 });
 
-// [3] 예외 구간 (53번 -> 7번 파란 점선) 별도 생성
-// 이 구간은 타입이 다르므로 위 루프에서 빠지기 때문에 따로 한 번만 그려줍니다.
-(function drawSpecialPath() {
-    var mine53 = poiData.find(p => p.name.toString() === "53");
-    var mine7 = poiData.find(p => p.name.toString() === "7");
-
-    if (mine53 && mine7) {
-        var specialLine = L.polyline([mine53.coords, mine7.coords], {
-            color: "#3498db",
-            weight: 5,
-            opacity: 0,
-            dashArray: "15, 15",
-            lineJoin: 'round',
-            interactive: false
-        }).addTo(map);
-
-        // 53번(녹색)과 7번(녹색이지만 혹시 모르니 양쪽 그룹에 노출)
-        if (routeLinesByGroup["녹"]) routeLinesByGroup["녹"].push(specialLine);
-    }
-})();
-
-// [2] 그룹 호버 이벤트 함수 (기존과 동일)
+// [2] 그룹 호버 이벤트 함수
 function addGroupRouteHover(marker, groupType) {
     marker.on('mouseover', function () {
         if (routeLinesByGroup[groupType]) {
