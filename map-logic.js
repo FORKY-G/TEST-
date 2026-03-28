@@ -57,16 +57,21 @@ sortedMines.forEach((mine, index) => {
     if (index === sortedMines.length - 1) return;
     var nextMine = sortedMines[index + 1];
 
-    // [체크] 데이터가 잘 들어오는지 콘솔에 찍어봅니다 (F12에서 확인 가능)
-    // console.log(nextMine.name + "번의 타입: " + nextMine.lineType);
+    // [1] 특정 구간(53번 -> 7번) 체크
+    // 데이터의 name이 문자열일 수 있으므로 toString()으로 비교합니다.
+    var isSpecialPath = (mine.name.toString() === "53" && nextMine.name.toString() === "7");
 
-    // 조건문을 더 단순하고 강력하게 바꿉니다.
-    var isDotted = (nextMine.lineType && nextMine.lineType.toLowerCase().includes("dot"));
-    var dashValue = isDotted ? "15, 20" : null; 
+    // [2] 점선 여부 판단 (기존 로직 + 특수 구간)
+    var typeValue = nextMine.lineType || nextMine.LineType || "";
+    var isDotted = typeValue.toString().toLowerCase().trim() === "dotted" || isSpecialPath;
+
+    // [3] 스타일 설정 (특수 구간이면 파란색, 아니면 기존 빨간색)
+    var pathColor = isSpecialPath ? "#3498db" : "#ff4757"; // 파란색 : 빨간색
+    var dashValue = isDotted ? "15, 15" : null;
 
     var lineStyle = {
-        color: '#ff4757', 
-        weight: 4, 
+        color: pathColor, 
+        weight: 5,        // 파란 점선이 더 잘 보이게 두께를 살짝 키웠습니다.
         opacity: 0, 
         dashArray: dashValue, 
         lineJoin: 'round',
@@ -75,6 +80,7 @@ sortedMines.forEach((mine, index) => {
 
     var line = L.polyline([mine.coords, nextMine.coords], lineStyle).addTo(map);
 
+    // [4] 그룹 저장 (기존과 동일)
     if (routeLinesByGroup[mine.type]) routeLinesByGroup[mine.type].push(line);
     if (routeLinesByGroup[nextMine.type] && !routeLinesByGroup[nextMine.type].includes(line)) {
         routeLinesByGroup[nextMine.type].push(line);
