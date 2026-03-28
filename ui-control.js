@@ -237,4 +237,31 @@ window.copyToClipboard = function(text) {
     }).catch(function(err) {
         console.error('복사 실패:', err);
     });
+    
+/** 12. 탐색(항아리) 정보창 표시 **/
+window.showDiscoveryInfo = function(d) {
+    var panel = document.getElementById('hunting-info-panel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="border-bottom:3px solid #8e44ad; padding-bottom:8px; margin-bottom:12px;">
+            <b style="font-size:20px; color:#3F3F3F;">${d.name} ⚱️</b>
+            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+                 title="좌표 복사"
+                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
+                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
+            </div>
+        </div>
+        
+        <div style="margin-bottom:10px;">
+            <div style="font-size:14px; color:#2c3e50; font-weight:bold;">획득 아이템: <span style="color:#e67e22;">${d.item}</span></div>
+            <div style="font-size:12px; color:#7f8c8d; margin-top:4px;">필요 도구: ${d.tool}</div>
+        </div>
+
+        <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
+            닫기
+        </button>
+    `;
+};
+    
 };
