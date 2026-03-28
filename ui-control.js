@@ -298,3 +298,34 @@ window.showRedHwanInfo = function(d) {
         </button>
     `;
 };
+
+/** 14. NPC 정보창 표시 **/
+window.showNPCInfo = function(d) {
+    var panel = document.getElementById('hunting-info-panel');
+    panel.style.display = 'block';
+    panel.style.width = '220px'; 
+
+    panel.innerHTML = `
+        <div style="border-bottom:3px solid #2980b9; padding-bottom:8px; margin-bottom:12px; position:relative;">
+            <b style="font-size:18px; color:#3F3F3F;">${d.name} <span style="font-size:12px; color:#2980b9;">(NPC)</span></b>
+            <span style="float:right; cursor:pointer; font-weight:bold; font-size:18px;" onclick="document.getElementById('hunting-info-panel').style.display='none'">×</span>
+            <div onclick="copyToClipboard('${d.x}, ${d.z}')" 
+                 title="좌표 복사"
+                 style="font-size:11px; color:#666; margin-top:5px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
+                좌표: <span style="text-decoration:underline; font-weight:bold;">${d.x}, ${d.z}</span> 📋
+            </div>
+        </div>
+        
+        <div style="margin-bottom:10px;">
+            <div style="font-size:13px; color:#2c3e50; font-weight:bold;">관련 정보:</div>
+            <div style="font-size:12px; color:#555; background:rgba(255,255,255,0.8); padding:8px; border:1px solid #999; margin-top:5px; min-height:30px; word-break:keep-all;">
+                ${d.relation || "특이사항 없음"}
+            </div>
+        </div>
+
+        <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                style="margin-top: 5px; cursor: pointer; width: 100%; padding: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
+            닫기
+        </button>
+    `;
+};
