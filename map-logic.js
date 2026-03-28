@@ -47,57 +47,62 @@ var mountainLayers = L.layerGroup();
 
 var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
-const sortedMines = poiData
-    .filter(p => p.order !== undefined)
-    .sort((a, b) => a.order - b.order);
+// [수정] 각 그룹별로 루프를 돌며 선을 생성합니다.
+Object.keys(routeLinesByGroup).forEach(groupTag => {
+    // 1. 해당 그룹(색상)의 데이터만 추출해서 order 순으로 정렬
+    const groupMines = poiData
+        .filter(p => p.type === groupTag && p.order !== undefined)
+        .sort((a, b) => a.order - b.order);
 
-sortedMines.forEach((mine, index) => {
-    if (index === sortedMines.length - 1) return;
-    var nextMine = sortedMines[index + 1];
+    // 2. 해당 그룹 내에서 선 긋기
+    groupMines.forEach((mine, index) => {
+        if (index === groupMines.length - 1) return;
+        var nextMine = groupMines[index + 1];
 
-    // [핵심 추가] 같은 타입(색상)일 때만 선을 긋습니다. 
-    // 단, 53번->7번 같은 특수 구간은 타입이 달라도 허용합니다.
-    var isSpecialPath = (mine.name.toString() === "53" && nextMine.name.toString() === "7");
-    var isSameGroup = (mine.type === nextMine.type);
-
-    // 같은 그룹이거나 특수 구간일 때만 선 생성 로직 실행
-    if (isSameGroup || isSpecialPath) {
-        
         var typeValue = nextMine.lineType || nextMine.LineType || "";
-        var isDotted = typeValue.toString().toLowerCase().trim() === "dotted" || isSpecialPath;
-
-        var pathColor = isSpecialPath ? "#3498db" : "#ff4757"; 
+        var isDotted = typeValue.toString().toLowerCase().trim() === "dotted";
         var dashValue = isDotted ? "15, 15" : null;
 
-        var lineStyle = {
-            color: pathColor, 
+        var line = L.polyline([mine.coords, nextMine.coords], {
+            color: '#ff4757', 
             weight: 4, 
             opacity: 0, 
             dashArray: dashValue, 
             lineJoin: 'round',
             interactive: false 
-        };
+        }).addTo(map);
 
-        var line = L.polyline([mine.coords, nextMine.coords], lineStyle).addTo(map);
-
-        // 해당 그룹 리스트에만 선을 넣습니다.
-        if (routeLinesByGroup[mine.type]) {
-            routeLinesByGroup[mine.type].push(line);
-        }
-        
-        // 만약 타입이 다른 특수 구간(53->7)이라면 다음 그룹에도 선을 넣어줍니다.
-        if (isSpecialPath && routeLinesByGroup[nextMine.type]) {
-            routeLinesByGroup[nextMine.type].push(line);
-        }
-    }
+        routeLinesByGroup[groupTag].push(line);
+    });
 });
 
-// [2] 그룹 호버 이벤트 함수 (색상 유지 버전)
+// [3] 예외 구간 (53번 -> 7번 파란 점선) 별도 생성
+// 이 구간은 타입이 다르므로 위 루프에서 빠지기 때문에 따로 한 번만 그려줍니다.
+(function drawSpecialPath() {
+    var mine53 = poiData.find(p => p.name.toString() === "53");
+    var mine7 = poiData.find(p => p.name.toString() === "7");
+
+    if (mine53 && mine7) {
+        var specialLine = L.polyline([mine53.coords, mine7.coords], {
+            color: "#3498db",
+            weight: 5,
+            opacity: 0,
+            dashArray: "15, 15",
+            lineJoin: 'round',
+            interactive: false
+        }).addTo(map);
+
+        // 53번(녹색)과 7번(녹색이지만 혹시 모르니 양쪽 그룹에 노출)
+        if (routeLinesByGroup["녹"]) routeLinesByGroup["녹"].push(specialLine);
+    }
+})();
+
+// [2] 그룹 호버 이벤트 함수 (기존과 동일)
 function addGroupRouteHover(marker, groupType) {
     marker.on('mouseover', function () {
         if (routeLinesByGroup[groupType]) {
             routeLinesByGroup[groupType].forEach(line => {
-                line.setStyle({ opacity: 1 }); // 원래 설정한 색상(빨강/파랑) 그대로 노출
+                line.setStyle({ opacity: 1 });
             });
         }
     });
