@@ -241,7 +241,7 @@ discoveryData.forEach(d => {
 redHwanData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
         icon: L.icon({
-            iconUrl: './images/red.png', // 적환단 기본 마커 이미지
+            iconUrl: 'red.png', // 적환단 기본 마커 이미지
             iconSize: [30, 30],
             iconAnchor: [15, 15]
         })
