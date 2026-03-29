@@ -283,28 +283,40 @@ npcData.forEach(d => {
     marker.on('click', () => showNPCInfo(d));
 });
 
-/** 11. 히든퀘스트 동선 설정 (NPC 로직 아래에 추가) **/
-var questLayers = L.layerGroup(); // 레이어 생성
+/** 11. 히든퀘스트 동선 설정 (보라색 + 호버 효과) **/
+var questLayers = L.layerGroup(); 
 
-// 상단주 -> 부숴진마차 -> 자운스님 순서로 데이터 찾기
 var questPathData = [
     npcData.find(n => n.name.includes("상단주")),
     npcData.find(n => n.name.includes("부숴진마차")),
     npcData.find(n => n.name.includes("자운스님"))
-].filter(p => p !== undefined); // 데이터가 없을 경우를 대비한 방어 코드
+].filter(p => p !== undefined);
 
 if (questPathData.length >= 2) {
     var questLatLngs = questPathData.map(p => mcToPx(p.x, p.z));
 
+    // [중요] 처음에는 투명도(opacity)를 0으로 설정합니다.
     var questLine = L.polyline(questLatLngs, {
-        color: '#a29bfe',      // 빨간색
-        weight: 3,             // 두께
-        opacity: 0.8,          // 투명도
-        dashArray: '10, 10',   // 점선
-        lineJoin: 'round'
+        color: '#6c5ce7',      // 보라색
+        weight: 4,
+        opacity: 0,            // 마우스 올리기 전엔 안 보임
+        dashArray: '10, 10',   
+        lineJoin: 'round',
+        interactive: false     // 선 자체는 클릭 안 되게 (마커 방해 금지)
     }).addTo(questLayers);
 
-    questLine.bindTooltip("<b>상단주 히든퀘스트 동선</b>", { sticky: true });
+    // NPC 마커들에 호버 이벤트 연결 함수
+    function addQuestRouteHover(marker) {
+        marker.on('mouseover', function () {
+            questLine.setStyle({ opacity: 1 }); // 마우스 올리면 선 등장
+        });
+        marker.on('mouseout', function () {
+            questLine.setStyle({ opacity: 0 }); // 마우스 치우면 선 사라짐
+        });
+    }
+
+    // 상단주, 마차, 자운스님 마커를 찾아서 호버 이벤트 등록
+    // 이 작업은 npcData.forEach 루프 안에서 처리하거나, 아래처럼 수동으로 연결합니다.
 }
 
 /** 5. 메뉴 UI 구성 **/
