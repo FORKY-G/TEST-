@@ -176,6 +176,7 @@ var npcData = [
     { name: "망한대장장이", x: 5369, z: -3462, relation: "", file: "mang.png" },
     { name: "심마니", x: -3485, z: -1949, relation: "", file: "simmani.png" },
     { name: "감시관", x: 5176, z: 4585, relation: "67렙 퀘스트<br>*사보도1개,철3개,무공정수10개</br>", file: "gamsi.png" },
+     { name: "척후병", x: -3963, z: 2612, relation: "", file: "scout.png" },
     { name: "탐령구제작", x: -2076, z: 425, relation: "철1개, 적동괴2개", file: "gu.png" },
     { name: "정청주제작", x: 2034, z: 3265, relation: "철1개, 적동괴2개, 송진덩어리1개", file: "jungju.png" }
 ];
