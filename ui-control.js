@@ -221,7 +221,7 @@ window.showMineInfo = function(poi) {
         </div>
 
         <div style="background:#f9f9f9; padding:10px; border-radius:5px; border-left:4px solid #555; margin-bottom:10px;">
-            <div style="font-weight:bold; color:#2c3e50; margin-bottom:4px; font-size:14px;">📍 권장 동선</div>
+            <div style="font-weight:bold; color:#2c3e50; margin-bottom:4px; font-size:14px;">📍 추천 동선</div>
             <div style="font-size:13px; color:#333; line-height:1.4; word-break:keep-all;">${detail.route || "정보 없음"}</div>
         </div>
 
