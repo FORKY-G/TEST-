@@ -177,7 +177,7 @@ var npcData = [
     { name: "심마니", x: -3485, z: -1949, relation: "", file: "simmani.png" },
     { name: "감시관(lv.67)", x: 5176, z: 4585, relation: "필요아이템<br>*사보도1개,철3개,무공정수10개</br>", file: "gamsi.png" },
     { name: "척후병", x: -3963, z: 2612, relation: "", file: "scout.png" },
-    { name: "상단주(lv.50)", x: -3260, z: -4290, relation: "<span style='color:#ff4757;'>*상단주 히든퀘스트1</span>", file: "owner.png" },
+    { name: "상단주(lv.50)", x: -3260, z: -4290, relation: "<span style='color:#ff4757;'>*상단주 히든퀘스트1</span><br>보상 금환단1개</br>", file: "owner.png" },
     { name: "부숴진마차(lv.50)", x: -2706, z: -2372, relation: "<span style='color:#ff4757;'>*상단주 히든퀘스트2</span>", file: "macha.png" },
     { name: "탐령구제작", x: -2076, z: 425, relation: "철1개, 적동괴2개", file: "gu.png" },
     { name: "정청주제작", x: 2034, z: 3265, relation: "철1개, 적동괴2개, 송진덩어리1개", file: "jungju.png" }
