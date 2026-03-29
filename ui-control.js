@@ -169,7 +169,14 @@ window.executeSearch = function() {
         else if (result._category === 'zodiac') {
             showZodiacInfo(result);
         }
-        // 7. 기타 (약초 등)
+        // 7. 의문의상자
+       else if (result._category === 'box') {
+            L.popup()
+                .setLatLng(pos)
+                .setContent(`<b>${result.name} 📦</b><br>좌표: ${result.x}, ${result.z}`)
+                .openOn(map);
+        }
+        // 8. 기타 (약초 등)
         else {
             L.popup().setLatLng(pos).setContent(`<b>${result.name}</b>`).openOn(map);
         }
