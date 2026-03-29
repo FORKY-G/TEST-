@@ -173,6 +173,8 @@ poiData.forEach(poi => {
     }
 });
 
+
+
 // 약초
 herbData.forEach(herb => {
     var hCol = herbColors[herb.name] || '#8e44ad';
@@ -269,6 +271,41 @@ redHwanData.forEach(d => {
     marker.on('click', () => showRedHwanInfo(d));
 });
 
+/** 11. 히든퀘스트 동선 설정 (보라색) **/
+var questLayers = L.layerGroup(); 
+
+// 데이터 추출
+var questPathData = [
+    npcData.find(n => n.name.includes("상단주")),
+    npcData.find(n => n.name.includes("부숴진마차")),
+    npcData.find(n => n.name.includes("자운스님"))
+].filter(p => p !== undefined);
+
+var questLine; // 전역 변수처럼 선언
+
+if (questPathData.length >= 2) {
+    var questLatLngs = questPathData.map(p => mcToPx(p.x, p.z));
+
+    questLine = L.polyline(questLatLngs, {
+        color: '#6c5ce7',      // 보라색
+        weight: 4,
+        opacity: 0,            // 처음엔 투명하게
+        dashArray: '10, 10',   
+        lineJoin: 'round',
+        interactive: false
+    }).addTo(questLayers);
+}
+
+// 호버 이벤트 함수 정의
+function addQuestRouteHover(marker) {
+    marker.on('mouseover', function () {
+        if(questLine) questLine.setStyle({ opacity: 1 });
+    });
+    marker.on('mouseout', function () {
+        if(questLine) questLine.setStyle({ opacity: 0 });
+    });
+}
+
 // NPC 마커 생성 (discoveryData 로직 아래에 추가)
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
@@ -283,41 +320,6 @@ npcData.forEach(d => {
     marker.on('click', () => showNPCInfo(d));
 });
 
-/** 11. 히든퀘스트 동선 설정 (보라색 + 호버 효과) **/
-var questLayers = L.layerGroup(); 
-
-var questPathData = [
-    npcData.find(n => n.name.includes("상단주")),
-    npcData.find(n => n.name.includes("부숴진마차")),
-    npcData.find(n => n.name.includes("자운스님"))
-].filter(p => p !== undefined);
-
-if (questPathData.length >= 2) {
-    var questLatLngs = questPathData.map(p => mcToPx(p.x, p.z));
-
-    // [중요] 처음에는 투명도(opacity)를 0으로 설정합니다.
-    var questLine = L.polyline(questLatLngs, {
-        color: '#6c5ce7',      // 보라색
-        weight: 4,
-        opacity: 0,            // 마우스 올리기 전엔 안 보임
-        dashArray: '10, 10',   
-        lineJoin: 'round',
-        interactive: false     // 선 자체는 클릭 안 되게 (마커 방해 금지)
-    }).addTo(questLayers);
-
-    // NPC 마커들에 호버 이벤트 연결 함수
-    function addQuestRouteHover(marker) {
-        marker.on('mouseover', function () {
-            questLine.setStyle({ opacity: 1 }); // 마우스 올리면 선 등장
-        });
-        marker.on('mouseout', function () {
-            questLine.setStyle({ opacity: 0 }); // 마우스 치우면 선 사라짐
-        });
-    }
-
-    // 상단주, 마차, 자운스님 마커를 찾아서 호버 이벤트 등록
-    // 이 작업은 npcData.forEach 루프 안에서 처리하거나, 아래처럼 수동으로 연결합니다.
-}
 
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
