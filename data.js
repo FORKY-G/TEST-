@@ -172,5 +172,6 @@ var npcData = [
     { name: "도공", x: -4786, z: 1442, relation: "", file: "dogong.png" },
     { name: "도사", x: -1290, z: -591, relation: "", file: "dosa.png" },
     { name: "명인대장장이", x: -7051, z: -727, relation: "", file: "mungin.png" },
-    { name: "망한대장장이", x: 5369, z: -3462, relation: "", file: "mang.png" }
+    { name: "망한대장장이", x: 5369, z: -3462, relation: "", file: "mang.png" },
+    { name: "탐령구제작", x: -2076, z: 425, relation: "", file: "gu.png" },
 ];
