@@ -164,6 +164,7 @@ var npcData = [
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
     { name: "주루대주", x: -2545, z: -6020, relation: "", file: "juru.png" },
     { name: "자운스님", x: -4366, z: 1394, relation: "해무사퀘스트", file: "jaun.png" },
+     { name: "조사중인스님", x: 392, z: -1518, relation: "", file: "josa.png" },
     { name: "풍잔객", x: 3039, z: 4235, relation: "사도연퀘스트", file: "pung.png" },
     { name: "기록서", x: 1539, z: 4654, relation: "사도연퀘스트", file: "memo.png" },
     { name: "시녀", x: -6535, z: -2577, relation: "해무사퀘스트", file: "girl.png" },
