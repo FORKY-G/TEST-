@@ -164,7 +164,7 @@ var npcData = [
     { name: "해진", x: -4311, z: 5831, relation: "해적선퀘스트", file: "haejin.png" },
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
     { name: "주루대주", x: -2545, z: -6020, relation: "", file: "juru.png" },
-    { name: "자운스님", x: -4366, z: 1394, relation: "해무사퀘스트", file: "jaun.png" },
+    { name: "자운스님", x: -4366, z: 1394, relation: "<span style='color:#ff4757;'>*상단주 히든퀘스트3(향목가루5개)</span><br>해무사퀘스트</br>", file: "jaun.png" },
      { name: "조사중인스님", x: 392, z: -1518, relation: "", file: "josa.png" },
     { name: "풍잔객", x: 3039, z: 4235, relation: "사도연퀘스트", file: "pung.png" },
     { name: "기록서", x: 1539, z: 4654, relation: "사도연퀘스트", file: "memo.png" },
