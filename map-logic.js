@@ -272,6 +272,7 @@ redHwanData.forEach(d => {
 
 /** 11. 히든퀘스트 및 동선 설정 (통합 관리) **/
 var questLayers = L.layerGroup().addTo(map); 
+var poiLayers = { '십이간지': L.layerGroup(), ... };
 
 // [A] 상단주 & 뱀 퀘스트 동선 (보라색)
 var questPathData = [
