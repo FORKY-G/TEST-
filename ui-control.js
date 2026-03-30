@@ -29,11 +29,11 @@ window.showHuntingInfo = function(info) {
                 
                 <div style="text-align: center; margin: 10px 0; background:#eee; padding:5px; border:1px solid #ddd; border-radius:5px;">
                     <p style="font-size:10px; color:#6c5ce7; margin:0 0 5px 0;">📸 클릭 시 원본 보기</p>
-                    <img src="snake.png" 
+                    <img src="snake.jpg" 
                          title="클릭하여 크게 보기"
                          style="width: 100%; max-width: 180px; border-radius: 5px; border:1px solid #ddd; cursor:pointer;" 
-                         onclick="window.open('snake.png', '_blank')" 
-                         onerror="this.src='https://via.placeholder.com/150?text=snake.png+Missing'">
+                         onclick="window.open('snake.jpg', '_blank')" 
+                         onerror="this.src='https://via.placeholder.com/150?text=snake.jpg+Missing'">
                 </div>
                 ${coordsHtml}
                 <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
