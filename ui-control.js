@@ -26,9 +26,14 @@ window.showHuntingInfo = function(info) {
             <div style="border: 2px solid #6c5ce7; padding: 12px; background: #fff; border-radius: 8px;">
                 <h3 style="margin: 0; color: #6c5ce7;">🐍 ${info.name} <small style="color:#666; font-size:14px;">(${info.lv})</small></h3>
                 <div style="margin-top: 8px; font-size: 15px; color: #444; line-height:1.4;">${info.monsters}</div>
-                <div style="text-align: center; margin: 10px 0;">
-                    <img src="snake.jpg" style="width: 100%; max-width: 180px; border-radius: 5px; border:1px solid #ddd;" 
-                         onerror="this.src='https://via.placeholder.com/150?text=snake.jpg+Missing'">
+                
+                <div style="text-align: center; margin: 10px 0; background:#eee; padding:5px; border:1px solid #ddd; border-radius:5px;">
+                    <p style="font-size:10px; color:#6c5ce7; margin:0 0 5px 0;">📸 클릭 시 원본 보기</p>
+                    <img src="snake.png" 
+                         title="클릭하여 크게 보기"
+                         style="width: 100%; max-width: 180px; border-radius: 5px; border:1px solid #ddd; cursor:pointer;" 
+                         onclick="window.open('snake.png', '_blank')" 
+                         onerror="this.src='https://via.placeholder.com/150?text=snake.png+Missing'">
                 </div>
                 ${coordsHtml}
                 <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
