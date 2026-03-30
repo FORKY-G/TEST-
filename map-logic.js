@@ -120,17 +120,22 @@ herbData.forEach(herb => {
 });
 
 /** 6. 십이간지 및 퀘스트 동선 설정 **/
-// [A] 십이간지 동선 생성 (먼저 생성)
 var zodiacOrderNames = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
-var zodiacPathPoints = zodiacOrderNames.map(name => {
-    var found = zodiacData.find(z => z && z.name === name);
+
+var zodiacPathPoints = zodiacOrderNames.map(animalName => {
+    // .find() 조건을 '===' 대신 '.includes()'로 변경하여 "1.쥐"에서도 "쥐"를 찾게 합니다.
+    var found = zodiacData.find(z => z && z.name && z.name.includes(animalName)); 
     return found ? mcToPx(found.x, found.z) : null;
 }).filter(p => p !== null);
 
 window.zodiacLine = null;
 if (zodiacPathPoints.length >= 2) {
     window.zodiacLine = L.polyline(zodiacPathPoints, {
-        color: '#f1c40f', weight: 6, opacity: 0, dashArray: '10, 10', interactive: false
+        color: '#f1c40f', 
+        weight: 6, 
+        opacity: 0, // 👈 여전히 마우스 올릴 때만 보임 (항상 보려면 0.8로 수정)
+        dashArray: '10, 10', 
+        interactive: false
     }).addTo(poiLayers['십이간지']);
 }
 
