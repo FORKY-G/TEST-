@@ -161,7 +161,7 @@ var redHwanData = [
 
 /** 10. NPC 데이터 **/
 var npcData = [
-    { name: "해진", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1</span>", file: "haejin.png" },
+    { name: "해진", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1</span><br>해진>해적선>해진>백향초재배지>해진</br>", file: "haejin.png" },
     { name: "해적선", x: -3619, z: 4060, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트2(포탈입장-훔친백향초)</span>", file: "boat.png" },
     { name: "백향초재배지", x: -5488, z: 4162, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트3(수상한포탈)</span>", file: "door.png" },
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
