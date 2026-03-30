@@ -187,34 +187,64 @@ herbData.forEach(herb => {
     herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
 });
 
-/** 6. 메뉴 UI 구성 **/
+/** 메뉴 UI 구성 **/
+
 var menuOrder = {
+
     "스폰": poiLayers['스폰'], 
+
     "십이간지": poiLayers['십이간지'],
+
     "<span class='divider-line'></span>": L.layerGroup(),
+
     "👤 NPC": npcLayers,
+
     "📜 히든퀘스트": questLayers, 
+
     "<span class='divider-line'></span> ": L.layerGroup(),
+
     "⛰️ 산(비석)": mountainLayers,
+
+    "🔴 적환단": redHwanLayers,
+
     "🔍 탐색": discoveryLayers,
+
+    "📦 의문의상자" : mysteryBoxLayers,
+
     "<span class='divider-line'></span>  ": L.layerGroup(),
+
     "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
+
     "<span style='color: #2ecc71;'>녹색광산</span>": poiLayers['녹색광산'],
+
     "<span style='color: #3498db;'>청색광산</span>": poiLayers['청색광산'],
+
     "<span style='color: #f1c40f;'>황색광산</span>": poiLayers['황색광산'],
+
     "<span style='color: #e74c3c;'>적색광산</span>": poiLayers['적색광산'],
+
     "<span class='divider-line'></span>   ": L.layerGroup(),
-    "<span class='herb-group-label'>🌿 약초 서식지</span>": L.layerGroup()
+
+    "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
+
 };
 
-// 약초 메뉴 동적 생성
 Object.keys(herbLayers).sort().forEach(name => {
+
     var herb = herbData.find(h => h.name === name);
+
     if (herb) {
+
         var isRare = ["월계엽", "철목영지", "금향과", "빙백설화", "홍련초"].includes(name);
-        var label = `<span onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ})">${name}${isRare ? ' (희귀)' : ''}</span>`;
-        menuOrder[label] = herbLayers[name];
+
+        var rareHtml = isRare ? ` <span style="color:#e74c3c; font-size:10px;">(희귀)</span>` : "";
+
+        var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
+
+        menuOrder[htmlLabel] = herbLayers[name];
+
     }
+
 });
 
 map.on('click', () => { if(document.getElementById('hunting-info-panel')) document.getElementById('hunting-info-panel').style.display = 'none'; });
