@@ -63,16 +63,22 @@ window.showHuntingInfo = function(info) {
     panel.style.display = 'block';
 };
 
-// 사냥터 클릭 이동 로직
+// 사냥터 클릭 이동 로직 (ui-control.js 내)
 window.moveAndShowHunt = function(name) {
     var info = huntingInfo.find(h => h.name === name);
     if (!info) return;
+
+    // 1. 레이어가 꺼져있다면 즉시 켜기
     if (!map.hasLayer(huntingLayers[name])) {
         map.addLayer(huntingLayers[name]);
         updateLayerCheckbox(name, true);
     }
-    map.setView(info.center, -1);
-    setTimeout(() => showHuntingInfo(info), 100); 
+
+    // 2. 화면 이동 (한 번에 가도록 setView 활용)
+    map.setView(info.center, 0); // 0은 적절한 줌 레벨입니다. 필요시 조정하세요.
+
+    // 3. 정보창 즉시 호출 (지연 시간 삭제 혹은 대폭 단축)
+    showHuntingInfo(info);
 };
 
 // 사냥터 목록 생성
