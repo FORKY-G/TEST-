@@ -298,6 +298,8 @@ window.showZodiacInfo = function(z) {
         
         <div style="font-size:14px; color:#444; line-height:1.6;">
             해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
+            <br>[십이지신 순서]</br>
+            <br>쥐-소-호랑이-도사-토끼-용-뱀-도사-말-양-원숭이-도사-닭-개-돼지</br>
         </div>
         
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
