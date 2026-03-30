@@ -208,13 +208,44 @@ zodiacData.forEach(z => {
     });
 });
 
-// 사냥터
+// 사냥터 생성 로직 (멸문 특수 처리 버전)
 huntingInfo.forEach(info => {
     var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-    var clickMarker = L.circleMarker(info.center, { radius: 35, color: '#e74c3c', weight: 1, fillOpacity: 0.1 });
-    imgOverlay.on('add', function() { showHuntingInfo(info); });
-    clickMarker.on('click', function() { showHuntingInfo(info); });
-    imgOverlay.on('remove', function() { document.getElementById('hunting-info-panel').style.display = 'none'; });
+    
+    // 1. 클릭용 마커 설정 (멸문은 보라색, 나머지는 빨간색)
+    var isMyeonMun = info.name === "멸문";
+    var clickMarker = L.circleMarker(info.center, { 
+        radius: 35, 
+        color: isMyeonMun ? '#6c5ce7' : '#e74c3c', // 멸문은 보라색 테두리
+        weight: isMyeonMun ? 3 : 1,                // 멸문은 좀 더 두껍게
+        fillOpacity: 0.1,
+        interactive: true                          // 클릭 가능하게 설정
+    });
+
+    // 2. 클릭 이벤트 연결
+    clickMarker.on('click', function() {
+        if (isMyeonMun) {
+            // 멸문일 때는 snake.png를 포함한 특수 정보창 호출
+            showSpecialHuntingInfo(info, 'snake.jpg');
+        } else {
+            // 나머지는 기존 정보창 호출
+            showHuntingInfo(info);
+        }
+    });
+
+    // 3. 메뉴에서 체크박스 켰을 때(레이어 추가될 때) 이벤트
+    imgOverlay.on('add', function() { 
+        if (isMyeonMun) showSpecialHuntingInfo(info, 'snake.jpg');
+        else showHuntingInfo(info); 
+    });
+
+    // 4. 메뉴에서 체크 해제 시 정보창 닫기
+    imgOverlay.on('remove', function() { 
+        var panel = document.getElementById('hunting-info-panel');
+        if(panel) panel.style.display = 'none'; 
+    });
+
+    // 레이어 그룹 생성
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
 
