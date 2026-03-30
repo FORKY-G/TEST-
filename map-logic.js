@@ -75,24 +75,27 @@ if (typeof poiData !== 'undefined') {
 /** (중간 5, 6번 섹션은 그대로 두셔도 됩니다) **/
 
 /** 7. 기타 마커 (사냥터, 상자, 적환단) **/
-// [수정] huntingInfo 체크 추가
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
         var isMyeonMun = info.name === "멸문";
         var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillColor: 'transparent', fillOpacity: 0, interactive: true });
 
-        clickMarker.on('click', (e) => { if (e.originalEvent) L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        clickMarker.on('click', (e) => { 
+            if (e.originalEvent) L.DomEvent.stopPropagation(e); 
+            showHuntingInfo(info); 
+        });
+
         if (isMyeonMun) {
             clickMarker.addTo(map);
             clickMarker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
             clickMarker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
         }
         huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
-    });
-}
+    }); // <--- huntingInfo.forEach 끝
+} // <--- huntingInfo if문 끝
 
-// 탐색 (항아리) - 사용자님 원본 코드 복구
+// 탐색 (항아리)
 if (typeof discoveryData !== 'undefined') {
     discoveryData.forEach(d => {
         var marker = L.marker(mcToPx(d.x, d.z), {
@@ -108,13 +111,16 @@ if (typeof discoveryData !== 'undefined') {
         marker.on('click', function() {
             showDiscoveryInfo(d);
         });
-    });
-}
+    }); // <--- discoveryData.forEach 끝
+} // <--- discoveryData if문 끝
 
-// NPC 데이터 체크
+// NPC 생성
 if (typeof npcData !== 'undefined') {
     npcData.forEach(d => {
-        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
+        var marker = L.marker(mcToPx(d.x, d.z), { 
+            icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) 
+        }).addTo(npcLayers);
+
         if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
             marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
             marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
@@ -125,8 +131,9 @@ if (typeof npcData !== 'undefined') {
         }
         marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
         marker.on('click', () => showNPCInfo(d));
-    });
-}
+    }); // <--- npcData.forEach 끝
+} // <--- npcData if문 끝
+
 
 // 상자 및 적환단도 동일하게 if 체크를 해주면 안전합니다.
 if (typeof mysteryBoxData !== 'undefined') {
