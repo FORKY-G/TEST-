@@ -379,16 +379,6 @@ map.on('click', function() {
     if (panel) panel.style.display = 'none';
 });
 
-// 약초 목록 동적 추가
-Object.keys(herbLayers).sort().forEach(name => {
-    var herb = herbData.find(h => h.name === name);
-    if (!herb) return;
-    var isRare = ["월계엽", "철목영지", "금향과", "빙백설화", "홍련초"].includes(name);
-    var rareHtml = isRare ? ` <span style="color:#e74c3c; font-size:10px;">(희귀)</span>` : "";
-    var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
-    menuOrder[htmlLabel] = herbLayers[name];
-});
-
 // 약초 목록 추가
 Object.keys(herbLayers).sort().forEach(name => {
     var herb = herbData.find(h => h.name === name);
