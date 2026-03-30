@@ -208,13 +208,12 @@ zodiacData.forEach(z => {
     });
 });
 
-// --- 여기서부터 복사하세요 ---
-
-// 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
+// [교체 시작점] 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
 huntingInfo.forEach(info => {
     var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
     var isMyeonMun = info.name === "멸문";
     
+    // 클릭용 마커 (멸문은 보라색, 나머지는 빨간색)
     var clickMarker = L.circleMarker(info.center, { 
         radius: 40, 
         color: isMyeonMun ? '#6c5ce7' : '#e74c3c', 
@@ -224,15 +223,19 @@ huntingInfo.forEach(info => {
         interactive: true  
     });
 
+    // 지도에서 사냥터 클릭 시 정보창 띄우기
     clickMarker.on('click', function(e) {
         if (e.originalEvent) L.DomEvent.stopPropagation(e);
         showHuntingInfo(info); 
     });
 
-    // [추가] 멸문 사냥터 호버 시 뱀 퀘스트 동선 표시
+    // [중요] 멸문 사냥터는 메뉴 체크 안 해도 항상 클릭 가능하도록 즉시 추가
     if (isMyeonMun) {
-        clickMarker.on('mouseover', function() { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
-        clickMarker.on('mouseout', function() { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
+        clickMarker.addTo(map); 
+        
+        // 멸문 영역 호버 시 뱀 퀘스트 동선 표시
+        clickMarker.on('mouseover', function() { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        clickMarker.on('mouseout', function() { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
     }
 
     imgOverlay.on('add', function() { showHuntingInfo(info); });
@@ -272,9 +275,9 @@ var questPathData = [
     npcData.find(n => n && n.name && n.name.includes("자운스님"))
 ].filter(p => p !== undefined);
 
-var questLine;
+window.questLine = null; // 호버 시 참조를 위해 전역(window) 처리
 if (questPathData.length >= 2) {
-    questLine = L.polyline(questPathData.map(p => mcToPx(p.x, p.z)), {
+    window.questLine = L.polyline(questPathData.map(p => mcToPx(p.x, p.z)), {
         color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
     }).addTo(questLayers);
 }
@@ -287,15 +290,15 @@ var snakeQuestPathData = [
     zodiacData.find(z => z && z.name === "뱀")
 ].filter(p => p !== undefined);
 
-var snakeQuestLine;
+window.snakeQuestLine = null; 
 if (snakeQuestPathData.length >= 2) {
     var snakeLatLngs = snakeQuestPathData.map(p => p.coords || p.center || mcToPx(p.x, p.z));
-    snakeQuestLine = L.polyline(snakeLatLngs, {
+    window.snakeQuestLine = L.polyline(snakeLatLngs, {
         color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
-    }).addTo(questLayers); // questLayers에 똑같이 추가해서 메뉴 하나로 관리
+    }).addTo(questLayers); 
 }
 
-// NPC 마커 생성 및 호버 연결
+// NPC 마커 생성 및 호버 연결 [교체 끝점]
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
         icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] })
@@ -303,13 +306,13 @@ npcData.forEach(d => {
 
     // 상단주 퀘스트 호버
     if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
-        marker.on('mouseover', () => { if(questLine) questLine.setStyle({ opacity: 0.9 }); });
-        marker.on('mouseout', () => { if(questLine) questLine.setStyle({ opacity: 0 }); });
+        marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
     }
     // 뱀 퀘스트 호버 (도사, 도공)
     if (d.name.includes("도사") || d.name.includes("도공")) {
-        marker.on('mouseover', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
-        marker.on('mouseout', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
+        marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
     }
 
     marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
