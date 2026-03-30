@@ -49,25 +49,99 @@ var questLayers = L.layerGroup().addTo(map); // 히든퀘스트 레이어
 /** 4. 광산 및 동선 로직 **/
 var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
-Object.keys(routeLinesByGroup).forEach(groupTag => {
-    const groupMines = poiData
-        .filter(p => p.type === groupTag && p.order !== undefined)
-        .sort((a, b) => a.order - b.order);
+// [수정] poiData가 존재할 때만 실행하도록 체크 (53번 줄 에러 방지)
+if (typeof poiData !== 'undefined') {
+    Object.keys(routeLinesByGroup).forEach(groupTag => {
+        const groupMines = poiData
+            .filter(p => p.type === groupTag && p.order !== undefined)
+            .sort((a, b) => a.order - b.order);
 
-    groupMines.forEach((mine, index) => {
-        if (index === groupMines.length - 1) return;
-        var nextMine = groupMines[index + 1];
-        var typeValue = nextMine.lineType || nextMine.LineType || "";
-        var isDotted = typeValue.toString().toLowerCase().trim() === "dotted";
-        var dashValue = isDotted ? "15, 15" : null;
+        groupMines.forEach((mine, index) => {
+            if (index === groupMines.length - 1) return;
+            var nextMine = groupMines[index + 1];
+            var typeValue = nextMine.lineType || nextMine.LineType || "";
+            var isDotted = typeValue.toString().toLowerCase().trim() === "dotted";
+            var dashValue = isDotted ? "15, 15" : null;
 
-        var line = L.polyline([mine.coords, nextMine.coords], {
-            color: '#ff4757', weight: 4, opacity: 0, dashArray: dashValue, lineJoin: 'round', interactive: false 
-        }).addTo(map);
+            var line = L.polyline([mine.coords, nextMine.coords], {
+                color: '#ff4757', weight: 4, opacity: 0, dashArray: dashValue, lineJoin: 'round', interactive: false 
+            }).addTo(map);
 
-        routeLinesByGroup[groupTag].push(line);
+            routeLinesByGroup[groupTag].push(line);
+        });
     });
-});
+}
+
+/** (중간 5, 6번 섹션은 그대로 두셔도 됩니다) **/
+
+/** 7. 기타 마커 (사냥터, 상자, 적환단) **/
+// [수정] huntingInfo 체크 추가
+if (typeof huntingInfo !== 'undefined') {
+    huntingInfo.forEach(info => {
+        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+        var isMyeonMun = info.name === "멸문";
+        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillColor: 'transparent', fillOpacity: 0, interactive: true });
+
+        clickMarker.on('click', (e) => { if (e.originalEvent) L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        if (isMyeonMun) {
+            clickMarker.addTo(map);
+            clickMarker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+            clickMarker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+        }
+        huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+    });
+}
+
+// 탐색 (항아리) - 사용자님 원본 코드 복구
+if (typeof discoveryData !== 'undefined') {
+    discoveryData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), {
+            icon: L.divIcon({
+                className: 'discovery-icon',
+                html: `<div style="font-size:25px; text-align:center; filter: drop-shadow(0px 0px 2px white);">⚱️</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            })
+        }).addTo(discoveryLayers);
+
+        marker.bindTooltip(`<b>${d.item}</b> (${d.name})`, { direction: 'top', offset: [0, -10] });
+        marker.on('click', function() {
+            showDiscoveryInfo(d);
+        });
+    });
+}
+
+// NPC 데이터 체크
+if (typeof npcData !== 'undefined') {
+    npcData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
+        if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
+            marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
+            marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
+        }
+        if (d.name.includes("도사") || d.name.includes("도공")) {
+            marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+            marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+        }
+        marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
+        marker.on('click', () => showNPCInfo(d));
+    });
+}
+
+// 상자 및 적환단도 동일하게 if 체크를 해주면 안전합니다.
+if (typeof mysteryBoxData !== 'undefined') {
+    mysteryBoxData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers);
+        marker.on('click', () => showDiscoveryInfo(d));
+    });
+}
+
+if (typeof redHwanData !== 'undefined') {
+    redHwanData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(redHwanLayers);
+        marker.on('click', () => showRedHwanInfo(d));
+    });
+}
 
 function addGroupRouteHover(marker, groupType) {
     marker.on('mouseover', function () {
@@ -180,84 +254,102 @@ if (snakeQuestPathData.length >= 2) {
     }).addTo(questLayers); 
 }
 
-/** 7. 기타 마커 (사냥터, 상자, 적환단) **/
-huntingInfo.forEach(info => {
-    var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-    var isMyeonMun = info.name === "멸문";
-    var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillColor: 'transparent', fillOpacity: 0, interactive: true });
+/** 4. 광산 및 동선 로직 **/
+var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
-    clickMarker.on('click', (e) => { if (e.originalEvent) L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
-    if (isMyeonMun) {
-        clickMarker.addTo(map);
-        clickMarker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
-        clickMarker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
-    }
-    huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
-});
+// [수정] poiData가 존재할 때만 실행하도록 체크 (53번 줄 에러 방지)
+if (typeof poiData !== 'undefined') {
+    Object.keys(routeLinesByGroup).forEach(groupTag => {
+        const groupMines = poiData
+            .filter(p => p.type === groupTag && p.order !== undefined)
+            .sort((a, b) => a.order - b.order);
 
-// 탐색 (항아리)
+        groupMines.forEach((mine, index) => {
+            if (index === groupMines.length - 1) return;
+            var nextMine = groupMines[index + 1];
+            var typeValue = nextMine.lineType || nextMine.LineType || "";
+            var isDotted = typeValue.toString().toLowerCase().trim() === "dotted";
+            var dashValue = isDotted ? "15, 15" : null;
 
-discoveryData.forEach(d => {
+            var line = L.polyline([mine.coords, nextMine.coords], {
+                color: '#ff4757', weight: 4, opacity: 0, dashArray: dashValue, lineJoin: 'round', interactive: false 
+            }).addTo(map);
 
-    // mcToPx 함수를 사용하여 좌표 변환 (y값은 높이값이므로 x, z만 사용)
-
-    var marker = L.marker(mcToPx(d.x, d.z), {
-
-        icon: L.divIcon({
-
-            className: 'discovery-icon',
-
-            html: `<div style="font-size:25px; text-align:center; filter: drop-shadow(0px 0px 2px white);">⚱️</div>`,
-
-            iconSize: [30, 30],
-
-            iconAnchor: [15, 15]
-
-        })
-
-    }).addTo(discoveryLayers);
-
-
-
-    // 마우스 올렸을 때 툴팁 (아이템 이름)
-
-    marker.bindTooltip(`<b>${d.item}</b> (${d.name})`, { direction: 'top', offset: [0, -10] });
-
-
-
-    // 클릭 시 ui-control.js의 정보창 호출
-
-    marker.on('click', function() {
-
-        showDiscoveryInfo(d);
-
+            routeLinesByGroup[groupTag].push(line);
+        });
     });
+}
 
-});
+/** (중간 5, 6번 섹션은 그대로 두셔도 됩니다) **/
 
-npcData.forEach(d => {
-    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
-    if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
-        marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
-        marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
-    }
-    if (d.name.includes("도사") || d.name.includes("도공")) {
-        marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
-        marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
-    }
-    marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
-    marker.on('click', () => showNPCInfo(d));
-});
+/** 7. 기타 마커 (사냥터, 상자, 적환단) **/
+// [수정] huntingInfo 체크 추가
+if (typeof huntingInfo !== 'undefined') {
+    huntingInfo.forEach(info => {
+        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+        var isMyeonMun = info.name === "멸문";
+        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillColor: 'transparent', fillOpacity: 0, interactive: true });
 
-mysteryBoxData.forEach(d => {
-    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers);
-    marker.on('click', () => showDiscoveryInfo(d));
-});
+        clickMarker.on('click', (e) => { if (e.originalEvent) L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        if (isMyeonMun) {
+            clickMarker.addTo(map);
+            clickMarker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+            clickMarker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+        }
+        huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+    });
+}
 
-redHwanData.forEach(d => {
-    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(redHwanLayers);
-    marker.on('click', () => showRedHwanInfo(d));
-});
+// 탐색 (항아리) - 사용자님 원본 코드 복구
+if (typeof discoveryData !== 'undefined') {
+    discoveryData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), {
+            icon: L.divIcon({
+                className: 'discovery-icon',
+                html: `<div style="font-size:25px; text-align:center; filter: drop-shadow(0px 0px 2px white);">⚱️</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            })
+        }).addTo(discoveryLayers);
+
+        marker.bindTooltip(`<b>${d.item}</b> (${d.name})`, { direction: 'top', offset: [0, -10] });
+        marker.on('click', function() {
+            showDiscoveryInfo(d);
+        });
+    });
+}
+
+// NPC 데이터 체크
+if (typeof npcData !== 'undefined') {
+    npcData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
+        if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
+            marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
+            marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
+        }
+        if (d.name.includes("도사") || d.name.includes("도공")) {
+            marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+            marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+        }
+        marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
+        marker.on('click', () => showNPCInfo(d));
+    });
+}
+
+// 상자 및 적환단도 동일하게 if 체크를 해주면 안전합니다.
+if (typeof mysteryBoxData !== 'undefined') {
+    mysteryBoxData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers);
+        marker.on('click', () => showDiscoveryInfo(d));
+    });
+}
+
+if (typeof redHwanData !== 'undefined') {
+    redHwanData.forEach(d => {
+        var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(redHwanLayers);
+        marker.on('click', () => showRedHwanInfo(d));
+    });
+}
 
 /** 8. 메뉴 UI 구성 **/
 var menuOrder = {
