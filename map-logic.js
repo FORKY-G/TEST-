@@ -177,4 +177,72 @@ if (snakeQuestPathData.length >= 2) {
 
 /** 7. 기타 마커 (사냥터, 상자, 적환단) **/
 huntingInfo.forEach(info => {
-    var img
+    var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+    var isMyeonMun = info.name === "멸문";
+    var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillColor: 'transparent', fillOpacity: 0, interactive: true });
+
+    clickMarker.on('click', (e) => { if (e.originalEvent) L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+    if (isMyeonMun) {
+        clickMarker.addTo(map);
+        clickMarker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        clickMarker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+    }
+    huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+});
+
+npcData.forEach(d => {
+    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
+    if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
+        marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
+    }
+    if (d.name.includes("도사") || d.name.includes("도공")) {
+        marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
+    }
+    marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
+    marker.on('click', () => showNPCInfo(d));
+});
+
+mysteryBoxData.forEach(d => {
+    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers);
+    marker.on('click', () => showDiscoveryInfo(d));
+});
+
+redHwanData.forEach(d => {
+    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(redHwanLayers);
+    marker.on('click', () => showRedHwanInfo(d));
+});
+
+/** 8. 메뉴 UI 구성 **/
+var menuOrder = {
+    "스폰": poiLayers['스폰'], 
+    "십이간지": poiLayers['십이간지'],
+    "<span class='divider-line'></span>": L.layerGroup(),
+    "👤 NPC": npcLayers,
+    "📜 히든퀘스트": questLayers, 
+    "<span class='divider-line'></span> ": L.layerGroup(),
+    "⛰️ 산(비석)": mountainLayers,
+    "🔴 적환단": redHwanLayers,
+    "📦 의문의상자" : mysteryBoxLayers,
+    "<span class='divider-line'></span>  ": L.layerGroup(),
+    "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
+    "<span style='color: #2ecc71;'>녹색광산</span>": poiLayers['녹색광산'],
+    "<span style='color: #3498db;'>청색광산</span>": poiLayers['청색광산'],
+    "<span style='color: #f1c40f;'>황색광산</span>": poiLayers['황색광산'],
+    "<span style='color: #e74c3c;'>적색광산</span>": poiLayers['적색광산'],
+    "<span class='divider-line'></span>   ": L.layerGroup(),
+    "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
+};
+
+map.on('click', () => { if(document.getElementById('hunting-info-panel')) document.getElementById('hunting-info-panel').style.display = 'none'; });
+
+Object.keys(herbLayers).sort().forEach(name => {
+    var herb = herbData.find(h => h.name === name);
+    if (herb) {
+        var isRare = ["월계엽", "철목영지", "금향과", "빙백설화", "홍련초"].includes(name);
+        var rareHtml = isRare ? ` <span style="color:#e74c3c; font-size:10px;">(희귀)</span>` : "";
+        var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
+        menuOrder[htmlLabel] = herbLayers[name];
+    }
+});
