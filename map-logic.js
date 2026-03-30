@@ -371,14 +371,6 @@ zodiacData.forEach(z => {
 
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
-    "스폰": poiLayers['스폰'], 
-    "십이간지": poiLayers['십이간지'],
-    "📜 십이간지 동선": zodiacQuestLayers, // 메뉴에 동선 On/Off 추가
-    "<span class='divider-line'></span>": L.layerGroup(),
-    // ... 이하 동일
-
-/** 5. 메뉴 UI 구성 **/
-var menuOrder = {
     "스폰": poiLayers['스폰'], "십이간지": poiLayers['십이간지'],
     "<span class='divider-line'></span>": L.layerGroup(),
     "👤 NPC": npcLayers,
