@@ -162,6 +162,7 @@ var redHwanData = [
 /** 10. NPC 데이터 **/
 var npcData = [
     { name: "해진", x: -4311, z: 5831, relation: "해적선퀘스트", file: "haejin.png" },
+    { name: "해적선", x: -3619, z: 4060, relation: "해적선퀘스트(포탈입장-훔친백향초)", file: "haejin.png" }
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
     { name: "주루대주", x: -2545, z: -6020, relation: "", file: "juru.png" },
     { name: "자운스님", x: -4366, z: 1394, relation: "<span style='color:#a29bfe;'>*상단주 히든퀘스트3(향목가루5개)</span><br>해무사퀘스트</br>", file: "jaun.png" },
