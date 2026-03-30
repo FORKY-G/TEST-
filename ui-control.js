@@ -288,9 +288,9 @@ window.showZodiacInfo = function(z) {
             </div>
         </div>
         
-        <div style="font-size:14px; color:#444; line-height:1.6;">
-            해당 위치는 <b>${z.name}</b>의 기운이 서린 장소입니다.
-        </div>
+       `<div style="font-size:14px; color:#444; line-height:1.6;">
+    해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
+</div>
         
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
                 style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
