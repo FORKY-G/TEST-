@@ -287,34 +287,41 @@ if (questPathData.length >= 2) {
     }).addTo(questLayers);
 }
 
-// [B] 신규 뱀 퀘스트 데이터 (도사 -> 도공 -> 멸문 -> 뱀)
+// [B] 신규 뱀 퀘스트 데이터 (도사 -> 도공 -> 멸문 -> 다시 도사로 순환)
 var snakeQuestPathData = [
     npcData.find(n => n && n.name && n.name.includes("도사")),
     npcData.find(n => n && n.name && n.name.includes("도공")),
     huntingInfo.find(h => h && h.name === "멸문"),
-    zodiacData.find(z => z && z.name === "뱀")
+    npcData.find(n => n && n.name && n.name.includes("도사")) // 마지막에 다시 도사 추가
 ].filter(p => p !== undefined);
 
 window.snakeQuestLine = null; 
 if (snakeQuestPathData.length >= 2) {
+    // 좌표 추출 (coords, center, 혹은 mcToPx 변환)
     var snakeLatLngs = snakeQuestPathData.map(p => p.coords || p.center || mcToPx(p.x, p.z));
+    
     window.snakeQuestLine = L.polyline(snakeLatLngs, {
-        color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
+        color: '#6c5ce7', 
+        weight: 6, 
+        opacity: 0, 
+        dashArray: '12, 12', 
+        interactive: false
     }).addTo(questLayers); 
 }
 
-// NPC 마커 생성 및 호버 연결 [교체 끝점]
+// NPC 마커 생성 및 호버 연결
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
         icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] })
     }).addTo(npcLayers);
 
-    // 상단주 퀘스트 호버
+    // 상단주 퀘스트 호버 (기존 유지)
     if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
         marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
         marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
     }
-    // 뱀 퀘스트 호버 (도사, 도공)
+    
+    // 뱀 퀘스트 호버 (도사, 도공) - 이제 이들을 만지면 삼각형 동선이 보입니다.
     if (d.name.includes("도사") || d.name.includes("도공")) {
         marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
         marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
@@ -324,7 +331,31 @@ npcData.forEach(d => {
     marker.on('click', () => showNPCInfo(d));
 });
 
-// 십이간지 루프 수정 (뱀 석상 호버 추가)
+/** 12. 십이간지 전체 동선 (노란색, 일자형) **/
+var zodiacQuestLayers = L.layerGroup().addTo(map);
+
+// [순서 정의] 쥐부터 돼지까지
+var zodiacOrderNames = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
+
+var zodiacPathData = zodiacOrderNames.map(name => {
+    return zodiacData.find(z => z && z.name === name);
+}).filter(p => p !== undefined);
+
+window.zodiacLine = null;
+if (zodiacPathData.length >= 2) {
+    var zodiacLatLngs = zodiacPathData.map(p => mcToPx(p.x, p.z));
+
+    window.zodiacLine = L.polyline(zodiacLatLngs, {
+        color: '#f1c40f',    // 노란색
+        weight: 5,           
+        opacity: 0,          // 평소엔 숨김
+        dashArray: '10, 10', 
+        lineJoin: 'round',
+        interactive: false
+    }).addTo(zodiacQuestLayers);
+}
+
+// [기존 십이간지 루프 교체] 십이간지 마커 생성 및 호버 연결
 zodiacData.forEach(z => {
     var marker = L.marker(mcToPx(z.x, z.z), { 
         icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) 
@@ -333,11 +364,18 @@ zodiacData.forEach(z => {
     marker.on('click', () => showZodiacInfo(z));
     marker.bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
 
-    if (z.name === "뱀") {
-        marker.on('mouseover', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
-        marker.on('mouseout', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
-    }
+    // 노란색 동선 호버 (석상을 만지면 쥐~돼지 동선이 보임)
+    marker.on('mouseover', () => { if(window.zodiacLine) window.zodiacLine.setStyle({ opacity: 0.9 }); });
+    marker.on('mouseout', () => { if(window.zodiacLine) window.zodiacLine.setStyle({ opacity: 0 }); });
 });
+
+/** 5. 메뉴 UI 구성 **/
+var menuOrder = {
+    "스폰": poiLayers['스폰'], 
+    "십이간지": poiLayers['십이간지'],
+    "📜 십이간지 동선": zodiacQuestLayers, // 메뉴에 동선 On/Off 추가
+    "<span class='divider-line'></span>": L.layerGroup(),
+    // ... 이하 동일
 
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
