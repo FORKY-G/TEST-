@@ -37,7 +37,7 @@ const poiData = [
 
 /** 4. 약초 데이터 **/
 const herbData = [
-    { name: "홍련초", file: "hub19.png", coords: mcToPx(-7519, 821), mcX: -7519, mcZ: 821 },
+    { name: "홍련(초)업화", file: "hub19.png", coords: mcToPx(-7519, 821), mcX: -7519, mcZ: 821 },
     { name: "민들레", file: "hub4.png", coords: mcToPx(-3128, -5376), mcX: -3128, mcZ: -5376 },
     { name: "옥향초", file: "hub9.png", coords: mcToPx(6306, 4265), mcX: 6306, mcZ: 4265 },
     { name: "빙백설화", file: "hub18.png", coords: mcToPx(5603, 1222), mcX: 5603, mcZ: 1222 },
