@@ -263,14 +263,16 @@ window.showMineInfo = function(poi) {
 window.showZodiacInfo = function(z) {
     var panel = document.getElementById('hunting-info-panel');
     
+    // 뱀 전용 히든 문구 설정
+    var hiddenText = (z.name === "뱀") ? `<div style="color: #6c5ce7; font-weight: bold; margin-top: 5px; font-size: 13px;">[히든] 뱀의 영기</div>` : "";
+    
     panel.style.display = 'block';
     panel.innerHTML = `
         <div style="border-bottom:3px solid #e67e22; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:22px; color:#3F3F3F;">${z.name} <span style="font-size:16px; color:#e67e22;">(십이간지)</span></b>
-            
-            <div onclick="copyToClipboard('${z.x}, ${z.z}')" 
+            ${hiddenText} <div onclick="copyToClipboard('${z.x}, ${z.z}')" 
                  title="클릭하여 좌표 복사"
-                 style="font-size:12px; color:#666; margin-top:5px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px;">
+                 style="font-size:12px; color:#666; margin-top:8px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
                  좌표: <span style="text-decoration:underline; font-weight:bold;">${z.x}, ${z.z}</span> 📋
             </div>
         </div>
@@ -284,7 +286,7 @@ window.showZodiacInfo = function(z) {
             닫기
         </button>
     `;
-}; // 여기서 한 번만 닫아야 합니다.
+};
 
 /** 11. 클립보드 복사 공통 함수 **/
 window.copyToClipboard = function(text) {
