@@ -229,6 +229,7 @@ var menuOrder = {
     "<span class='divider-line'></span> ": L.layerGroup(),
     "⛰️ 산(비석)": mountainLayers,
     "🔴 적환단": redHwanLayers,
+    "🔍 탐색": discoveryLayers,
     "📦 의문의상자" : mysteryBoxLayers,
     "<span class='divider-line'></span>  ": L.layerGroup(),
     "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
