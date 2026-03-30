@@ -273,24 +273,32 @@ window.showMineInfo = function(poi) {
 /** 10. 십이간지 정보창 표시 **/
 window.showZodiacInfo = function(z) {
     var panel = document.getElementById('hunting-info-panel');
+    if (!panel) return;
+
+    // 1. 표시용 이름 추출 (숫자와 점 제거)
+    // 예: "1.쥐" -> "쥐", "6.뱀" -> "뱀"
+    var displayName = z.name.replace(/[0-9.]/g, '').trim();
     
-    // 뱀 전용 히든 문구 설정
-    var hiddenText = (z.name === "뱀") ? `<div style="color: #6c5ce7; font-weight: bold; margin-top: 5px; font-size: 13px;">[히든] 뱀의 영기</div>` : "";
+    // 2. 뱀 전용 히든 문구 설정 (데이터 이름에 '뱀'이 포함되어 있는지 확인)
+    var hiddenText = (displayName === "뱀") ? `<div style="color: #6c5ce7; font-weight: bold; margin-top: 5px; font-size: 13px;">[히든] 뱀의 영기</div>` : "";
     
     panel.style.display = 'block';
+    
+    // innerHTML 시작 (백틱 하나로 끝까지 연결)
     panel.innerHTML = `
         <div style="border-bottom:3px solid #e67e22; padding-bottom:8px; margin-bottom:12px;">
-            <b style="font-size:22px; color:#3F3F3F;">${z.name} <span style="font-size:16px; color:#e67e22;">(십이간지)</span></b>
-            ${hiddenText} <div onclick="copyToClipboard('${z.x}, ${z.z}')" 
+            <b style="font-size:22px; color:#3F3F3F;">${displayName} <span style="font-size:16px; color:#e67e22;">(십이간지)</span></b>
+            ${hiddenText}
+            <div onclick="copyToClipboard('${z.x}, ${z.z}')" 
                  title="클릭하여 좌표 복사"
                  style="font-size:12px; color:#666; margin-top:8px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
                  좌표: <span style="text-decoration:underline; font-weight:bold;">${z.x}, ${z.z}</span> 📋
             </div>
         </div>
         
-       `<div style="font-size:14px; color:#444; line-height:1.6;">
-    해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
-</div>
+        <div style="font-size:14px; color:#444; line-height:1.6;">
+            해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
+        </div>
         
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
                 style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
