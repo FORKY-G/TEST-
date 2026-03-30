@@ -208,83 +208,64 @@ zodiacData.forEach(z => {
     });
 });
 
+// --- 여기서부터 복사하세요 ---
+
 // 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
 huntingInfo.forEach(info => {
-    // 1. 이미지 레이어 설정 (interactive: false로 두어 클릭이 마커로 전달되게 함)
     var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-    
     var isMyeonMun = info.name === "멸문";
     
-    // 2. 클릭용 마커 설정 (멸문은 보라색, 나머지는 빨간색)
-    // radius를 40으로 키우고 fillOpacity를 살짝 주어 클릭 영역을 확보합니다.
     var clickMarker = L.circleMarker(info.center, { 
         radius: 40, 
         color: isMyeonMun ? '#6c5ce7' : '#e74c3c', 
         weight: isMyeonMun ? 3 : 1,
         fillColor: isMyeonMun ? '#6c5ce7' : '#e74c3c',
-        fillOpacity: 0.15, // 영역이 보여야 클릭하기 쉽습니다
-        interactive: true  // 반드시 true여야 클릭을 인식합니다
+        fillOpacity: 0.15, 
+        interactive: true  
     });
 
-    // 3. 클릭 이벤트 (지도로 클릭이 새나가지 않게 처리)
     clickMarker.on('click', function(e) {
-        if (e.originalEvent) L.DomEvent.stopPropagation(e); // 이벤트 전파 방지
-        showHuntingInfo(info); // ui-control.js에 업데이트한 통합 함수 호출
-    });
-
-    // 4. 레이어 추가/제거 시 정보창 제어
-    imgOverlay.on('add', function() { 
+        if (e.originalEvent) L.DomEvent.stopPropagation(e);
         showHuntingInfo(info); 
     });
 
+    // [추가] 멸문 사냥터 호버 시 뱀 퀘스트 동선 표시
+    if (isMyeonMun) {
+        clickMarker.on('mouseover', function() { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        clickMarker.on('mouseout', function() { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
+    }
+
+    imgOverlay.on('add', function() { showHuntingInfo(info); });
     imgOverlay.on('remove', function() { 
         var panel = document.getElementById('hunting-info-panel');
         if(panel) panel.style.display = 'none'; 
     });
 
-    // 레이어 그룹 생성
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
 
-// 탐색 (항아리) 로직은 그대로 아래에 두시면 됩니다...
 // 의문의 상자
 mysteryBoxData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
-        icon: L.icon({
-            iconUrl: 'box.png', // 요청하신 파일명
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
+        icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] })
     }).addTo(mysteryBoxLayers);
-
     marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
-    
-    // 클릭 시 상세 정보(좌표 등)를 띄우고 싶다면 아래 함수 연결
-    marker.on('click', function() {
-        showDiscoveryInfo(d); // 항아리와 동일한 정보창 형식을 사용하거나 새로 만드셔도 됩니다.
-    });
+    marker.on('click', () => showDiscoveryInfo(d));
 });
 
 // 적환단 마커 생성
 redHwanData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
-        icon: L.icon({
-            iconUrl: 'red.png', // 적환단 기본 마커 이미지
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
+        icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] })
     }).addTo(redHwanLayers);
-
     marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
     marker.on('click', () => showRedHwanInfo(d));
 });
 
-/** 11. 히든퀘스트 동선 설정 (진한 보라색) **/
-var questLayers = L.layerGroup(); 
+/** 11. 히든퀘스트 동선 설정 (통합 관리) **/
+var questLayers = L.layerGroup().addTo(map); 
 
-// [수정] 웹 시작하자마자 지도에 표시되도록 설정
-questLayers.addTo(map); 
-
+// [A] 기존 상단주 퀘스트 데이터
 var questPathData = [
     npcData.find(n => n && n.name && n.name.includes("상단주")),
     npcData.find(n => n && n.name && n.name.includes("부숴진마차")),
@@ -292,57 +273,71 @@ var questPathData = [
 ].filter(p => p !== undefined);
 
 var questLine;
-
 if (questPathData.length >= 2) {
-    var questLatLngs = questPathData.map(p => mcToPx(p.x, p.z));
-
-    questLine = L.polyline(questLatLngs, {
-        color: '#6c5ce7',      // 진한 보라색
-        weight: 6,             // 두께를 4 -> 6으로 키워서 더 진하게!
-        opacity: 0,            // 처음엔 투명 (호버 시 나타남)
-        dashArray: '12, 12',   // 점선 간격 조절
-        lineJoin: 'round',
-        interactive: false
+    questLine = L.polyline(questPathData.map(p => mcToPx(p.x, p.z)), {
+        color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
     }).addTo(questLayers);
 }
 
-// 호버 시 선을 아주 진하게(0.9) 만드는 함수
-function addQuestRouteHover(marker) {
-    marker.on('mouseover', function () {
-        if(questLine) questLine.setStyle({ opacity: 0.9 }); // 0.9 정도로 아주 진하게 표시
-    });
-    marker.on('mouseout', function () {
-        if(questLine) questLine.setStyle({ opacity: 0 }); 
-    });
+// [B] 신규 뱀 퀘스트 데이터 (도사 -> 도공 -> 멸문 -> 뱀)
+var snakeQuestPathData = [
+    npcData.find(n => n && n.name && n.name.includes("도사")),
+    npcData.find(n => n && n.name && n.name.includes("도공")),
+    huntingInfo.find(h => h && h.name === "멸문"),
+    zodiacData.find(z => z && z.name === "뱀")
+].filter(p => p !== undefined);
+
+var snakeQuestLine;
+if (snakeQuestPathData.length >= 2) {
+    var snakeLatLngs = snakeQuestPathData.map(p => p.coords || p.center || mcToPx(p.x, p.z));
+    snakeQuestLine = L.polyline(snakeLatLngs, {
+        color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
+    }).addTo(questLayers); // questLayers에 똑같이 추가해서 메뉴 하나로 관리
 }
 
-// NPC 마커 생성 (수정 버전)
+// NPC 마커 생성 및 호버 연결
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
-        icon: L.icon({
-            iconUrl: d.file, 
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        })
+        icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] })
     }).addTo(npcLayers);
 
-    // [추가] 상단주, 마차, 자운스님일 경우에만 호버 이벤트 연결
+    // 상단주 퀘스트 호버
     if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
-        addQuestRouteHover(marker);
+        marker.on('mouseover', () => { if(questLine) questLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(questLine) questLine.setStyle({ opacity: 0 }); });
+    }
+    // 뱀 퀘스트 호버 (도사, 도공)
+    if (d.name.includes("도사") || d.name.includes("도공")) {
+        marker.on('mouseover', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
     }
 
     marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
     marker.on('click', () => showNPCInfo(d));
 });
 
+// 십이간지 루프 수정 (뱀 석상 호버 추가)
+zodiacData.forEach(z => {
+    var marker = L.marker(mcToPx(z.x, z.z), { 
+        icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) 
+    }).addTo(poiLayers['십이간지']);
+
+    marker.on('click', () => showZodiacInfo(z));
+    marker.bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
+
+    if (z.name === "뱀") {
+        marker.on('mouseover', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0.9 }); });
+        marker.on('mouseout', () => { if(snakeQuestLine) snakeQuestLine.setStyle({ opacity: 0 }); });
+    }
+});
 
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
     "스폰": poiLayers['스폰'], "십이간지": poiLayers['십이간지'],
     "<span class='divider-line'></span>": L.layerGroup(),
     "👤 NPC": npcLayers,
-    "📜 히든퀘스트": questLayers,
-     "<span class='divider-line'></span> ": L.layerGroup(),
+    "📜 히든퀘스트": questLayers, // 이 레이어에 상단주/뱀 동선이 모두 들어있음
+    "<span class='divider-line'></span> ": L.layerGroup(),
     "⛰️ 산(비석)": mountainLayers,
     "🔴 적환단": redHwanLayers,
     "🔍 탐색": discoveryLayers,
@@ -360,9 +355,7 @@ var menuOrder = {
 // 지도의 빈 곳을 클릭하면 모든 정보창 닫기
 map.on('click', function() {
     var panel = document.getElementById('hunting-info-panel');
-    if (panel) {
-        panel.style.display = 'none';
-    }
+    if (panel) panel.style.display = 'none';
 });
 
 // 약초 목록 추가
