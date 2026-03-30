@@ -208,38 +208,35 @@ zodiacData.forEach(z => {
     });
 });
 
-// 사냥터 생성 로직 (멸문 특수 처리 버전)
+// 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
 huntingInfo.forEach(info => {
+    // 1. 이미지 레이어 설정 (interactive: false로 두어 클릭이 마커로 전달되게 함)
     var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
     
-    // 1. 클릭용 마커 설정 (멸문은 보라색, 나머지는 빨간색)
     var isMyeonMun = info.name === "멸문";
+    
+    // 2. 클릭용 마커 설정 (멸문은 보라색, 나머지는 빨간색)
+    // radius를 40으로 키우고 fillOpacity를 살짝 주어 클릭 영역을 확보합니다.
     var clickMarker = L.circleMarker(info.center, { 
-        radius: 35, 
-        color: isMyeonMun ? '#6c5ce7' : '#e74c3c', // 멸문은 보라색 테두리
-        weight: isMyeonMun ? 3 : 1,                // 멸문은 좀 더 두껍게
-        fillOpacity: 0.1,
-        interactive: true                          // 클릭 가능하게 설정
+        radius: 40, 
+        color: isMyeonMun ? '#6c5ce7' : '#e74c3c', 
+        weight: isMyeonMun ? 3 : 1,
+        fillColor: isMyeonMun ? '#6c5ce7' : '#e74c3c',
+        fillOpacity: 0.15, // 영역이 보여야 클릭하기 쉽습니다
+        interactive: true  // 반드시 true여야 클릭을 인식합니다
     });
 
-    // 2. 클릭 이벤트 연결
-    clickMarker.on('click', function() {
-        if (isMyeonMun) {
-            // 멸문일 때는 snake.png를 포함한 특수 정보창 호출
-            showSpecialHuntingInfo(info, 'snake.jpg');
-        } else {
-            // 나머지는 기존 정보창 호출
-            showHuntingInfo(info);
-        }
+    // 3. 클릭 이벤트 (지도로 클릭이 새나가지 않게 처리)
+    clickMarker.on('click', function(e) {
+        if (e.originalEvent) L.DomEvent.stopPropagation(e); // 이벤트 전파 방지
+        showHuntingInfo(info); // ui-control.js에 업데이트한 통합 함수 호출
     });
 
-    // 3. 메뉴에서 체크박스 켰을 때(레이어 추가될 때) 이벤트
+    // 4. 레이어 추가/제거 시 정보창 제어
     imgOverlay.on('add', function() { 
-        if (isMyeonMun) showSpecialHuntingInfo(info, 'snake.jpg');
-        else showHuntingInfo(info); 
+        showHuntingInfo(info); 
     });
 
-    // 4. 메뉴에서 체크 해제 시 정보창 닫기
     imgOverlay.on('remove', function() { 
         var panel = document.getElementById('hunting-info-panel');
         if(panel) panel.style.display = 'none'; 
@@ -249,27 +246,7 @@ huntingInfo.forEach(info => {
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
 
-// 탐색 (항아리)
-discoveryData.forEach(d => {
-    // mcToPx 함수를 사용하여 좌표 변환 (y값은 높이값이므로 x, z만 사용)
-    var marker = L.marker(mcToPx(d.x, d.z), {
-        icon: L.divIcon({
-            className: 'discovery-icon',
-            html: `<div style="font-size:25px; text-align:center; filter: drop-shadow(0px 0px 2px white);">⚱️</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
-    }).addTo(discoveryLayers);
-
-    // 마우스 올렸을 때 툴팁 (아이템 이름)
-    marker.bindTooltip(`<b>${d.item}</b> (${d.name})`, { direction: 'top', offset: [0, -10] });
-
-    // 클릭 시 ui-control.js의 정보창 호출
-    marker.on('click', function() {
-        showDiscoveryInfo(d);
-    });
-});
-
+// 탐색 (항아리) 로직은 그대로 아래에 두시면 됩니다...
 // 의문의 상자
 mysteryBoxData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), {
