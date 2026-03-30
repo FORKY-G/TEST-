@@ -261,6 +261,35 @@ if (snakeQuestPathData.length >= 2) {
     }).addTo(questLayers); 
 }
 
+// [D] 해적선 히든 퀘스트 동선 (해진 -> 해적선 -> 백향초재배지)
+var pirateQuestPathData = [
+    npcData.find(n => n && n.name && n.name.includes("해진")),
+    npcData.find(n => n && n.name && n.name.includes("해적선")),
+    npcData.find(n => n && n.name && n.name.includes("백향초재배지"))
+].filter(p => p !== undefined);
+
+window.pirateQuestLine = null;
+if (pirateQuestPathData.length >= 2) {
+    window.pirateQuestLine = L.polyline(pirateQuestPathData.map(p => mcToPx(p.x, p.z)), {
+        color: '#a29bfe', // 퀘스트 텍스트와 맞춘 연보라색
+        weight: 6, 
+        opacity: 0,      // 처음엔 투명 (호버 시 나타남)
+        dashArray: '12, 12', 
+        interactive: false
+    }).addTo(questLayers);
+}
+
+// 해적선 관련 NPC 마우스 호버 이벤트 추가
+if (typeof npcData !== 'undefined') {
+    npcLayers.eachLayer(marker => {
+        const name = marker.getTooltip()?.getContent();
+        if (name && (name.includes("해진") || name.includes("해적선") || name.includes("백향초재배지"))) {
+            marker.on('mouseover', () => { if(window.pirateQuestLine) window.pirateQuestLine.setStyle({ opacity: 0.9 }); });
+            marker.on('mouseout', () => { if(window.pirateQuestLine) window.pirateQuestLine.setStyle({ opacity: 0 }); });
+        }
+    });
+}
+
 /** 4. 광산 및 동선 로직 **/
 var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
