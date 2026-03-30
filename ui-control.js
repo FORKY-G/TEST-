@@ -4,38 +4,54 @@
 window.showHuntingInfo = function(info) {
     var panel = document.getElementById('hunting-info-panel');
     
-    // 기본 구조 생성
-    panel.innerHTML = `
-        <h4 id="panel-name" style="margin: 0;"></h4>
-        <div id="panel-lv"></div>
-        <div id="panel-coords" style="margin-top:10px;"></div> <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
-                style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
-            닫기
-        </button>
-    `;
-
-    // 이름과 레벨/몬스터 정보 넣기
-    document.getElementById('panel-name').innerHTML = `
-        <span style="font-size: 24px;"><b>${info.name}</b></span> 
-        <span style="font-size: 16px; color: #666;">${info.lv ? '(' + info.lv + ')' : ''}</span>
-    `;
-    
-    document.getElementById('panel-lv').innerHTML = `
-        <div style="margin-top: 8px; font-size: 16px; color: #444;">${info.monsters || (info.type === 'statue' ? '특별 동상' : '지역 비석')}</div>
-    `;
-
-    // [수정] 산(비석) 및 사냥터 좌표 표시 + 클릭 복사 기능 추가
-    // info.x, info.z가 있으면 그걸 쓰고, 없으면 center 좌표를 역계산해서 보여줍니다.
+    // 1. 공통 좌표 계산 (기존 로직 그대로)
     var displayX = info.x !== undefined ? info.x : (info.mcX !== undefined ? info.mcX : "확인불가");
     var displayZ = info.z !== undefined ? info.z : (info.mcZ !== undefined ? info.mcZ : "확인불가");
+    var coordsHtml = '';
 
     if(displayX !== "확인불가") {
-        document.getElementById('panel-coords').innerHTML = `
+        coordsHtml = `
             <div onclick="copyToClipboard('${displayX}, ${displayZ}')" 
                  title="클릭하여 좌표 복사"
-                 style="font-size:13px; color:#666; cursor:pointer; display:inline-block; border:1px solid #999; padding:3px 8px; background:#eee; border-radius:3px;">
+                 style="font-size:13px; color:#666; cursor:pointer; display:inline-block; border:1px solid #999; padding:3px 8px; background:#eee; border-radius:3px; width:100%; box-sizing:border-box; text-align:center; margin-top:10px;">
                  좌표: <span style="text-decoration:underline; font-weight:bold;">${displayX}, ${displayZ}</span> 📋
             </div>
+        `;
+    }
+
+    // 2. 패널 내용 분기 (멸문 vs 일반)
+    if (info.name === "멸문") {
+        // 멸문 전용: 이미지 포함 레이아웃
+        panel.innerHTML = `
+            <div style="border: 2px solid #6c5ce7; padding: 12px; background: #fff; border-radius: 8px;">
+                <h3 style="margin: 0; color: #6c5ce7;">🐍 ${info.name} <small style="color:#666; font-size:14px;">(${info.lv})</small></h3>
+                <div style="margin-top: 8px; font-size: 15px; color: #444; line-height:1.4;">${info.monsters}</div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <img src="snake.jpg" style="width: 100%; max-width: 180px; border-radius: 5px; border:1px solid #ddd;" 
+                         onerror="this.src='https://via.placeholder.com/150?text=snake.jpg+Missing'">
+                </div>
+                ${coordsHtml}
+                <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                        style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
+                    닫기
+                </button>
+            </div>
+        `;
+    } else {
+        // 일반 사냥터: 기존 레이아웃 그대로 유지
+        panel.innerHTML = `
+            <h4 id="panel-name" style="margin: 0;">
+                <span style="font-size: 24px;"><b>${info.name}</b></span> 
+                <span style="font-size: 16px; color: #666;">${info.lv ? '(' + info.lv + ')' : ''}</span>
+            </h4>
+            <div id="panel-lv" style="margin-top: 8px; font-size: 16px; color: #444;">
+                ${info.monsters || (info.type === 'statue' ? '특별 동상' : '지역 비석')}
+            </div>
+            <div id="panel-coords">${coordsHtml}</div>
+            <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
+                    style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
+                닫기
+            </button>
         `;
     }
 
