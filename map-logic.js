@@ -270,8 +270,9 @@ redHwanData.forEach(d => {
     marker.on('click', () => showRedHwanInfo(d));
 });
 
-/** 11. 히든퀘스트 동선 설정 (통합 관리) **/
+/** 11. 히든퀘스트 및 동선 설정 (통합 관리) **/
 var questLayers = L.layerGroup().addTo(map); 
+var zodiacQuestLayers = L.layerGroup().addTo(map); // 십이간지 동선 전용 레이어
 
 // [A] 기존 상단주 퀘스트 데이터
 var questPathData = [
@@ -280,33 +281,41 @@ var questPathData = [
     npcData.find(n => n && n.name && n.name.includes("자운스님"))
 ].filter(p => p !== undefined);
 
-window.questLine = null; // 호버 시 참조를 위해 전역(window) 처리
+window.questLine = null;
 if (questPathData.length >= 2) {
     window.questLine = L.polyline(questPathData.map(p => mcToPx(p.x, p.z)), {
         color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
     }).addTo(questLayers);
 }
 
-// [B] 신규 뱀 퀘스트 데이터 (도사 -> 도공 -> 멸문 -> 다시 도사로 순환)
+// [B] 신규 뱀 퀘스트 데이터 (도사 -> 도공 -> 멸문 -> 도사 순환)
 var snakeQuestPathData = [
     npcData.find(n => n && n.name && n.name.includes("도사")),
     npcData.find(n => n && n.name && n.name.includes("도공")),
     huntingInfo.find(h => h && h.name === "멸문"),
-    npcData.find(n => n && n.name && n.name.includes("도사")) // 마지막에 다시 도사 추가
+    npcData.find(n => n && n.name && n.name.includes("도사"))
 ].filter(p => p !== undefined);
 
 window.snakeQuestLine = null; 
 if (snakeQuestPathData.length >= 2) {
-    // 좌표 추출 (coords, center, 혹은 mcToPx 변환)
     var snakeLatLngs = snakeQuestPathData.map(p => p.coords || p.center || mcToPx(p.x, p.z));
-    
     window.snakeQuestLine = L.polyline(snakeLatLngs, {
-        color: '#6c5ce7', 
-        weight: 6, 
-        opacity: 0, 
-        dashArray: '12, 12', 
-        interactive: false
+        color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false
     }).addTo(questLayers); 
+}
+
+// [C] 십이간지 노란색 동선 (쥐 -> 돼지 일자형)
+var zodiacOrderNames = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
+var zodiacPathData = zodiacOrderNames.map(name => {
+    return zodiacData.find(z => z && z.name === name);
+}).filter(p => p !== undefined);
+
+window.zodiacLine = null;
+if (zodiacPathData.length >= 2) {
+    var zodiacLatLngs = zodiacPathData.map(p => mcToPx(p.x, p.z));
+    window.zodiacLine = L.polyline(zodiacLatLngs, {
+        color: '#f1c40f', weight: 5, opacity: 0, dashArray: '10, 10', lineJoin: 'round', interactive: false
+    }).addTo(zodiacQuestLayers);
 }
 
 // NPC 마커 생성 및 호버 연결
@@ -315,85 +324,69 @@ npcData.forEach(d => {
         icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] })
     }).addTo(npcLayers);
 
-    // 상단주 퀘스트 호버 (기존 유지)
     if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
         marker.on('mouseover', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0.9 }); });
         marker.on('mouseout', () => { if(window.questLine) window.questLine.setStyle({ opacity: 0 }); });
     }
-    
-    // 뱀 퀘스트 호버 (도사, 도공) - 이제 이들을 만지면 삼각형 동선이 보입니다.
     if (d.name.includes("도사") || d.name.includes("도공")) {
         marker.on('mouseover', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0.9 }); });
         marker.on('mouseout', () => { if(window.snakeQuestLine) window.snakeQuestLine.setStyle({ opacity: 0 }); });
     }
-
     marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top', offset: [0, -10] });
     marker.on('click', () => showNPCInfo(d));
 });
 
-/** 12. 십이간지 전체 동선 (노란색, 일자형) **/
-var zodiacQuestLayers = L.layerGroup().addTo(map);
-
-// [순서 정의] 쥐부터 돼지까지
-var zodiacOrderNames = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
-
-var zodiacPathData = zodiacOrderNames.map(name => {
-    return zodiacData.find(z => z && z.name === name);
-}).filter(p => p !== undefined);
-
-window.zodiacLine = null;
-if (zodiacPathData.length >= 2) {
-    var zodiacLatLngs = zodiacPathData.map(p => mcToPx(p.x, p.z));
-
-    window.zodiacLine = L.polyline(zodiacLatLngs, {
-        color: '#f1c40f',    // 노란색
-        weight: 5,           
-        opacity: 0,          // 평소엔 숨김
-        dashArray: '10, 10', 
-        lineJoin: 'round',
-        interactive: false
-    }).addTo(zodiacQuestLayers);
-}
-
-// [기존 십이간지 루프 교체] 십이간지 마커 생성 및 호버 연결
+// 십이간지 마커 생성 (중복 제거된 최종 버전)
 zodiacData.forEach(z => {
     var marker = L.marker(mcToPx(z.x, z.z), { 
         icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) 
     }).addTo(poiLayers['십이간지']);
 
     marker.on('click', () => showZodiacInfo(z));
-    marker.bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b><br>MC: ${z.x}, ${z.z}`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
+    marker.bindTooltip(`<b style="font-size:22px; color:#e67e22;">${z.name}</b>`, { direction: 'top', className: 'custom-tooltip', opacity: 0.95 });
 
-    // 노란색 동선 호버 (석상을 만지면 쥐~돼지 동선이 보임)
+    // 노란색 동선 호버 이벤트
     marker.on('mouseover', () => { if(window.zodiacLine) window.zodiacLine.setStyle({ opacity: 0.9 }); });
     marker.on('mouseout', () => { if(window.zodiacLine) window.zodiacLine.setStyle({ opacity: 0 }); });
 });
 
 /** 5. 메뉴 UI 구성 **/
 var menuOrder = {
-    "스폰": poiLayers['스폰'], "십이간지": poiLayers['십이간지'],
+    "스폰": poiLayers['스폰'], 
+    "십이간지": poiLayers['십이간지'],
+    "📜 십이간지 동선": zodiacQuestLayers, // 여기에 동선 레이어 추가!
     "<span class='divider-line'></span>": L.layerGroup(),
     "👤 NPC": npcLayers,
-    "📜 히든퀘스트": questLayers, // 이 레이어에 상단주/뱀 동선이 모두 들어있음
+    "📜 히든퀘스트": questLayers, 
     "<span class='divider-line'></span> ": L.layerGroup(),
     "⛰️ 산(비석)": mountainLayers,
     "🔴 적환단": redHwanLayers,
     "🔍 탐색": discoveryLayers,
     "📦 의문의상자" : mysteryBoxLayers,
-    "<span class='divider-line'></span> ": L.layerGroup(),
+    "<span class='divider-line'></span>  ": L.layerGroup(),
     "<span class='mine-group-label'>💎 광산 구역</span>": L.layerGroup(),
     "<span style='color: #2ecc71;'>녹색광산</span>": poiLayers['녹색광산'],
     "<span style='color: #3498db;'>청색광산</span>": poiLayers['청색광산'],
     "<span style='color: #f1c40f;'>황색광산</span>": poiLayers['황색광산'],
     "<span style='color: #e74c3c;'>적색광산</span>": poiLayers['적색광산'],
-    "<span class='divider-line'></span>  ": L.layerGroup(),
+    "<span class='divider-line'></span>   ": L.layerGroup(),
     "<span class='herb-group-label' style='display:flex; justify-content:space-between; align-items:center; width:140px;'>🌿 약초 서식지 <button onclick='resetHerbLayers()' style='cursor:pointer; font-size:10px; padding:1px 4px;'>초기화</button></span>": L.layerGroup()
 };
 
-// 지도의 빈 곳을 클릭하면 모든 정보창 닫기
+// 지도의 빈 곳 클릭 시 닫기
 map.on('click', function() {
     var panel = document.getElementById('hunting-info-panel');
     if (panel) panel.style.display = 'none';
+});
+
+// 약초 목록 동적 추가
+Object.keys(herbLayers).sort().forEach(name => {
+    var herb = herbData.find(h => h.name === name);
+    if (!herb) return;
+    var isRare = ["월계엽", "철목영지", "금향과", "빙백설화", "홍련초"].includes(name);
+    var rareHtml = isRare ? ` <span style="color:#e74c3c; font-size:10px;">(희귀)</span>` : "";
+    var htmlLabel = `<span class="herb-name-clickable" onclick="moveAndShowHerb('${name}', ${herb.mcX}, ${herb.mcZ}, '${herbColors[name]}')">${name}${rareHtml}</span>`;
+    menuOrder[htmlLabel] = herbLayers[name];
 });
 
 // 약초 목록 추가
