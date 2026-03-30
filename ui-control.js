@@ -110,7 +110,7 @@ window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     
     var allLocations = herbData.filter(h => h.name === name);
     var coordsHtml = allLocations.map(h => `<div style="margin-bottom:5px;"><span style="background:#444; color:#fff; padding:2px 5px; border-radius:3px; font-size:11px; margin-right:5px;">좌표</span><b style="color:#e74c3c;">X: ${h.mcX} / Z: ${h.mcZ}</b></div>`).join('');
-    var rareHerbs = ["월계엽", "철목영지", "금향과", "빙백설화","홍련초"];
+    var rareHerbs = ["월계엽", "철목영지", "금향과", "빙백설화","홍련(초)업화"];
     var isRare = rareHerbs.includes(name);
     var titleExtraHtml = isRare ? ` <span style="color:#e74c3c; font-size:14px;">(희귀)</span>` : "";
     var descExtraHtml = isRare ? `<div style="font-size:9px; color:#555; margin-top:2px;">희귀 약초는 광범위하게 스폰됩니다.</div>` : `<div style="font-size:9px; color:#e74c3c; margin-top:2px; font-weight:bold;">위 좌표들은 명확하지 않을 수 있습니다.</div>`;
