@@ -195,6 +195,32 @@ huntingInfo.forEach(info => {
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
 
+/** [추가] 탐색(Discovery) 마커 생성 로직 **/
+if (typeof discoveryData !== 'undefined') {
+    discoveryData.forEach(d => {
+        // 탐색 아이콘 설정 (기존에 쓰시던 discovery.png 또는돋보기 아이콘)
+        var marker = L.marker(mcToPx(d.x, d.z), { 
+            icon: L.icon({ 
+                iconUrl: 'discovery.png', // 실제 파일명 확인 필요!
+                iconSize: [30, 30], 
+                iconAnchor: [15, 15] 
+            }) 
+        }).addTo(discoveryLayers);
+
+        // 클릭 시 정보창 표시
+        marker.on('click', () => {
+            if (typeof showDiscoveryInfo === 'function') {
+                showDiscoveryInfo(d);
+            } else {
+                // 정보창 함수가 없을 경우 기본 팝업
+                marker.bindPopup(`<b>${d.name}</b><br>[${d.x}, ${d.z}]`).openPopup();
+            }
+        });
+
+     marker.bindTooltip(`탐색: ${d.name}`, { direction: 'top' });
+    }); // <- discoveryData.forEach 끝
+} //
+
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
     if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) {
