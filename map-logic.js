@@ -195,31 +195,45 @@ huntingInfo.forEach(info => {
     huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
 });
 
-/** [추가] 탐색(Discovery) 마커 생성 로직 **/
-if (typeof discoveryData !== 'undefined') {
-    discoveryData.forEach(d => {
-        // 탐색 아이콘 설정 (기존에 쓰시던 discovery.png 또는돋보기 아이콘)
-        var marker = L.marker(mcToPx(d.x, d.z), { 
-            icon: L.icon({ 
-                iconUrl: 'discovery.png', // 실제 파일명 확인 필요!
-                iconSize: [30, 30], 
-                iconAnchor: [15, 15] 
-            }) 
-        }).addTo(discoveryLayers);
+// 탐색 (항아리)
 
-        // 클릭 시 정보창 표시
-        marker.on('click', () => {
-            if (typeof showDiscoveryInfo === 'function') {
-                showDiscoveryInfo(d);
-            } else {
-                // 정보창 함수가 없을 경우 기본 팝업
-                marker.bindPopup(`<b>${d.name}</b><br>[${d.x}, ${d.z}]`).openPopup();
-            }
-        });
+discoveryData.forEach(d => {
 
-     marker.bindTooltip(`탐색: ${d.name}`, { direction: 'top' });
-    }); // <- discoveryData.forEach 끝
-} //
+    // mcToPx 함수를 사용하여 좌표 변환 (y값은 높이값이므로 x, z만 사용)
+
+    var marker = L.marker(mcToPx(d.x, d.z), {
+
+        icon: L.divIcon({
+
+            className: 'discovery-icon',
+
+            html: `<div style="font-size:25px; text-align:center; filter: drop-shadow(0px 0px 2px white);">⚱️</div>`,
+
+            iconSize: [30, 30],
+
+            iconAnchor: [15, 15]
+
+        })
+
+    }).addTo(discoveryLayers);
+
+
+
+    // 마우스 올렸을 때 툴팁 (아이템 이름)
+
+    marker.bindTooltip(`<b>${d.item}</b> (${d.name})`, { direction: 'top', offset: [0, -10] });
+
+
+
+    // 클릭 시 ui-control.js의 정보창 호출
+
+    marker.on('click', function() {
+
+        showDiscoveryInfo(d);
+
+    });
+
+});
 
 npcData.forEach(d => {
     var marker = L.marker(mcToPx(d.x, d.z), { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
