@@ -208,19 +208,24 @@ zodiacData.forEach(z => {
     });
 });
 
-// [교체 시작점] 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
+// 사냥터 생성 로직 (통합 버전: 멸문 및 일반 사냥터 공통)
 huntingInfo.forEach(info => {
     var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
     var isMyeonMun = info.name === "멸문";
     
-    // 클릭용 마커 (멸문은 보라색, 나머지는 빨간색)
+    // 클릭용 마커 설정
     var clickMarker = L.circleMarker(info.center, { 
-        radius: 40, 
-        color: isMyeonMun ? '#6c5ce7' : '#e74c3c', 
-        weight: isMyeonMun ? 3 : 1,
-        fillColor: isMyeonMun ? '#6c5ce7' : '#e74c3c',
-        fillOpacity: 0.15, 
-        interactive: true  
+        radius: 40, // 클릭 영역은 넉넉하게 유지
+        
+        // [수정] 테두리와 채우기 색상을 모두 투명하게 설정하여 숨깁니다.
+        color: 'transparent',  // 테두리 색상을 투명하게
+        weight: isMyeonMun ? 3 : 1, // weight는 유지 (0으로 해도 무방)
+        opacity: 0,             // 테두리 투명도를 0으로
+        
+        fillColor: 'transparent', // 채우기 색상을 투명하게
+        fillOpacity: 0,           // 채우기 투명도를 0으로
+        
+        interactive: true  // 클릭 인식은 그대로 유지
     });
 
     // 지도에서 사냥터 클릭 시 정보창 띄우기
