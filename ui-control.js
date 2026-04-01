@@ -1,10 +1,10 @@
-/** 1. 함수 정의 (사냥터 이동, 검색, 정보창 등) **/
+/** 함수 정의 (사냥터 이동, 검색, 정보창 등) **/
 
-// 사냥터 및 산(비석) 정보창 표시 함수
+// 사냥터 및 산(비석) 정보창 표시
 window.showHuntingInfo = function(info) {
     var panel = document.getElementById('hunting-info-panel');
     
-    // 1. 공통 좌표 계산 (기존 로직 그대로)
+    // 1. 공통 좌표 계산 
     var displayX = info.x !== undefined ? info.x : (info.mcX !== undefined ? info.mcX : "확인불가");
     var displayZ = info.z !== undefined ? info.z : (info.mcZ !== undefined ? info.mcZ : "확인불가");
     var coordsHtml = '';
@@ -19,7 +19,7 @@ window.showHuntingInfo = function(info) {
         `;
     }
 
-    // 2. 패널 내용 분기 (멸문 vs 일반)
+    // 패널 내용
     if (info.name === "멸문") {
         // 멸문 전용: 이미지 포함 레이아웃
         panel.innerHTML = `
@@ -43,7 +43,7 @@ window.showHuntingInfo = function(info) {
             </div>
         `;
     } else {
-        // 일반 사냥터: 기존 레이아웃 그대로 유지
+        // 일반 사냥터
         panel.innerHTML = `
             <h4 id="panel-name" style="margin: 0;">
                 <span style="font-size: 24px;"><b>${info.name}</b></span> 
@@ -63,25 +63,20 @@ window.showHuntingInfo = function(info) {
     panel.style.display = 'block';
 };
 
-// 사냥터 클릭 이동 로직 (ui-control.js 내)
+// 사냥터 클릭 이동
 window.moveAndShowHunt = function(name) {
     var info = huntingInfo.find(h => h.name === name);
     if (!info) return;
 
-    // 1. 레이어가 꺼져있다면 즉시 켜기
     if (!map.hasLayer(huntingLayers[name])) {
         map.addLayer(huntingLayers[name]);
         updateLayerCheckbox(name, true);
     }
-
-    // 2. 화면 이동 (한 번에 가도록 setView 활용)
-    map.setView(info.center, 0); // 0은 적절한 줌 레벨입니다. 필요시 조정하세요.
-
-    // 3. 정보창 즉시 호출 (지연 시간 삭제 혹은 대폭 단축)
+    map.setView(info.center, 0); // 
     showHuntingInfo(info);
 };
 
-// 사냥터 목록 생성
+// 사냥터 목록
 window.generateHuntingList = function() {
     const listElement = document.getElementById('hunting-list');
     huntingInfo.forEach(info => {
@@ -92,7 +87,7 @@ window.generateHuntingList = function() {
     });
 };
 
-// 레이어 체크박스 동기화
+// 레이어 체크박스
 window.updateLayerCheckbox = function(name, isAdd) {
     document.querySelectorAll('.leaflet-control-layers-overlays label').forEach(label => {
         if (label.innerText.trim().includes(name)) {
@@ -102,7 +97,7 @@ window.updateLayerCheckbox = function(name, isAdd) {
     });
 };
 
-// 약초 전용 정보 표시 함수
+// 약초 전용 정보 
 window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     if (!map.hasLayer(herbLayers[name])) { map.addLayer(herbLayers[name]); }
     var panel = document.getElementById('hunting-info-panel');
@@ -119,21 +114,20 @@ window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     panel.innerHTML = `<div style="border-bottom:3px solid ${color}; padding-bottom:8px; margin-bottom:12px; position:relative;"><b style="font-size:18px; color:#3F3F3F; text-shadow:1px 1px 0px #fff;">${name}</b>${titleExtraHtml}${descExtraHtml}<span style="position:absolute; right:0; top:0; cursor:pointer; font-weight:bold; padding:5px;" onclick="document.getElementById('hunting-info-panel').style.display='none'">X</span></div><div style="font-size:14px; line-height:1.6; background:rgba(255,255,255,0.5); padding:10px; border:1px solid #888; max-height:150px; overflow-y:auto;">${coordsHtml}</div><button onclick="document.getElementById('hunting-info-panel').style.display='none'" style="margin-top:12px; width:100%; cursor:pointer; background:#C6C6C6; border:2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; font-weight:bold; padding:5px;">닫기</button>`;
 };
 
-// 모든 약초 레이어 초기화 함수
+// 모든 약초 레이어 초기화
 window.resetHerbLayers = function() {
     Object.keys(herbLayers).forEach(function(name) { if (map.hasLayer(herbLayers[name])) { map.removeLayer(herbLayers[name]); }});
     document.getElementById('hunting-info-panel').style.display = 'none';
 };
 
-/** 통합 검색 기능 (정보창 호출 강화) **/
+/** 통합 검색 기능 **/
 window.executeSearch = function() {
     var input = document.getElementById('search-input');
     var query = input.value.trim().toLowerCase();
     if (!query) return;
 
     var allTargets = [];
-    
-    // 데이터 합치기 (각 데이터의 성격을 식별할 수 있는 플래그 추가)
+
     if (typeof huntingInfo !== 'undefined') allTargets = allTargets.concat(huntingInfo.map(d => ({...d, _category: 'hunting'})));
     if (typeof poiData !== 'undefined') allTargets = allTargets.concat(poiData.map(d => ({...d, _category: 'poi'})));
     if (typeof herbData !== 'undefined') allTargets = allTargets.concat(herbData.map(d => ({...d, _category: 'herb'})));
@@ -143,10 +137,9 @@ window.executeSearch = function() {
     if (typeof mountainData !== 'undefined') allTargets = allTargets.concat(mountainData.map(d => ({...d, _category: 'mountain'})));
     if (typeof zodiacData !== 'undefined') allTargets = allTargets.concat(zodiacData.map(d => ({...d, _category: 'zodiac'})));
 
-    // 1단계: 완전 일치 검색 (숫자 1, 11 문제 해결)
+ 
     var result = allTargets.find(d => d.name && d.name.toString().toLowerCase() === query);
 
-    // 2단계: 부분 일치 검색
     if (!result) {
         result = allTargets.find(d => 
             (d.name && d.name.toString().toLowerCase().includes(query)) || 
@@ -171,39 +164,38 @@ window.executeSearch = function() {
             .setContent(popupContent)
             .openOn(map);
 
-        // --- 정보창 강제 호출 로직 ---
         // 1. NPC (파일이 있고 relation이 있거나 category가 npc인 경우)
         if (result._category === 'npc' || result.relation) {
             showNPCInfo(result);
         } 
-        // 2. 적환단 (이름에 적환단이 포함되거나 category가 redhwan인 경우)
+ 
         else if (result._category === 'redhwan' || (result.name && result.name.includes("적환단"))) {
             showRedHwanInfo(result);
         }
-        // 3. 광산/스폰
+    
         else if (result._category === 'poi') {
             showMineInfo(result);
         }
-        // 4. 사냥터/비석
+      
         else if (result._category === 'hunting' || result._category === 'mountain') {
             showHuntingInfo(result);
         }
-        // 5. 탐색(항아리)
+        
         else if (result._category === 'discovery') {
             showDiscoveryInfo(result);
         }
-        // 6. 십이간지
+    
         else if (result._category === 'zodiac') {
             showZodiacInfo(result);
         }
-        // 7. 의문의상자
+      
        else if (result._category === 'box') {
             L.popup()
                 .setLatLng(pos)
                 .setContent(`<b>${result.name} 📦</b><br>좌표: ${result.x}, ${result.z}`)
                 .openOn(map);
         }
-        // 8. 기타 (약초 등)
+      
         else {
             L.popup().setLatLng(pos).setContent(`<b>${result.name}</b>`).openOn(map);
         }
@@ -270,21 +262,17 @@ window.showMineInfo = function(poi) {
     `;
 };
 
-/** 10. 십이간지 정보창 표시 **/
+/** 십이간지 정보창 **/
 window.showZodiacInfo = function(z) {
     var panel = document.getElementById('hunting-info-panel');
     if (!panel) return;
 
-    // 1. 표시용 이름 추출 (숫자와 점 제거)
-    // 예: "1.쥐" -> "쥐", "6.뱀" -> "뱀"
     var displayName = z.name.replace(/[0-9.]/g, '').trim();
     
-    // 2. 뱀 전용 히든 문구 설정 (데이터 이름에 '뱀'이 포함되어 있는지 확인)
     var hiddenText = (displayName === "뱀") ? `<div style="color: #6c5ce7; font-weight: bold; margin-top: 5px; font-size: 13px;">[히든] 뱀의 영기</div>` : "";
     
     panel.style.display = 'block';
     
-    // innerHTML 시작 (백틱 하나로 끝까지 연결)
     panel.innerHTML = `
         <div style="border-bottom:3px solid #e67e22; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:22px; color:#3F3F3F;">${displayName} <span style="font-size:16px; color:#e67e22;">(십이간지)</span></b>
@@ -309,7 +297,6 @@ window.showZodiacInfo = function(z) {
     `;
 };
 
-/** 11. 클립보드 복사 공통 함수 **/
 window.copyToClipboard = function(text) {
     navigator.clipboard.writeText(text).then(function() {
         // 복사 성공 시 화면 하단 알림(토스트)
@@ -325,9 +312,9 @@ window.copyToClipboard = function(text) {
     }).catch(function(err) {
         console.error('복사 실패:', err);
     });
-}; // <--- 여기서 copyToClipboard 함수가 끝납니다.
+}; 
 
-/** 12. 탐색(항아리) 정보창 표시 **/
+/** 탐색(항아리) 정보창 표시 **/
 window.showDiscoveryInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
     panel.style.display = 'block';
@@ -353,7 +340,7 @@ window.showDiscoveryInfo = function(d) {
     `;
 }; 
 
-/** 13. 적환단 정보창 표시 **/
+/** 적환단 정보창 표시 **/
 window.showRedHwanInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
     panel.style.display = 'block';
@@ -387,7 +374,7 @@ window.showRedHwanInfo = function(d) {
     `;
 };
 
-/** 14. NPC 정보창 표시 **/
+/**NPC 정보창 표시 **/
 window.showNPCInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
     panel.style.display = 'block';
