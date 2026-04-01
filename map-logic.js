@@ -1,4 +1,4 @@
-/** 1. 설정 및 기본 변수 **/
+/** 1. 설정 **/
 var imgW = 7300, imgH = 6494;
 var imageBounds = [[-imgH, 0], [0, imgW]];
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.3); 
@@ -20,7 +20,7 @@ var currentZoom = map.getZoom();
 map.setMinZoom(currentZoom); 
 map.setZoom(currentZoom);
 
-/** 2. 아이콘 생성 함수 **/
+/** 2. 아이콘 생성 **/
 function createHtmlIcon(color) {
     return L.divIcon({ className: 'mine-clickable-area', html: `<div class="mine-dot" style="background:${color};"></div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
 }
@@ -28,7 +28,7 @@ function createSteleIcon() {
     return L.divIcon({ className: 'stele-icon-container', html: `<div class="stele-body"></div>`, iconSize: [24, 34], iconAnchor: [12, 34] });
 }
 
-/** 3. 레이어 그룹 설정 **/
+/** 3. 레이어 그룹  **/
 var poiLayers = { '스폰': L.layerGroup(), '십이간지': L.layerGroup(), '녹색광산': L.layerGroup(), '청색광산': L.layerGroup(), '황색광산': L.layerGroup(), '적색광산': L.layerGroup() };
 var herbLayers = {};
 var huntingLayers = {};
@@ -39,7 +39,7 @@ var npcLayers = L.layerGroup();
 var mysteryBoxLayers = L.layerGroup();
 var questLayers = L.layerGroup().addTo(map);
 
-/** 4. 광산 동선 로직 **/
+/** 4. 광산 동선 **/
 var routeLinesByGroup = { "녹": [], "청": [], "황": [], "적": [] };
 
 if (typeof poiData !== 'undefined') {
@@ -60,7 +60,7 @@ function addGroupRouteHover(marker, groupType) {
     marker.on('mouseout', () => routeLinesByGroup[groupType]?.forEach(l => l.setStyle({ opacity: 0 })));
 }
 
-/** 5. 십이간지 및 히든 퀘스트 동선 (핵심 로직) **/
+/** 5. 십이간지 및 히든 퀘스트 동선 **/
 
 // [A] 십이간지 동선
 if (typeof zodiacData !== 'undefined') {
@@ -87,12 +87,12 @@ if (typeof npcData !== 'undefined') {
     var qPath = [npcData.find(n => n.name.includes("상단주")), npcData.find(n => n.name.includes("부숴진마차")), npcData.find(n => n.name.includes("자운스님"))].filter(p => p);
     if (qPath.length >= 2) questLines.standard = L.polyline(qPath.map(p => mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 
-    // 2. 뱀/호리병 동선 (멸문 포함)
+    // 2. 뱀/호리병 동선
     var myeonMun = (typeof huntingInfo !== 'undefined') ? huntingInfo.find(h => h.name === "멸문") : null;
     var sPath = [npcData.find(n => n.name.includes("도사")), npcData.find(n => n.name.includes("도공")), myeonMun, npcData.find(n => n.name.includes("도사"))].filter(p => p);
     if (sPath.length >= 2) questLines.snake = L.polyline(sPath.map(p => p.center || mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 
-    // 3. 해적선 동선 (새로 추가!)
+    // 3. 해적선 동선 
     var pPath = [npcData.find(n => n.name.includes("해진")), npcData.find(n => n.name.includes("해적선")), npcData.find(n => n.name.includes("백향초재배지"))].filter(p => p);
     if (pPath.length >= 2) questLines.pirate = L.polyline(pPath.map(p => mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 }
@@ -120,7 +120,7 @@ if (typeof npcData !== 'undefined') {
     });
 }
 
-// 사냥터 (멸문 클릭 중요!)
+// 사냥터 
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
@@ -128,7 +128,7 @@ if (typeof huntingInfo !== 'undefined') {
         
         clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
         
-        // 멸문 전용 호버 로직
+        // 멸문
         if (info.name === "멸문") {
             clickMarker.addTo(map);
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
@@ -147,7 +147,7 @@ zodiacData.forEach(z => {
     marker.on('mouseout', () => window.zodiacLine?.setStyle({ opacity: 0 }));
 });
 
-// 광산, 산, 탐색, 상자, 약초 (기존 로직 그대로)
+// 광산, 산, 탐색, 상자, 약초
 poiData.forEach(poi => {
     var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
     if(key) {
