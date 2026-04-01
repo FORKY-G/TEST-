@@ -1,4 +1,4 @@
-/** 1. 좌표 변환 함수 **/
+/** 1. 월드맵 좌표 맞추기 **/
 const mcToPx = (mcX, mcZ) => {
     var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
     var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
@@ -6,7 +6,7 @@ const mcToPx = (mcX, mcZ) => {
     return [-(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), mcSpawnPxX + (mcX - mcSpawnCoordX) * scale]; 
 };
 
-/** 2. 산(비석) 데이터 (동상 포함) **/
+/** 2. 산(비석),동상 데이터 **/
 var mountainData = [
     { name: "천보산", x: -2030, z: -4142 }, 
     { name: "망운산", x: -2662, z: -1556 }, 
