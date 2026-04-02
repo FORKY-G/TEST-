@@ -158,6 +158,29 @@ poiData.forEach(poi => {
     }
 });
 
+if (typeof redHwanData !== 'undefined') {
+    redHwanData.forEach(d => {
+        // red.png 아이콘을 사용하여 마커 생성
+        var marker = L.marker(mcToPx(d.x, d.z), { 
+            icon: L.icon({ 
+                iconUrl: 'red.png', 
+                iconSize: [30, 30], 
+                iconAnchor: [15, 15] 
+            }) 
+        }).addTo(redHwanLayers);
+
+        // 클릭 시 정보창 표시 (적환단 전용 함수 호출)
+        marker.on('click', () => {
+            if (typeof showRedHwanInfo === 'function') {
+                showRedHwanInfo(d);
+            }
+        });
+        
+        // 툴팁 추가 (선택 사항)
+        marker.bindTooltip(`<b>적환단</b>`, { direction: 'top', offset: [0, -10] });
+    });
+}
+
 mountainData.forEach(m => {
     var finalPos = m.coords ? m.coords : mcToPx(m.x, m.z);
     var marker = L.marker(finalPos, { icon: m.type === "statue" ? L.divIcon({ className: 'statue-icon', iconSize:[30,30], iconAnchor:[15,30] }) : createSteleIcon() }).addTo(mountainLayers);
