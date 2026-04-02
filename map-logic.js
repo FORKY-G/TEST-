@@ -251,7 +251,7 @@ mountainData.forEach(m => {
 });
 
 discoveryData.forEach(d => {
-    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [35, 35], iconAnchor: [15, 15] }) }).addTo(discoveryLayers);
+    var marker = L.marker(mcToPx(d.x, d.z), { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(discoveryLayers);
     marker.bindTooltip(`<b>${d.item}</b> (${d.name})`);
     marker.on('click', () => showDiscoveryInfo(d));
 });
