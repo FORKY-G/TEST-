@@ -79,7 +79,8 @@ if (typeof zodiacData !== 'undefined') {
 var questLines = {
     standard: null,
     snake: null,
-    pirate: null
+    pirate: null,
+    haemusa: null
 };
 
 if (typeof npcData !== 'undefined') {
@@ -95,6 +96,23 @@ if (typeof npcData !== 'undefined') {
     // 3. 해적선 동선 
     var pPath = [npcData.find(n => n.name.includes("해진")), npcData.find(n => n.name.includes("해적선")), npcData.find(n => n.name.includes("백향초재배지"))].filter(p => p);
     if (pPath.length >= 2) questLines.pirate = L.polyline(pPath.map(p => mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
+
+    // 4. 해무사 퀘스트 동선 (해무사승려 -> 연운객 -> 시녀)
+    var hPath = [
+        npcData.find(n => n.name.includes("해무사승려")),
+        npcData.find(n => n.name.includes("연운객")),
+        npcData.find(n => n.name.includes("시녀"))
+    ].filter(p => p);
+
+    if (hPath.length >= 2) {
+        questLines.haemusa = L.polyline(hPath.map(p => mcToPx(p.x, p.z)), { 
+            color: '#a29bfe', // 연보라색 (해적선 퀘스트와 통일하거나 취향껏 변경 가능)
+            weight: 6, 
+            opacity: 0, 
+            dashArray: '12, 12', 
+            interactive: false 
+        }).addTo(questLayers);
+    }
 }
 
 /** 6. 마커 생성 및 이벤트 연결 **/
@@ -111,11 +129,16 @@ if (typeof npcData !== 'undefined') {
             if (d.name.includes("상단주") || d.name.includes("부숴진마차") || d.name.includes("자운스님")) questLines.standard?.setStyle({ opacity: 0.9 });
             if (d.name.includes("도사") || d.name.includes("도공")) questLines.snake?.setStyle({ opacity: 0.9 });
             if (d.name.includes("해진") || d.name.includes("해적선") || d.name.includes("백향초재배지")) questLines.pirate?.setStyle({ opacity: 0.9 });
+            if (d.name.includes("해무사승려") || d.name.includes("연운객") || d.name.includes("시녀")) {
+                questLines.haemusa?.setStyle({ opacity: 0.9 });
+            }
         });
+            
         marker.on('mouseout', () => { 
             questLines.standard?.setStyle({ opacity: 0 }); 
             questLines.snake?.setStyle({ opacity: 0 }); 
             questLines.pirate?.setStyle({ opacity: 0 }); 
+            questLines.haemusa?.setStyle({ opacity: 0 });
         });
     });
 }
