@@ -16,6 +16,7 @@ var mountainData = [
     { name: "용문산", x: 5378, z: 3731 }, 
     { name: "도덕산", x: 6498, z: 67 }, 
     { name: "월랑산", x: -2720, z: 2883 }, 
+    { name: "청태산", x: 4191, z: -2806 },
     { name: "삼악산", x: 5917, z: 2453 },
     // 동상 데이터 추가
 { name: "UNKNOWN", file: "statue3.png", x: 1513, z: 3593, type: "statue" },
