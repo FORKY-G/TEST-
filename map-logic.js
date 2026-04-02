@@ -205,12 +205,12 @@ if (typeof redHwanData !== 'undefined') {
     });
 }
 var haemusaBooks = [
-    { name: "기록서1", x: -5640, z: 3340, desc: "해무사 기록서 #1" },
-    { name: "기록서2", x: -5625, z: 3432, desc: "해무사 기록서 #2" },
-    { name: "기록서3", x: -5555, z: 3405, desc: "해무사 기록서 #3" },
-    { name: "기록서4", x: -5770, z: 3332, desc: "해무사 기록서 #4" },
-    { name: "기록서5", x: -5749, z: 3215, desc: "해무사 기록서 #5" },
-    { name: "기록서6", x: -5578, z: 3275, desc: "해무사 기록서 #6" }
+    { name: "기록서1", x: -5640, y: 177, z: 3340, desc: "해무사 기록서 #1", tool: "길을 찾으시오." },
+    { name: "기록서2", x: -5625, y: 149, z: 3432, desc: "해무사 기록서 #2", tool: "그대만의 길을." },
+    { name: "기록서3", x: -5555, y: 90, z: 3405, desc: "해무사 기록서 #3", tool: "길이 없음에도 길이 있고," },
+    { name: "기록서4", x: -5770, y: 140, z: 3332, desc: "해무사 기록서 #4", tool: "길이 있는 곳에도 길이 없음이라." },
+    { name: "기록서5", x: -5749, y: 124, z: 3215, desc: "해무사 기록서 #5", tool: "길 끝에 길이 있으며," },
+    { name: "기록서6", x: -5578, y: 174, z: 3275, desc: "해무사 기록서 #6", tool: "그 끝에 도달하는 자만이 운명을 쥐어진 자" }
 ];
 
 haemusaBooks.forEach((book, index) => {
@@ -226,7 +226,15 @@ haemusaBooks.forEach((book, index) => {
     
     marker.on('click', () => {
         if (typeof showDiscoveryInfo === 'function') {
-            showDiscoveryInfo({ name: book.name, item: book.desc, x: book.x, z: book.z });
+            // 클릭할 때 y좌표와 tool 정보도 함께 넘겨줍니다.
+            showDiscoveryInfo({ 
+                name: book.name, 
+                item: book.desc, 
+                x: book.x, 
+                y: book.y, 
+                z: book.z, 
+                tool: book.tool 
+            });
         }
     });
 });
