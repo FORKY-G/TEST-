@@ -37,6 +37,7 @@ var discoveryLayers = L.layerGroup();
 var redHwanLayers = L.layerGroup();
 var npcLayers = L.layerGroup();
 var mysteryBoxLayers = L.layerGroup();
+var haemusaBookLayers = L.layerGroup();
 var questLayers = L.layerGroup().addTo(map);
 
 /** 4. 광산 동선 **/
@@ -203,6 +204,35 @@ if (typeof redHwanData !== 'undefined') {
         marker.bindTooltip(`<b>적환단</b>`, { direction: 'top', offset: [0, -10] });
     });
 }
+var haemusaBooks = [
+    { name: "기록서1", x: -5640, z: 3340, desc: "해무사 기록서 #1" },
+    { name: "기록서2", x: -5625, z: 3432, desc: "해무사 기록서 #2" },
+    { name: "기록서3", x: -5555, z: 3405, desc: "해무사 기록서 #3" },
+    { name: "기록서4", x: -5770, z: 3332, desc: "해무사 기록서 #4" },
+    { name: "기록서5", x: -5749, z: 3215, desc: "해무사 기록서 #5" },
+    { name: "기록서6", x: -5578, z: 3275, desc: "해무사 기록서 #6" }
+];
+
+haemusaBooks.forEach((book, index) => {
+    var bookIcon = L.divIcon({
+        className: 'book-icon',
+        html: `<div style="background: #f1c40f; color: #2c3e50; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #2c3e50; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center;">${index + 1}</div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+
+    var marker = L.marker(mcToPx(book.x, book.z), { icon: bookIcon }).addTo(haemusaBookLayers);
+    marker.bindTooltip(`<b>${book.name}</b>`, { direction: 'top' });
+    
+    marker.on('click', () => {
+        if (typeof showDiscoveryInfo === 'function') {
+            showDiscoveryInfo({ name: book.name, item: book.desc, x: book.x, z: book.z });
+        }
+    });
+});
+haemusaBookLayers.addTo(map);
+
+
 
 mountainData.forEach(m => {
     var finalPos = m.coords ? m.coords : mcToPx(m.x, m.z);
