@@ -60,18 +60,36 @@ html, body {
 @media (max-width: 700px) {
     
     .search-container {
-        top: 10px !important;
+        top: 60px !important;
         left: 50% !important;
-        transform: translateX(-50%);
-        width: 90% !important;
-        z-index: 1000;
+        transform: translateX(-50%) !important;
+        width: 95% !important;
+        display : flex !important;
+        justify-content: center;
+        gap: 5px;
+        z-index: 3000 !important;
     }
-
     .search-container input {
-        width: 60% !important;
+        width: 65% !important;
         font-size: 14px !important;
+        height: 40px !important;
     }
-
+    #search-container button {
+        width: 25% !important;
+        padding: 0 !important;
+        height: 40px !important;
+    } 
+    /* 사냥터 목록 */
+    #hunting-list-container {
+        top: 110px !important; /* 검색창(60px) + 높이(40px) + 여백 */
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 95% !important;
+        height: 40px !important;
+        z-index: 3000 !important;
+    }
+    
     /* 2. 사냥터 목록 버튼 */
     .menu-container {
         bottom: 20px !important;
@@ -80,17 +98,11 @@ html, body {
         width: auto !important;
         z-index: 1000;
     }
-
-    /* 3. 오른쪽 위 체크박스 메뉴*/
+    
+    /* 3. 오른쪽 위 레이어 컨트롤(체크박스 메뉴) 위치 조정 */
     .leaflet-control-layers {
-        margin-top: 60px !important; 
-        scale: 0.8;
-    }
-
-    /* 4. 마커 아이콘 크기 조절  */
-    .statue-icon, .stele-icon {
-        width: 24px !important;
-        height: 24px !important;
+        margin-top: 160px !important; /* UI들이 다 아래로 내려왔으니 이것도 내림 */
+        scale: 0.9;
     }
 }
         
