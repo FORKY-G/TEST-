@@ -332,6 +332,3 @@ Object.keys(herbLayers).sort().forEach(name => {
 });
 
 map.on('click', () => { if(document.getElementById('hunting-info-panel')) document.getElementById('hunting-info-panel').style.display = 'none'; });
-
-
-지금 이렇게 되어있어
