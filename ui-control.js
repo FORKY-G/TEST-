@@ -275,7 +275,7 @@ window.showZodiacInfo = function(d) {
         
         <div style="margin-bottom:10px;">
             <div style="font-size:14px; color:#8e44ad; font-weight:bold;">
-                [히든]십이지신: <span style="color:#8e44ad;">${d.description || '한월환해도의 수호신'}</span>
+                [히든]십이지신: <span style="color:#8e44ad;"></span>
             </div>
             
             <div style="font-size:13px; color:#444; line-height:1.6; margin-top:10px; background:#f9f9f9; padding:8px; border:1px solid #ddd;">
