@@ -4,24 +4,25 @@
 window.showHuntingInfo = function(info) {
     var panel = document.getElementById('hunting-info-panel');
     
-    // 1. 공통 좌표 계산 
+    // 1. 공통 좌표 계산 (X, Y, Z 모두 표시되도록 수정)
     var displayX = info.x !== undefined ? info.x : (info.mcX !== undefined ? info.mcX : "확인불가");
+    var displayY = info.y !== undefined ? info.y : "80"; // Y값이 없으면 기본값 80
     var displayZ = info.z !== undefined ? info.z : (info.mcZ !== undefined ? info.mcZ : "확인불가");
     var coordsHtml = '';
 
     if(displayX !== "확인불가") {
         coordsHtml = `
-            <div onclick="copyToClipboard('${displayX}, ${displayZ}')" 
+            <div onclick="copyToClipboard('${displayX}, ${displayY}, ${displayZ}')" 
                  title="클릭하여 좌표 복사"
                  style="font-size:13px; color:#666; cursor:pointer; display:inline-block; border:1px solid #999; padding:3px 8px; background:#eee; border-radius:3px; width:100%; box-sizing:border-box; text-align:center; margin-top:10px;">
-                 좌표: <span style="text-decoration:underline; font-weight:bold;">${displayX}, ${displayZ}</span> 📋
+                 좌표: <span style="text-decoration:underline; font-weight:bold;">X ${displayX} / Y ${displayY} / Z ${displayZ}</span> 📋
             </div>
         `;
     }
 
     // 패널 내용
     if (info.name === "멸문") {
-        // 멸문 전용: 이미지 포함 레이아웃
+        // 멸문 전용: 이미지 포함 레이아웃 (기존 로직 유지)
         panel.innerHTML = `
             <div style="border: 2px solid #6c5ce7; padding: 12px; background: #fff; border-radius: 8px;">
                 <h3 style="margin: 0; color: #6c5ce7;">🐍 ${info.name} <small style="color:#666; font-size:14px;">(${info.lv})</small></h3>
@@ -43,7 +44,7 @@ window.showHuntingInfo = function(info) {
             </div>
         `;
     } else {
-        // 일반 사냥터
+        // 일반 사냥터 (기존 로직 유지하면서 좌표 부분에 Y 추가)
         panel.innerHTML = `
             <h4 id="panel-name" style="margin: 0;">
                 <span style="font-size: 24px;"><b>${info.name}</b></span> 
