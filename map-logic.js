@@ -290,28 +290,29 @@ if (typeof npcData !== 'undefined') {
 
 
 
-// 사냥터 
+// 사냥터 (기존 영역 표시 복구 + 아이콘 추가 버전)
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var layers = [];
 
-        // 1. 아이콘 파일이 있는 경우: 지도 전체에 깔지 않고, 해당 위치에 '아이콘'으로 생성
-        if (info.file && info.file.trim() !== "") {
+        // 1. [기존 기능 복구] 사냥터 영역 이미지 (지도 전체에 씌우는 것)
+        // 이 줄이 있어야 기존 사냥터 색상들이 다시 나타납니다.
+        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+        layers.push(imgOverlay);
+
+        // 2. [신규 기능] 혈교지 등 아이콘 파일이 있는 경우 '아이콘 마커' 추가
+        // 파일이 "map17.png" 처럼 실제 아이콘용일 때만 공중에 아이콘을 띄웁니다.
+        if (info.file && info.file.includes("map")) { 
             var huntingIcon = L.icon({
                 iconUrl: info.file,
-                iconSize: [40, 40],   // 아이콘 크기
-                iconAnchor: [20, 20]  // 아이콘 중심점
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
             });
             var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
             layers.push(iconMarker);
-        } 
-        // 2. 파일이 없는 경우: (기존 방식 유지) 지도 전체에 투명하게 overlay (에러 방지용)
-        else {
-            var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-            layers.push(imgOverlay);
         }
 
-        // 3. 클릭 영역 (기존 CircleMarker 그대로 유지)
+        // 3. [기존 기능 유지] 투명 클릭 영역 (CircleMarker)
         var clickMarker = L.circleMarker(info.center, { 
             radius: 40, 
             color: 'transparent', 
@@ -324,7 +325,7 @@ if (typeof huntingInfo !== 'undefined') {
             showHuntingInfo(info); 
         });
         
-        // 멸문 퀘스트 라인 연동 유지
+        // 4. [기존 기능 유지] 멸문 퀘스트 라인 효과
         if (info.name === "멸문") {
             clickMarker.addTo(map);
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
