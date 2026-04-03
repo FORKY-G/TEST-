@@ -288,16 +288,16 @@ if (typeof npcData !== 'undefined') {
 
 }
 
-// 사냥터 (혈교지만 아이콘으로 표시, 나머지는 배경 유지)
+// 사냥터 (혈교도만 아이콘으로 표시, 나머지는 배경 유지)
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var layers = [];
 
-        // 1. [혈교지 전용] 이름이 "혈교지"인 경우만 아이콘 마커 생성
-        if (info.name === "혈교지" && info.file) { 
+        // 1. [혈교도 전용] 이름이 "혈교도"인 경우만 아이콘 마커 생성
+        if (info.name === "혈교도" && info.file) { 
             var huntingIcon = L.icon({
                 iconUrl: info.file,
-                iconSize: [45, 45],   // 혈교지 아이콘 크기
+                iconSize: [45, 45],   // 혈교도 아이콘 크기
                 iconAnchor: [22, 22]
             });
             var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
