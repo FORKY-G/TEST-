@@ -259,9 +259,13 @@ window.showMineInfo = function(poi) {
 window.showZodiacInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
     panel.style.display = 'block';
+    
+    // 이름에서 숫자 제거 (1. 쥐 -> 쥐)
+    var displayName = d.name.replace(/^[0-9.]+\s*/, ""); 
+
     panel.innerHTML = `
         <div style="border-bottom:3px solid #f1c40f; padding-bottom:8px; margin-bottom:12px;">
-            <b style="font-size:20px; color:#3F3F3F;">${d.name} ✨</b>
+            <b style="font-size:20px; color:#3F3F3F;">${displayName} ✨</b>
             <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
                  title="좌표 복사"
                  style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
@@ -270,8 +274,15 @@ window.showZodiacInfo = function(d) {
         </div>
         
         <div style="margin-bottom:10px;">
-            <div style="font-size:14px; color:#2c3e50; font-weight:bold;">특징: <span style="color:#2980b9;">${d.description || '십이지간 수호신'}</span></div>
-            <div style="font-size:12px; color:#7f8c8d; margin-top:4px;">분류: 십이지간 시스템</div>
+            <div style="font-size:14px; color:#8e44ad; font-weight:bold;">
+                [히든]십이지신: <span style="color:#8e44ad;">${d.description || '한월환해도의 수호신'}</span>
+            </div>
+            
+            <div style="font-size:13px; color:#444; line-height:1.6; margin-top:10px; background:#f9f9f9; padding:8px; border:1px solid #ddd;">
+                해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
+                <br><b>[십이지신 순서]</b></br>
+                <br>쥐-소-호랑이-도사-토끼-용-뱀-도사-말-양-원숭이-도사-닭-개-돼지</br>
+            </div>
         </div>
 
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
