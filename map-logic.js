@@ -148,16 +148,32 @@ if (typeof npcData !== 'undefined') {
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillOpacity: 0, interactive: true });
         
-        clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        // 1. 모든 사냥터에 클릭 가능한 투명 원형 마커 생성
+        var clickMarker = L.circleMarker(info.center, { 
+            radius: 40, 
+            color: 'transparent', 
+            fillOpacity: 0, 
+            interactive: true 
+        });
         
-        // 멸문
+        // 2. 모든 사냥터 클릭 시 정보창 표시 이벤트 연결
+        clickMarker.on('click', (e) => { 
+            L.DomEvent.stopPropagation(e); 
+            showHuntingInfo(info); 
+        });
+
+        // 3. [중요] 모든 사냥터 마커를 지도(또는 레이어)에 추가
+        // 기존에는 "멸문"일 때만 addTo(map)을 해서 다른 곳은 클릭이 안 됐던 거예요.
+        clickMarker.addTo(map); 
+
+        // 4. 멸문 전용 호버 이벤트 (동선 보이기)는 유지
         if (info.name === "멸문") {
-            clickMarker.addTo(map);
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
             clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
         }
+
+        // 레이어 그룹 저장
         huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
     });
 }
