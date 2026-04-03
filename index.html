@@ -56,13 +56,13 @@ html, body {
     font-size: 16px;
 }
 
-/* 모바일용 레이아웃 정리 (화면 너비 768px 이하일 때) */
+/* 모바일용 레이아웃 정리 */
 @media (max-width: 768px) {
-    /* 1. 검색창 영역을 상단에 고정 */
+    
     .search-container {
         top: 10px !important;
         left: 50% !important;
-        transform: translateX(-50%); /* 가운데 정렬 */
+        transform: translateX(-50%);
         width: 90% !important;
         z-index: 1000;
     }
@@ -72,22 +72,22 @@ html, body {
         font-size: 14px !important;
     }
 
-    /* 2. 사냥터 목록 버튼을 하단 중앙에 고정 */
+    /* 2. 사냥터 목록 버튼 */
     .menu-container {
         bottom: 20px !important;
         right: 50% !important;
-        transform: translateX(50%); /* 가운데 정렬 */
+        transform: translateX(50%);
         width: auto !important;
         z-index: 1000;
     }
 
-    /* 3. 오른쪽 위 체크박스 메뉴 (레이어 컨트롤) */
+    /* 3. 오른쪽 위 체크박스 메뉴*/
     .leaflet-control-layers {
-        margin-top: 60px !important; /* 검색창과 겹치지 않게 아래로 밀기 */
-        scale: 0.8; /* 모바일에서는 살짝 작게 */
+        margin-top: 60px !important; 
+        scale: 0.8;
     }
 
-    /* 4. 마커 아이콘 크기 조절 (너무 크면 지도가 안 보여서 살짝 줄임) */
+    /* 4. 마커 아이콘 크기 조절  */
     .statue-icon, .stele-icon {
         width: 24px !important;
         height: 24px !important;
@@ -107,7 +107,7 @@ html, body {
         <div id="panel-lv"></div>
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
     </div>
-    <div id="hunting-list-container" style="position: absolute; top: 10px; right: 230px; z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 5px; width: 150px;">
+   <div id="hunting-list-container" style="position: absolute; top: 25px; left: calc(50% + 165px); z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 5px; width: 150px;">
         <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
             ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
         </div>
