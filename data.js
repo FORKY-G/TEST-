@@ -197,6 +197,7 @@ var mysteryBoxData = [
     { name: "의문의 상자", x: -1420, y: 128, z: -4655 },
     { name: "의문의 상자", x: 2984, y: 181, z: -975 },
     { name: "의문의 상자", x: -1852, y: 143, z: 4290 },
+    { name: "의문의 상자", x: 7049, y: 142, z: 2874, realation: "고급주문서뽑기" },
     { name: "의문의 상자", x: 1124, y: 258, z: 1498, realation: "일반부적뽑기"},
     { name: "의문의 상자", x: -3979, y: 80, z: 2501, realation: "<span style='color:#ff0000;'>상자3개있음</span>"}
 ];
