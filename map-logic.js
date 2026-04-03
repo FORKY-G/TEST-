@@ -144,24 +144,70 @@ if (typeof npcData !== 'undefined') {
     });
 }
 
-// 사냥터 
+// 사냥터 
 if (typeof huntingInfo !== 'undefined') {
-    huntingInfo.forEach(info => {
-        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillOpacity: 0, interactive: true });
-        
-        clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
-        
-        // 멸문
-        if (info.name === "멸문") {
-            clickMarker.addTo(map);
-            clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
-            clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
-        }
-        huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
-    });
-}
+    huntingInfo.forEach(info => {
+        // [수정] 좌표 계산 로직 통합 (x, z가 있으면 mcToPx 사용, 없으면 center 사용)
+        var latLng = (info.x !== undefined && info.z !== undefined) 
+                     ? mcToPx(info.x, info.z) 
+                     : info.center;
 
+        // 좌표가 없으면 Leaflet 에러(lng)를 방지하기 위해 건너뜀
+        if (!latLng) return;
+
+        var layers = [];
+
+        // [수정] 이미지 오버레이 생성 (파일이 있고 실제 경로가 존재할 때만)
+        if (info.file && info.file.trim() !== "") {
+            var imgOverlay = L.imageOverlay(info.file, imageBounds, { 
+                opacity: 0.6, 
+                interactive: false 
+            });
+            layers.push(imgOverlay);
+        }
+
+        // [수정] 클릭 마커 생성 (혈교지 포함 모든 사냥터 공통)
+        // 반지름을 40으로 설정하여 클릭 영역 확보
+        var clickMarker = L.circleMarker(latLng, { 
+            radius: 40, 
+            color: 'transparent', 
+            fillOpacity: 0, 
+            interactive: true 
+        });
+
+        // 혈교지처럼 파일은 있는데 지도에 표시가 필요한 경우를 위해 툴팁 추가
+        if (info.name === "혈교지") {
+            clickMarker.setStyle({ color: '#ff4757', fillOpacity: 0.5, radius: 15 }); // 혈교지는 빨간 원으로 표시
+            clickMarker.bindTooltip(`<b>${info.name}</b>`, { direction: 'top' });
+        }
+
+        clickMarker.on('click', (e) => { 
+            L.DomEvent.stopPropagation(e); 
+            // showHuntingInfo 함수에 데이터 전달 (x, y, z 포함)
+            if (typeof showHuntingInfo === 'function') {
+                showHuntingInfo({
+                    name: info.name,
+                    lv: info.lv,
+                    monsters: info.monsters,
+                    x: info.x || 0,
+                    y: info.y || 0, // 여기서 혈교지의 80 전달
+                    z: info.z || 0,
+                    file: info.file
+                });
+            }
+        });
+        
+        layers.push(clickMarker);
+
+        // 멸문/화검문 동선 효과
+        if (info.name === "멸문") {
+            clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
+            clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
+        }
+
+        huntingLayers[info.name] = L.layerGroup(layers);
+    });
+}
 // 십이간지 마커
 zodiacData.forEach(z => {
     var marker = L.marker(mcToPx(z.x, z.z), { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지']);
