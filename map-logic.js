@@ -288,30 +288,30 @@ if (typeof npcData !== 'undefined') {
 
 }
 
-// 사냥터 
+// 사냥터 (혈교지만 아이콘으로 표시, 나머지는 배경 유지)
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var layers = [];
 
-        // 1. 파일이 있는 경우 (혈교지 등) -> 지도 전체에 깔지 않고 '아이콘 마커'만 생성
-        if (info.file && info.file.includes("map")) { 
+        // 1. [혈교지 전용] 이름이 "혈교지"인 경우만 아이콘 마커 생성
+        if (info.name === "혈교지" && info.file) { 
             var huntingIcon = L.icon({
                 iconUrl: info.file,
-                iconSize: [40, 40],   // 아이콘 크기
-                iconAnchor: [20, 20]  // 아이콘 중심점
+                iconSize: [45, 45],   // 혈교지 아이콘 크기
+                iconAnchor: [22, 22]
             });
             var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
             layers.push(iconMarker);
         } 
-        // 2. 파일이 없는 경우 (기존 사냥터들) -> 기존 방식대로 투명하게 유지
-        else {
+        // 2. [그 외 모든 사냥터] 화검문 포함, 나머지는 전부 지도 전체 배경으로 씌움
+        else if (info.file) {
             var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
             layers.push(imgOverlay);
         }
 
-        // 3. [공통] 클릭 영역 (CircleMarker) - 이건 무조건 있어야 정보창이 뜸
+        // 3. [공통] 클릭 영역 (CircleMarker) - 정보창 띄우기용
         var clickMarker = L.circleMarker(info.center, { 
-            radius: 40, 
+            radius: 35, 
             color: 'transparent', 
             fillOpacity: 0, 
             interactive: true 
