@@ -129,6 +129,7 @@ window.executeSearch = function() {
 
     var allTargets = [];
 
+    // 데이터 병합 (기존 코드 유지)
     if (typeof huntingInfo !== 'undefined') allTargets = allTargets.concat(huntingInfo.map(d => ({...d, _category: 'hunting'})));
     if (typeof poiData !== 'undefined') allTargets = allTargets.concat(poiData.map(d => ({...d, _category: 'poi'})));
     if (typeof herbData !== 'undefined') allTargets = allTargets.concat(herbData.map(d => ({...d, _category: 'herb'})));
@@ -138,26 +139,35 @@ window.executeSearch = function() {
     if (typeof mountainData !== 'undefined') allTargets = allTargets.concat(mountainData.map(d => ({...d, _category: 'mountain'})));
     if (typeof zodiacData !== 'undefined') allTargets = allTargets.concat(zodiacData.map(d => ({...d, _category: 'zodiac'})));
 
- 
+    // 1. 이름이 정확히 일치하는 경우 먼저 찾기
     var result = allTargets.find(d => d.name && d.name.toString().toLowerCase() === query);
 
+    // 2. 정확히 일치하는 게 없으면 포함(includes) 검색 수행
     if (!result) {
         result = allTargets.find(d => 
             (d.name && d.name.toString().toLowerCase().includes(query)) || 
             (d.item && d.item.toLowerCase().includes(query)) ||
-            (d.relation && d.relation.toLowerCase().includes(query))
+            (d.relation && d.relation.toLowerCase().includes(query)) ||
+            // 👇 [추가된 부분] 몬스터 이름 검색 조건
+            (d.monsters && d.monsters.toLowerCase().includes(query)) 
         );
     }
 
     if (result) {
-        var pos = result.coords ? result.coords : mcToPx(result.x, result.z);
+        // 좌표 계산 (coords가 있으면 사용, 없으면 mcToPx 변환)
+        var pos = result.coords ? result.coords : (result.center ? result.center : mcToPx(result.x, result.z));
         map.setView(pos, 1); 
 
-        // 지도 위에 팝업(마커 말풍선) 띄우기
+        // 지도 위에 팝업 설정
         var popupContent = `<b>${result.name}</b>`;
         if (result._category === 'poi') popupContent = `<b>${result.name}번 광산 💎</b>`;
         if (result._category === 'npc') popupContent = `<b>NPC: ${result.name} 👤</b>`;
         if (result._category === 'redhwan') popupContent = `<b>적환단: ${result.name} 🔴</b>`;
+        
+        // 몬스터 검색으로 들어왔을 때 정보 표시용
+        if (result.monsters && result.monsters.toLowerCase().includes(query)) {
+            popupContent += `<br><span style="font-size:12px; color:#e74c3c;">출몰 몹: ${result.monsters}</span>`;
+        }
         if (result.item) popupContent += `<br><span style="font-size:12px; color:blue;">획득: ${result.item}</span>`;
 
         L.popup()
@@ -165,39 +175,21 @@ window.executeSearch = function() {
             .setContent(popupContent)
             .openOn(map);
 
-        // 1. NPC (파일이 있고 relation이 있거나 category가 npc인 경우)
+        // 하단 정보창 표시 로직 (기존 유지)
         if (result._category === 'npc' || result.relation) {
             showNPCInfo(result);
-        } 
- 
-        else if (result._category === 'redhwan' || (result.name && result.name.includes("적환단"))) {
+        } else if (result._category === 'redhwan' || (result.name && result.name.includes("적환단"))) {
             showRedHwanInfo(result);
-        }
-    
-        else if (result._category === 'poi') {
+        } else if (result._category === 'poi') {
             showMineInfo(result);
-        }
-      
-        else if (result._category === 'hunting' || result._category === 'mountain') {
+        } else if (result._category === 'hunting' || result._category === 'mountain') {
             showHuntingInfo(result);
-        }
-        
-        else if (result._category === 'discovery') {
+        } else if (result._category === 'discovery') {
             showDiscoveryInfo(result);
-        }
-    
-        else if (result._category === 'zodiac') {
+        } else if (result._category === 'zodiac') {
             showZodiacInfo(result);
-        }
-      
-       else if (result._category === 'box') {
-            L.popup()
-                .setLatLng(pos)
-                .setContent(`<b>${result.name} 📦</b><br>좌표: ${result.x}, ${result.z}`)
-                .openOn(map);
-        }
-      
-        else {
+        } else {
+            // 박스 등 기타 처리
             L.popup().setLatLng(pos).setContent(`<b>${result.name}</b>`).openOn(map);
         }
 
