@@ -293,18 +293,46 @@ if (typeof npcData !== 'undefined') {
 // 사냥터 
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
-        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillOpacity: 0, interactive: true });
+        var layers = [];
+
+        // 1. 아이콘 파일이 있는 경우: 지도 전체에 깔지 않고, 해당 위치에 '아이콘'으로 생성
+        if (info.file && info.file.trim() !== "") {
+            var huntingIcon = L.icon({
+                iconUrl: info.file,
+                iconSize: [40, 40],   // 아이콘 크기
+                iconAnchor: [20, 20]  // 아이콘 중심점
+            });
+            var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
+            layers.push(iconMarker);
+        } 
+        // 2. 파일이 없는 경우: (기존 방식 유지) 지도 전체에 투명하게 overlay (에러 방지용)
+        else {
+            var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+            layers.push(imgOverlay);
+        }
+
+        // 3. 클릭 영역 (기존 CircleMarker 그대로 유지)
+        var clickMarker = L.circleMarker(info.center, { 
+            radius: 40, 
+            color: 'transparent', 
+            fillOpacity: 0, 
+            interactive: true 
+        });
         
-        clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        clickMarker.on('click', (e) => { 
+            L.DomEvent.stopPropagation(e); 
+            showHuntingInfo(info); 
+        });
         
-        // 멸문
+        // 멸문 퀘스트 라인 연동 유지
         if (info.name === "멸문") {
             clickMarker.addTo(map);
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
             clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
         }
-        huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+
+        layers.push(clickMarker);
+        huntingLayers[info.name] = L.layerGroup(layers);
     });
 }
 
