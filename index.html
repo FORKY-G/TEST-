@@ -107,15 +107,15 @@ html, body {
         <div id="panel-lv"></div>
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'">닫기</button>
     </div>
-   <div id="hunting-list-container" style="position: absolute; top: 25px; left: calc(50% + 165px); z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 5px; width: 150px;">
-        <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: 2px solid #e74c3c; padding-bottom: 5px; margin-bottom: 0;">
-            ⚔️ 사냥터 목록 <span id="toggle-icon">▼</span>
-        </div>
-        <div id="hunting-content" style="display: none; margin-top: 10px;">
-            <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">모든 사냥터 해제</button>
-            <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto;"></ul>
-        </div>
+  <div id="hunting-list-container" style="position: absolute; top: 25px; left: calc(50% + 165px); z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+    <div class="hunt-group-label" onclick="toggleHuntingList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: none; margin: 0; padding: 0; width: 100%;">
+        ⚔️ 사냥터 목록 <span id="toggle-icon" style="font-size: 10px;">▼</span>
     </div>
+    <div id="hunting-content" style="display: none; position: absolute; top: 43px; left: -3px; width: 150px; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 5px;">
+        <button onclick="resetHuntingLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">모든 사냥터 해제</button>
+        <ul id="hunting-list" style="list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto;"></ul>
+    </div>
+</div>
 
     <script src="data.js"></script>
     <script src="map-logic.js"></script>
