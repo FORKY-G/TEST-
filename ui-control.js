@@ -255,34 +255,25 @@ window.showMineInfo = function(poi) {
     `;
 };
 
-/** 십이간지 정보창 **/
-window.showZodiacInfo = function(z) {
+/** 십이지간 정보창 표시 **/
+window.showZodiacInfo = function(d) {
     var panel = document.getElementById('hunting-info-panel');
-    if (!panel) return;
-
-    var displayName = z.name.replace(/[0-9.]/g, '').trim();
-    
-    var hiddenText = (displayName === "뱀") ? `<div style="color: #6c5ce7; font-weight: bold; margin-top: 5px; font-size: 13px;">[히든] 뱀의 영기</div>` : "";
-    
     panel.style.display = 'block';
-    
     panel.innerHTML = `
-        <div style="border-bottom:3px solid #e67e22; padding-bottom:8px; margin-bottom:12px;">
-            <b style="font-size:22px; color:#3F3F3F;">${displayName} <span style="font-size:16px; color:#e67e22;">(십이간지)</span></b>
-            ${hiddenText}
-            <div onclick="copyToClipboard('${z.x}, ${z.z}')" 
-                 title="클릭하여 좌표 복사"
-                 style="font-size:12px; color:#666; margin-top:8px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
-                 좌표: <span style="text-decoration:underline; font-weight:bold;">${z.x}, ${z.z}</span> 📋
+        <div style="border-bottom:3px solid #f1c40f; padding-bottom:8px; margin-bottom:12px;">
+            <b style="font-size:20px; color:#3F3F3F;">${d.name} ✨</b>
+            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+                 title="좌표 복사"
+                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
+                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
             </div>
         </div>
         
-        <div style="font-size:14px; color:#444; line-height:1.6;">
-            해당 위치는 <b>${displayName}</b>의 기운이 서린 장소입니다.
-            <br>[십이지신 순서]</br>
-            <br>쥐-소-호랑이-도사-토끼-용-뱀-도사-말-양-원숭이-도사-닭-개-돼지</br>
+        <div style="margin-bottom:10px;">
+            <div style="font-size:14px; color:#2c3e50; font-weight:bold;">특징: <span style="color:#2980b9;">${d.description || '십이지간 수호신'}</span></div>
+            <div style="font-size:12px; color:#7f8c8d; margin-top:4px;">분류: 십이지간 시스템</div>
         </div>
-        
+
         <button onclick="document.getElementById('hunting-info-panel').style.display='none'" 
                 style="margin-top: 15px; cursor: pointer; width: 100%; padding: 8px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; color: #3F3F3F; font-weight: bold;">
             닫기
