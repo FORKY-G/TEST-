@@ -146,76 +146,20 @@ if (typeof npcData !== 'undefined') {
 
 // 사냥터 
 if (typeof huntingInfo !== 'undefined') {
-    huntingInfo.forEach(info => {
-        // [1] 좌표 처리: x, z가 있으면 mcToPx 사용, 없으면 기존 center 사용
-        var latLng;
-        if (info.x !== undefined && info.z !== undefined) {
-            latLng = mcToPx(info.x, info.z);
-        } else {
-            latLng = info.center;
-        }
-
-        // 좌표가 유효하지 않으면 건너뜀 (에러 방지)
-        if (!latLng) return;
-
-        var marker;
-
-        // [2] 아이콘 생성 분기
-        if (info.file && info.file !== "") {
-            // 이미지가 있는 경우 (멸문, 화검문 등)
-            var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-            
-            // 클릭을 위한 투명 마커
-            marker = L.circleMarker(latLng, { 
-                radius: 40, 
-                color: 'transparent', 
-                fillOpacity: 0, 
-                interactive: true 
-            });
-            
-            huntingLayers[info.name] = L.layerGroup([imgOverlay, marker]);
-        } else {
-            // 이미지가 없는 경우 (혈교지 등) -> 빨간색 원형 아이콘 생성
-            marker = L.circleMarker(latLng, { 
-                radius: 12, 
-                color: '#ff4757', 
-                weight: 3,
-                fillColor: '#ff4757', 
-                fillOpacity: 0.8, 
-                interactive: true 
-            });
-            
-            marker.bindTooltip(`<b>${info.name}</b>`, { direction: 'top', offset: [0, -10] });
-            huntingLayers[info.name] = L.layerGroup([marker]);
-        }
-
-        // [3] 지도에 즉시 추가 (또는 레이어 제어에 따라 결정)
-        marker.addTo(map);
-
-        // [4] 클릭 이벤트 연결 (Y좌표 데이터 전달)
-        marker.on('click', (e) => { 
-            L.DomEvent.stopPropagation(e); 
-            
-            // 정보창 띄우기 (데이터 구조를 맞춰서 전달)
-            if (typeof showHuntingInfo === 'function') {
-                showHuntingInfo({
-                    name: info.name,
-                    lv: info.lv,
-                    monsters: info.monsters,
-                    x: info.x || 0,
-                    y: info.y || 0, // 혈교지의 경우 80이 전달됨
-                    z: info.z || 0,
-                    file: info.file
-                });
-            }
-        });
-
-        // 멸문/화검문 전용 호버 효과 (동선 보이기)
-        if (info.name === "멸문" || info.name === "화검문") {
-            marker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
-            marker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
-        }
-    });
+    huntingInfo.forEach(info => {
+        var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+        var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillOpacity: 0, interactive: true });
+        
+        clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
+        
+        // 멸문
+        if (info.name === "멸문") {
+            clickMarker.addTo(map);
+            clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
+            clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
+        }
+        huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
+    });
 }
 
 // 십이간지 마커
@@ -388,3 +332,6 @@ Object.keys(herbLayers).sort().forEach(name => {
 });
 
 map.on('click', () => { if(document.getElementById('hunting-info-panel')) document.getElementById('hunting-info-panel').style.display = 'none'; });
+
+
+지금 이렇게 되어있어
