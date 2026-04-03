@@ -164,8 +164,8 @@ var redHwanData = [
 
 /** 10. NPC 데이터 **/
 var npcData = [
-    { name: "해진", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1</span><br>해진>해적선>해진>백향초재배지>해진</br>", file: "haejin.png" },
-    { name: "해적선", x: -3619, z: 4060, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트2(포탈입장-훔친백향초)</span>", file: "boat.png" },
+    { name: "해진(lv.50)", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1</span><br>해진>해적선>해진>백향초재배지>해진</br>", file: "haejin.png" },
+    { name: "해적선(lv.50)", x: -3619, z: 4060, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트2(포탈입장-훔친백향초)</span>", file: "boat.png" },
     { name: "백향초재배지", x: -5488, z: 4162, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트3(수상한포탈)</span>", file: "door.png" },
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
     { name: "주루대주", x: -2545, z: -6020, relation: "", file: "juru.png" },
@@ -173,8 +173,8 @@ var npcData = [
      { name: "조사중인스님", x: 392, z: -1518, relation: "", file: "josa.png" },
     { name: "풍잔객", x: 3039, z: 4235, relation: "사도연퀘스트", file: "pung.png" },
     { name: "기록서", x: 1539, z: 4654, relation: "사도연퀘스트", file: "memo.png" },
-    { name: "시녀", x: -6535, z: -2577, relation: "해무사퀘스트:연운객을 기다리는 사람", file: "girl.png" },
-    { name: "몰락한소가주", x: 3138, z: -2582, relation: "<span style='color:#ff0000;'>무인의거처(2층침대클릭시 힘+1)</span>", file: "sogaju.png" },
+    { name: "시녀(lv.50)", x: -6535, z: -2577, relation: "해무사퀘스트:연운객을 기다리는 사람", file: "girl.png" },
+    { name: "몰락한소가주(lv.73)", x: 3138, z: -2582, relation: "<span style='color:#ff0000;'>무인의거처(2층침대클릭시 힘+1)</span>", file: "sogaju.png" },
     { name: "도공", x: -4786, z: 1442, relation: "<span style='color:#a29bfe;'>[히든]호리병을찾아서2(무괴철1개,자금3개)</span>", file: "dogong.png" },
     { name: "도사", x: -1290, z: -591, relation: "<span style='color:#a29bfe;'>[히든]십이지신<br>[히든]호리병을찾아서1</span></br><br>도사>도공>멸문대(수상한포탈)>도사", file: "dosa.png" },
     { name: "명인대장장이", x: -7051, z: -727, relation: "", file: "mungin.png" },
