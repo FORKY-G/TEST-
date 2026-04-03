@@ -291,37 +291,21 @@ if (typeof npcData !== 'undefined') {
 
 
 // 사냥터 
-
 if (typeof huntingInfo !== 'undefined') {
-
     huntingInfo.forEach(info => {
-
         var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-
         var clickMarker = L.circleMarker(info.center, { radius: 40, color: 'transparent', fillOpacity: 0, interactive: true });
-
         
-
         clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
-
         
-
         // 멸문
-
         if (info.name === "멸문") {
-
             clickMarker.addTo(map);
-
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
-
             clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
-
         }
-
         huntingLayers[info.name] = L.layerGroup([imgOverlay, clickMarker]);
-
     });
-
 }
 
 
