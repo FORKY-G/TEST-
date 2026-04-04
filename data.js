@@ -2,18 +2,12 @@
 const mcToPx = (mcX, mcZ) => {
     const imgW = 7080;
     const imgH = 6858;
-    const worldRange = 16160; 
+    const worldRange = 16160;
 
-    // [중요] 입력값이 없거나 숫자가 아닐 경우를 대비한 방어 코드
-    const safeX = Number(mcX);
-    const safeZ = Number(mcZ);
+    // 만약 mcX나 mcZ가 undefined면 0으로 강제 변환하여 에러 방지
+    const safeX = (mcX === undefined || mcX === null) ? 0 : Number(mcX);
+    const safeZ = (mcZ === undefined || mcZ === null) ? 0 : Number(mcZ);
 
-    if (isNaN(safeX) || isNaN(safeZ)) {
-        console.warn("잘못된 마크 좌표가 입력되었습니다:", mcX, mcZ);
-        return [0, 0]; // 에러 대신 기본 좌표 반환
-    }
-
-    // 기준점: 스폰 (포토샵 픽셀 좌표 3122, 2889 / 실제 마크 좌표 -969, -965)
     const pxSpawnX = 3122;
     const pxSpawnY = 2889;
     const mcSpawnX = -969;
@@ -25,7 +19,6 @@ const mcToPx = (mcX, mcZ) => {
     const resX = pxSpawnX + (safeX - mcSpawnX) * scaleX;
     const resY = pxSpawnY + (safeZ - mcSpawnZ) * scaleY;
 
-    // Leaflet은 [-Y, X] 순서 사용
     return [-resY, resX];
 };
 
