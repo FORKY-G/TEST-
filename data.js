@@ -164,7 +164,7 @@ var redHwanData = [
 
 /** 10. NPC 데이터 **/
 var npcData = [
-    { name: "해진(lv.50)", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1 : 은환단 </span><br>해진>해적선>해진>백향초재배지>해진</br>", file: "haejin.png" },
+    { name: "해진(lv.50)", x: -4311, z: 5831, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트1 : 금환단 </span><br>해진>해적선>해진>백향초재배지>해진</br>", file: "haejin.png" },
     { name: "해적선(lv.50)", x: -3619, z: 4060, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트2(포탈입장-훔친백향초)</span>", file: "boat.png" },
     { name: "백향초재배지", x: -5488, z: 4162, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트3(수상한포탈)</span>", file: "door.png" },
     { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
@@ -176,15 +176,15 @@ var npcData = [
     { name: "시녀(lv.50)", x: -6535, z: -2577, relation: "해무사퀘스트:연운객을 기다리는 사람", file: "girl.png" },
     { name: "몰락한소가주(lv.73)", x: 3138, z: -2582, relation: "<span style='color:#ff0000;'>무인의거처(2층침대클릭시 힘+1)</span>", file: "sogaju.png" },
     { name: "도공", x: -4786, z: 1442, relation: "<span style='color:#a29bfe;'>[히든]호리병을찾아서2(무괴철1개,자금3개)</span>", file: "dogong.png" },
-    { name: "도사", x: -1290, z: -591, relation: "<span style='color:#a29bfe;'>[히든]십이지신 : 은환단<br>[히든]호리병을찾아서1</span></br><br>도사>도공>멸문대(수상한포탈)>도사", file: "dosa.png" },
+    { name: "도사", x: -1290, z: -591, relation: "<span style='color:#a29bfe;'>[히든]십이지신 : 금환단,부화검결<br>[히든]호리병을찾아서1</span></br><br>도사>도공>멸문대(수상한포탈)>도사</br><br>[히든]심마니(제천대성처치,백향초1개,무공정수20개 전달)", file: "dosa.png" },
     { name: "명인대장장이", x: -7051, z: -727, relation: "", file: "mungin.png" },
-    { name: "망한대장장이", x: 5369, z: -3462, relation: "", file: "mang.png" },
-    { name: "심마니(lv.90)", x: -3485, z: -1949, relation: "[히든] : 은환단", file: "simmani.png" },
+    { name: "망한대장장이", x: 5369, z: -3462, relation: "[히든] 심마니 : 은괴3개,무괴3개 전달", file: "mang.png" },
+    { name: "심마니(lv.90)", x: -3485, z: -1949, relation: "[히든] : 금환단, 매화쾌검", file: "simmani.png" },
     { name: "감시관(lv.67)", x: 5176, z: 4585, relation: "필요아이템<br>*사보도1개,철3개,무공정수10개</br>", file: "gamsi.png" },
     { name: "척후병(lv.100)", x: -3963, z: 2612, relation: "", file: "scout.png" },
     { name: "해무사승려(lv.50)", x: -5728, z: 3441, relation: "해무사퀘스트:기록서확인(1~6)<br>연운객-시녀-연운객</br>", file: "haemusa.png" },
     { name: "연운객(lv.50)", x: -5656, z: 3266, relation: "해무사퀘스트:기록서확인(1~6)<br>연운객-시녀-연운객</br>", file: "yeonun.png" },
-    { name: "상단주(lv.50)", x: -3260, z: -4290, relation: "<span style='color:#a29bfe;'>*[히든]상단주1 : 은환단 </span><br>상단주>부숴진마차>자운스님>상단주</br>", file: "owner.png" },
+    { name: "상단주(lv.50)", x: -3260, z: -4290, relation: "<span style='color:#a29bfe;'>*[히든]상단주1 : 금환단 </span><br>상단주>부숴진마차>자운스님>상단주</br>", file: "owner.png" },
     { name: "부숴진마차(lv.50)", x: -2706, z: -2372, relation: "<span style='color:#ff4757;'><span style='color:#a29bfe;'>*[히든]상단주2</span>", file: "macha.png" },
     { name: "탐령구제작", x: -2076, z: 425, relation: "철1개, 적동괴2개", file: "gu.png" },
     { name: "정청주제작", x: 2034, z: 3265, relation: "철1개, 적동괴2개, 송진덩어리1개", file: "jungju.png" }
