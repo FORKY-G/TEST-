@@ -206,11 +206,11 @@ window.showMineInfo = function(poi) {
     panel.innerHTML = `
         <div style="border-bottom:3px solid ${poi.color}; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:20px; color:#3F3F3F;">${detail.title} <span style="font-size:16px;">(${poi.name}번)</span></b>
-            <div onclick="copyToClipboard('${poi.mcX}, 80, ${poi.mcZ}')" 
-                 title="클릭하여 좌표 복사"
-                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
-                좌표: <span style="text-decoration:underline;">X ${poi.mcX} / Y 80 / Z ${poi.mcZ}</span> 📋
-            </div>
+           <div onclick="copyToClipboard('${poi.mcX || poi.x}, 80, ${poi.mcZ || poi.z}')" 
+     title="클릭하여 좌표 복사"
+     style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
+    좌표: <span style="text-decoration:underline;">X ${poi.mcX || poi.x} / Y 80 / Z ${poi.mcZ || poi.z}</span> 📋
+</div>
         </div>
         <div style="margin-bottom:15px;">
             <div style="color:#e74c3c; font-weight:bold; font-size:15px; margin-bottom:5px;">고유: ${detail.unique}</div>
