@@ -159,25 +159,27 @@ html, body {
             }
             
             // [수정 포인트] 좌표 표시 컨트롤: 포토샵 픽셀과 마크 좌표를 1:1로 매칭
-            if (typeof L.Control.MousePosition !== 'undefined') {
-                L.control.mousePosition({ 
-                    position: 'bottomleft', 
-                    separator: ', ', 
-                    prefix: 'MC 좌표: ',
-                    lngFirst: true, // X(경도) 먼저 표시
-                   lngFormatter: function(lng) {
-    const mcSpawnPxX = 3213;    
-    const mcSpawnCoordX = -971; 
-    const scale = 0.4468;
-    return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
-},
-latFormatter: function(lat) {
-    const mcSpawnPxY = 2869;    
-    const mcSpawnCoordZ = -965; 
-    const scale = 0.4468;
-    // Leaflet의 lat은 위로 갈수록 커지므로 -lat을 사용합니다.
-    return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
-}
+          if (typeof L.Control.MousePosition !== 'undefined') {
+    L.control.mousePosition({ 
+        position: 'bottomleft', 
+        separator: ', ', 
+        prefix: 'MC 좌표: ',
+        lngFirst: true, // X 먼저 표시
+        lngFormatter: function(lng) {
+            // 사용자님이 알려주신 스폰 픽셀 X: 3122
+            const mcSpawnPxX = 3122;    
+            const mcSpawnCoordX = -971; 
+            const scale = 0.4241; // 35번 광산 오차 보정 배율
+            return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
+        },
+        latFormatter: function(lat) {
+            // 사용자님이 알려주신 스폰 픽셀 Y: 2889
+            const mcSpawnPxY = 2889;    
+            const mcSpawnCoordZ = -965; 
+            const scale = 0.4241; 
+            // Leaflet의 lat은 위로 갈수록 커지므로 -lat을 사용합니다.
+            return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
+        }
                 }).addTo(map);
             }
 
