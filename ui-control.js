@@ -73,8 +73,8 @@ window.moveAndShowHunt = function(name) {
     }
     
     // center가 있더라도 현재 보정된 mcToPx 배율을 사용하도록 수정
-    var targetX = info.mcX || info.x;
-    var targetZ = info.mcZ || info.z;
+    var targetX = info.mcX !== undefined ? info.mcX : info.x;
+    var targetZ = info.mcZ !== undefined ? info.mcZ : info.z;
     var pos = mcToPx(targetX, targetZ);
     
     map.setView(pos, 1); 
@@ -169,9 +169,9 @@ window.executeSearch = function() {
     }
 
     if (result) {
-        // [수정] 3122, 2889 기준점과 0.4241 배율이 적용된 mcToPx 함수 사용
-        var targetX = result.mcX || result.x;
-        var targetZ = result.mcZ || result.z;
+        // [수정] 요청하신 7090x7090 / 8080x8080 좌표가 적용된 mcToPx 함수를 호출하여 좌표 획득
+        var targetX = result.mcX !== undefined ? result.mcX : result.x;
+        var targetZ = result.mcZ !== undefined ? result.mcZ : result.z;
         var pos = mcToPx(targetX, targetZ);
         
         map.setView(pos, 1);
