@@ -1,29 +1,22 @@
-/** 1. 월드맵 좌표 맞추기 (수정본) **/
 const mcToPx = (mcX, mcZ) => {
-    // 사용자가 지정한 지도 이미지 크기
-    const imgWidth = 7080;
-    const imgHeight = 6858;
-
-    // 실제 마크 좌표 범위 (-8080 ~ 8080 -> 총 16160 블록)
-    const mcTotalRange = 16160; 
-
-    // 기준점 픽셀 (스폰 위치)
-    var mcSpawnPxX = 3218; 
-    var mcSpawnPxY = 2874;
+    // 포토샵에서 찍으신 정확한 스폰 픽셀 좌표
+    const mcSpawnPxX = 3122; 
+    const mcSpawnPxY = 2889;
     
-    // 기준점 마인크래프트 실제 좌표
-    var mcSpawnCoordX = -971; 
-    var mcSpawnCoordZ = -965;
+    // 실제 게임 내 스폰 좌표
+    const mcSpawnCoordX = -971; 
+    const mcSpawnCoordZ = -965;
     
-    // 배율 계산: 이미지 너비(7080)를 실제 블록 범위(16160)로 나눔
-    var scale = imgWidth / mcTotalRange; 
+    // 7080(이미지 너비) / 16160(전체 블록 범위)
+    const scale = 7080 / 16160; 
 
-    // Leaflet [Y, X] 좌표 반환
-    // Z는 위아래(Y축), X는 좌우(X축)
-    var pixelY = -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale);
-    var pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
+    // 마인크래프트 X는 지도의 가로(X), Z는 지도의 세로(Y)입니다.
+    const pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
+    const pixelY = mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale;
 
-    return [pixelY, pixelX]; 
+    // Leaflet은 [위도(Y), 경도(X)] 순서이며, 
+    // 이미지 좌표계 특성상 Y축에 마이너스를 붙여야 위아래가 맞습니다.
+    return [-pixelY, pixelX]; 
 };
 
 /** 2. 산(비석), 동상 데이터 **/
