@@ -104,12 +104,38 @@ window.updateLayerCheckbox = function(name, isAdd) {
     });
 };
 
-// 약초 전용 정보 및 레이어 활성화
+// --- 약초 목록 관련 UI 제어 로직 ---
+
+// 1. 약초 리스트 동적 생성 (index.html의 window.onload에서 호출됨)
+window.generateHerbList = function() {
+    const listElement = document.getElementById('herb-list');
+    if (!listElement || typeof herbData === 'undefined') return;
+
+    listElement.innerHTML = ''; // 초기화
+
+    herbData.forEach(herb => {
+        const li = document.createElement('li');
+        li.style.padding = "5px 0";
+        li.style.borderBottom = "1px solid #999";
+        li.style.listStyle = "none";
+        
+        // 클릭 시 사용자가 작성한 moveAndShowHerb 함수를 호출하도록 연결
+        // 인자: 이름, X좌표, Z좌표, 색상(기본 보라색)
+        li.innerHTML = `
+            <span class="herb-name-clickable" 
+                  style="cursor:pointer; color:#8e44ad; font-weight:bold;" 
+                  onclick="moveAndShowHerb('${herb.name}', ${herb.mcX}, ${herb.mcZ}, '#8e44ad')">
+                  🌿 ${herb.name}
+            </span>`;
+        listElement.appendChild(li);
+    });
+};
+
+// 2. 약초 전용 정보창 및 레이어 활성화 (사용자가 주신 코드)
 window.moveAndShowHerb = function(name, mcX, mcZ, color) {
-    // 약초 레이어가 꺼져있다면 켭니다.
     if (herbLayers && herbLayers[name] && !map.hasLayer(herbLayers[name])) { 
         map.addLayer(herbLayers[name]); 
-        updateLayerCheckbox(name, true); // 우측 체크박스도 동기화
+        if (typeof updateLayerCheckbox === 'function') updateLayerCheckbox(name, true);
     }
     
     var panel = document.getElementById('hunting-info-panel');
@@ -130,15 +156,29 @@ window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     panel.innerHTML = `<div style="border-bottom:3px solid ${color}; padding-bottom:8px; margin-bottom:12px; position:relative;"><b style="font-size:18px; color:#3F3F3F; text-shadow:1px 1px 0px #fff;">${name}</b>${titleExtraHtml}${descExtraHtml}<span style="position:absolute; right:0; top:0; cursor:pointer; font-weight:bold; padding:5px;" onclick="document.getElementById('hunting-info-panel').style.display='none'">X</span></div><div style="font-size:14px; line-height:1.6; background:rgba(255,255,255,0.5); padding:10px; border:1px solid #888; max-height:150px; overflow-y:auto;">${coordsHtml}</div><button onclick="document.getElementById('hunting-info-panel').style.display='none'" style="margin-top:12px; width:100%; cursor:pointer; background:#C6C6C6; border:2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; font-weight:bold; padding:5px;">닫기</button>`;
 };
 
-// 모든 약초 레이어 초기화
+// 3. 모든 약초 레이어 초기화 (사용자가 주신 코드)
 window.resetHerbLayers = function() {
+    if (typeof herbLayers === 'undefined') return;
     Object.keys(herbLayers).forEach(function(name) { 
         if (map.hasLayer(herbLayers[name])) { 
             map.removeLayer(herbLayers[name]); 
-            updateLayerCheckbox(name, false);
+            if (typeof updateLayerCheckbox === 'function') updateLayerCheckbox(name, false);
         }
     });
     document.getElementById('hunting-info-panel').style.display = 'none';
+};
+
+// 4. 약초 목록 토글 함수
+window.toggleHerbList = function() {
+    const content = document.getElementById('herb-content');
+    const icon = document.getElementById('herb-toggle-icon');
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.innerText = '▲';
+    } else {
+        content.style.display = 'none';
+        icon.innerText = '▼';
+    }
 };
 
 /** 통합 검색 기능 (최종 수정됨) **/
