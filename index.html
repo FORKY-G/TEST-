@@ -154,62 +154,52 @@ html, body {
     <script src="map-logic.js"></script> 
     <script src="ui-control.js"></script>
 
-    <script>
-        // 페이지가 완전히 로드된 후 실행 (함수 미정의 에러 방지)
+<script>
         window.onload = function() {
-            // [에러 방지] map 객체가 존재하는지 먼저 확인
-            if (typeof map === 'undefined' || map === null) {
-                console.error("Leaflet 지도가 초기화되지 않았습니다. map-logic.js를 확인하세요.");
-                return;
-            }
+            // 1. 지도 객체 확인
+            if (typeof map === 'undefined' || map === null) return;
 
-            // 초기 레이어 자동 추가
-            if(typeof poiLayers !== 'undefined') {
-                if(poiLayers['스폰']) poiLayers['스폰'].addTo(map);
-                if(poiLayers['십이간지']) poiLayers['십이간지'].addTo(map);
-            }
-            if(typeof npcLayers !== 'undefined') npcLayers.addTo(map);
-            if(typeof mountainLayers !== 'undefined') mountainLayers.addTo(map);
-            if(typeof redHwanLayers !== 'undefined') redHwanLayers.addTo(map);
+            // 2. 기본 레이어 표시
+            const defaultLayers = [
+                typeof poiLayers !== 'undefined' ? poiLayers['스폰'] : null,
+                typeof poiLayers !== 'undefined' ? poiLayers['십이간지'] : null,
+                typeof npcLayers !== 'undefined' ? npcLayers : null,
+                typeof mountainLayers !== 'undefined' ? mountainLayers : null,
+                typeof redHwanLayers !== 'undefined' ? redHwanLayers : null
+            ];
+            defaultLayers.forEach(layer => {
+                if(layer && typeof layer.addTo === 'function') layer.addTo(map);
+            });
 
-            // 리스트 생성 함수 호출 (ui-control.js)
-            if (typeof generateHuntingList === 'function') {
-                generateHuntingList();
-            }
-            if (typeof generateHerbList === 'function') {
-                generateHerbList();
-            }
+            // 3. UI 리스트 초기화
+            if (typeof generateHuntingList === 'function') generateHuntingList();
+            if (typeof generateHerbList === 'function') generateHerbList();
 
-            // 메뉴 컨트롤 설정 (모바일 여부에 따라 펼침/닫힘 결정)
+            // 4. 레이어 컨트롤러 (우측 상단)
             var isMobile = window.innerWidth < 768;
             if(typeof menuOrder !== 'undefined') {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
-// [좌표 표시 컨트롤] 7009x7009 지도 좌표 일치화
-if (typeof L.Control.MousePosition !== 'undefined') {
-    const imgSpawnX = 3086; 
-    const imgSpawnY = -2855; 
-    const mcSpawnX = -969;  
-    const mcSpawnZ = -965;  
-    const scale = 0.5407;
-
-    L.control.mousePosition({ 
-        position: 'bottomleft', 
-        separator: ', ', 
-        prefix: 'MC 좌표: ',
-        lngFirst: true, 
-        lngFormatter: function(lng) {
-            // 마우스 X픽셀 -> 마크 X좌표 변환
-            return Math.round(mcSpawnX + (lng - imgSpawnX) / scale);
-        },
-        latFormatter: function(lat) {
-            // 마우스 Y픽셀 -> 마크 Z좌표 변환
-            return Math.round(mcSpawnZ + (lat - imgSpawnY) / -scale);
-        }
-    }).addTo(map);
-}
-
+            // 5. 마우스 좌표 표시 (좌측 하단)
+            if (typeof L.Control.MousePosition !== 'undefined') {
+                // index.txt에 적어주신 7090x7090 지도 전용 최신 배율 적용
+                L.control.mousePosition({ 
+                    position: 'bottomleft', 
+                    separator: ', ', 
+                    prefix: 'MC 좌표: ',
+                    lngFirst: true,
+                    lngFormatter: function(lng) {
+                        const scale = 8080 / 7090; 
+                        return Math.round(lng * scale);
+                    },
+                    latFormatter: function(lat) {
+                        const scale = 8080 / 7090; 
+                        return Math.round(-lat * scale);
+                    }
+                }).addTo(map);
+            }
+        }; // 이 중괄호가 닫혀야 Unexpected end of input 에러가 안 납니다.
     </script>
 </body>
 </html>
