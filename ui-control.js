@@ -5,9 +5,9 @@ window.showHuntingInfo = function(info) {
     var panel = document.getElementById('hunting-info-panel');
     
     // 1. 공통 좌표 계산 (X, Y, Z 모두 표시되도록 수정)
-    var displayX = info.x !== undefined ? info.x : (info.mcX !== undefined ? info.mcX : "확인불가");
+    var displayX = info.mcX !== undefined ? info.mcX : (info.x !== undefined ? info.x : "확인불가");
     var displayY = info.y !== undefined ? info.y : "80"; // Y값이 없으면 기본값 80
-    var displayZ = info.z !== undefined ? info.z : (info.mcZ !== undefined ? info.mcZ : "확인불가");
+    var displayZ = info.mcZ !== undefined ? info.mcZ : (info.z !== undefined ? info.z : "확인불가");
     var coordsHtml = '';
 
     if(displayX !== "확인불가") {
@@ -73,13 +73,18 @@ window.moveAndShowHunt = function(name) {
         map.addLayer(huntingLayers[name]);
         updateLayerCheckbox(name, true);
     }
-    map.setView(info.center, 0); 
+    
+    // center 좌표가 있으면 사용, 없으면 x,z로 계산
+    var pos = info.center || mcToPx(info.mcX || info.x, info.mcZ || info.z);
+    map.setView(pos, 0); 
     showHuntingInfo(info);
 };
 
 // 사냥터 목록
 window.generateHuntingList = function() {
     const listElement = document.getElementById('hunting-list');
+    if(!listElement) return;
+    listElement.innerHTML = ""; // 초기화
     huntingInfo.forEach(info => {
         const li = document.createElement('li');
         li.style.margin = "5px 0"; li.style.padding = "5px"; li.style.borderBottom = "1px solid #888";
@@ -148,7 +153,8 @@ window.executeSearch = function() {
     }
 
     if (result) {
-        var pos = result.coords ? result.coords : (result.center ? result.center : mcToPx(result.x, result.z));
+        // 우선순위: coords -> center -> mcToPx 계산
+        var pos = result.coords ? result.coords : (result.center ? result.center : mcToPx(result.mcX || result.x, result.mcZ || result.z));
         map.setView(pos, 1); 
 
         var popupContent = `<b>${result.name}</b>`;
@@ -232,10 +238,10 @@ window.showZodiacInfo = function(d) {
     panel.innerHTML = `
         <div style="border-bottom:3px solid #f1c40f; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:20px; color:#3F3F3F;">${displayName} ✨</b>
-            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+            <div onclick="copyToClipboard('${d.x}, ${d.y || 80}, ${d.z}')" 
                  title="좌표 복사"
                  style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
-                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
+                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y || 80}, ${d.z}</span> 📋
             </div>
         </div>
         <div style="margin-bottom:10px;">
@@ -276,10 +282,10 @@ window.showDiscoveryInfo = function(d) {
     panel.innerHTML = `
         <div style="border-bottom:3px solid #8e44ad; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:30px; color:#3F3F3F;">${d.name} ⚱️</b>
-            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+            <div onclick="copyToClipboard('${d.x}, ${d.y || 80}, ${d.z}')" 
                  title="좌표 복사"
                  style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
-                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y}, ${d.z}</span> 📋
+                좌표: <span style="text-decoration:underline;">${d.x}, ${d.y || 80}, ${d.z}</span> 📋
             </div>
         </div>
         <div style="margin-bottom:10px;">
@@ -306,10 +312,10 @@ window.showRedHwanInfo = function(d) {
         <div style="border-bottom:3px solid #e74c3c; padding-bottom:8px; margin-bottom:12px; position:sticky; top:0; background:#C6C6C6; z-index:10;">
             <b style="font-size:18px; color:#3F3F3F;">${d.name} 🔴</b>
             <span style="float:right; cursor:pointer; font-weight:bold; font-size:18px;" onclick="document.getElementById('hunting-info-panel').style.display='none'">×</span>
-            <div onclick="copyToClipboard('${d.x}, ${d.y}, ${d.z}')" 
+            <div onclick="copyToClipboard('${d.x}, ${d.y || 80}, ${d.z}')" 
                  title="좌표 복사"
                  style="font-size:11px; color:#666; margin-top:5px; cursor:pointer; display:inline-block; background:#f0f0f0; padding:2px 6px; border-radius:3px; border:1px solid #ccc;">
-                좌표: <span style="text-decoration:underline; font-weight:bold;">${d.x}, ${d.y}, ${d.z}</span> 📋
+                좌표: <span style="text-decoration:underline; font-weight:bold;">${d.x}, ${d.y || 80}, ${d.z}</span> 📋
             </div>
         </div>
         <div style="text-align:center; background:#eee; padding:5px; border:1px solid #999; border-radius:5px; margin-bottom:10px;">
