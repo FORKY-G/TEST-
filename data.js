@@ -170,7 +170,7 @@ var npcData = [
 { name: "백향초재배지", x: -5488, z: 4162, relation: "<span style='color:#a29bfe;'>[히든]해적선퀘스트3(수상한포탈)</span>", file: "door.png" },
 { name: "점소이", x: -2538, z: -5994, relation: "", file: "jumsoi.png" },
 { name: "주루대주", x: -2545, z: -6020, relation: "", file: "juru.png" },
-{ name: "자운스님", x: -4366, z: 1394, relation: "<span style='color:#a29bfe;'>*[히든]상단주3(향목가루5개)</span><br>해무사퀘스트</br>", file: "jaun.png" },
+{ name: "자운스님", x: -4366, z: 1394, relation: "<span style='color:#a29bfe;'>*[히든]상단주3(향목가루5개)</span>", file: "jaun.png" },
 { name: "조사중인스님", x: 392, z: -1518, relation: "", file: "josa.png" },
 { name: "풍잔객", x: 3039, z: 4235, relation: "사도연퀘스트", file: "pung.png" },
 { name: "기록서", x: 1539, z: 4654, relation: "사도연퀘스트", file: "memo.png" },
