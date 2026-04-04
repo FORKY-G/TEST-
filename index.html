@@ -186,15 +186,13 @@ html, body {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
+// [좌표 표시 컨트롤] 7009x7009 지도 좌표 일치화
 if (typeof L.Control.MousePosition !== 'undefined') {
-    // 7009x7009 이미지 기준, 스폰 아이콘이 위치한 실제 픽셀 좌표 (추정치이므로 미세조정 필요)
     const imgSpawnX = 3086; 
-    const imgSpawnY = -2855; // Leaflet 좌표계 기준 (위가 0, 아래가 음수)
-    
-    // 마크 실제 스폰 좌표
+    const imgSpawnY = -2855; 
     const mcSpawnX = -969;  
     const mcSpawnZ = -965;  
-    const scale = 0.5407; // 7009 사이즈에 맞춘 정밀 배율
+    const scale = 0.5407;
 
     L.control.mousePosition({ 
         position: 'bottomleft', 
@@ -202,11 +200,11 @@ if (typeof L.Control.MousePosition !== 'undefined') {
         prefix: 'MC 좌표: ',
         lngFirst: true, 
         lngFormatter: function(lng) {
-            // (현재 마우스 픽셀 - 스폰 픽셀) / 배율 + 실제 스폰 좌표
+            // 마우스 X픽셀 -> 마크 X좌표 변환
             return Math.round(mcSpawnX + (lng - imgSpawnX) / scale);
         },
         latFormatter: function(lat) {
-            // Z축은 방향이 반대이므로 분모에 -scale 적용
+            // 마우스 Y픽셀 -> 마크 Z좌표 변환
             return Math.round(mcSpawnZ + (lat - imgSpawnY) / -scale);
         }
     }).addTo(map);
