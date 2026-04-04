@@ -1,8 +1,17 @@
-/** 1. 월드맵 좌표 맞추기 (최종 정밀 수정본) **/
+/** 1. 월드맵 좌표 맞추기 (최종 정밀 수정본 - NaN 방어형) **/
 const mcToPx = (mcX, mcZ) => {
     const imgW = 7080;
     const imgH = 6858;
-    const worldRange = 16160; // 8080 - (-8080)
+    const worldRange = 16160; 
+
+    // [중요] 입력값이 없거나 숫자가 아닐 경우를 대비한 방어 코드
+    const safeX = Number(mcX);
+    const safeZ = Number(mcZ);
+
+    if (isNaN(safeX) || isNaN(safeZ)) {
+        console.warn("잘못된 마크 좌표가 입력되었습니다:", mcX, mcZ);
+        return [0, 0]; // 에러 대신 기본 좌표 반환
+    }
 
     // 기준점: 스폰 (포토샵 픽셀 좌표 3122, 2889 / 실제 마크 좌표 -969, -965)
     const pxSpawnX = 3122;
@@ -13,10 +22,10 @@ const mcToPx = (mcX, mcZ) => {
     const scaleX = imgW / worldRange;
     const scaleY = imgH / worldRange;
 
-    const resX = pxSpawnX + (mcX - mcSpawnX) * scaleX;
-    const resY = pxSpawnY + (mcZ - mcSpawnZ) * scaleY;
+    const resX = pxSpawnX + (safeX - mcSpawnX) * scaleX;
+    const resY = pxSpawnY + (safeZ - mcSpawnZ) * scaleY;
 
-    // Leaflet은 [위도(Y), 경도(X)] 순서를 사용하며 Y축 방향을 위해 -를 붙임
+    // Leaflet은 [-Y, X] 순서 사용
     return [-resY, resX];
 };
 
