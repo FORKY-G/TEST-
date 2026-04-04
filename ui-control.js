@@ -22,7 +22,6 @@ window.showHuntingInfo = function(info) {
 
     // 패널 내용
     if (info.name === "멸문") {
-        // 멸문 전용: 이미지 포함 레이아웃 (기존 로직 유지)
         panel.innerHTML = `
             <div style="border: 2px solid #6c5ce7; padding: 12px; background: #fff; border-radius: 8px;">
                 <h3 style="margin: 0; color: #6c5ce7;">🐍 ${info.name} <small style="color:#666; font-size:14px;">(${info.lv})</small></h3>
@@ -44,7 +43,6 @@ window.showHuntingInfo = function(info) {
             </div>
         `;
     } else {
-        // 일반 사냥터 (기존 로직 유지하면서 좌표 부분에 Y 추가)
         panel.innerHTML = `
             <h4 id="panel-name" style="margin: 0;">
                 <span style="font-size: 24px;"><b>${info.name}</b></span> 
@@ -64,7 +62,7 @@ window.showHuntingInfo = function(info) {
     panel.style.display = 'block';
 };
 
-// 사냥터 클릭 이동
+// 사냥터 클릭 이동 (수정됨: mcToPx 호출로 통일)
 window.moveAndShowHunt = function(name) {
     var info = huntingInfo.find(h => h.name === name);
     if (!info) return;
@@ -74,9 +72,12 @@ window.moveAndShowHunt = function(name) {
         updateLayerCheckbox(name, true);
     }
     
-    // center 좌표가 있으면 사용, 없으면 x,z로 계산
-    var pos = info.center || mcToPx(info.mcX || info.x, info.mcZ || info.z);
-    map.setView(pos, 0); 
+    // center가 있더라도 현재 보정된 mcToPx 배율을 사용하도록 수정
+    var targetX = info.mcX || info.x;
+    var targetZ = info.mcZ || info.z;
+    var pos = mcToPx(targetX, targetZ);
+    
+    map.setView(pos, 1); 
     showHuntingInfo(info);
 };
 
@@ -103,13 +104,19 @@ window.updateLayerCheckbox = function(name, isAdd) {
     });
 };
 
-// 약초 전용 정보 
+// 약초 전용 정보 (수정됨: 클릭 시 좌표 복사 기능 추가)
 window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     if (!map.hasLayer(herbLayers[name])) { map.addLayer(herbLayers[name]); }
     var panel = document.getElementById('hunting-info-panel');
     
     var allLocations = herbData.filter(h => h.name === name);
-    var coordsHtml = allLocations.map(h => `<div style="margin-bottom:5px;"><span style="background:#444; color:#fff; padding:2px 5px; border-radius:3px; font-size:11px; margin-right:5px;">좌표</span><b style="color:#e74c3c;">X: ${h.mcX} / Z: ${h.mcZ}</b></div>`).join('');
+    // 좌표 클릭 시 복사되도록 HTML 개선
+    var coordsHtml = allLocations.map(h => `
+        <div style="margin-bottom:5px; cursor:pointer;" onclick="copyToClipboard('${h.mcX}, 80, ${h.mcZ}')" title="클릭하여 좌표 복사">
+            <span style="background:#444; color:#fff; padding:2px 5px; border-radius:3px; font-size:11px; margin-right:5px;">복사</span>
+            <b style="color:#e74c3c;">X: ${h.mcX} / Z: ${h.mcZ}</b>
+        </div>`).join('');
+        
     var rareHerbs = ["월계엽", "철목영지", "금향과", "빙백설화","홍련(초)업화"];
     var isRare = rareHerbs.includes(name);
     var titleExtraHtml = isRare ? ` <span style="color:#e74c3c; font-size:14px;">(희귀)</span>` : "";
@@ -125,7 +132,7 @@ window.resetHerbLayers = function() {
     document.getElementById('hunting-info-panel').style.display = 'none';
 };
 
-/** 통합 검색 기능 **/
+/** 통합 검색 기능 (최종 수정됨) **/
 window.executeSearch = function() {
     var input = document.getElementById('search-input');
     var query = input.value.trim().toLowerCase();
@@ -143,13 +150,22 @@ window.executeSearch = function() {
 
     var result = allTargets.find(d => d.name && d.name.toString().toLowerCase() === query);
 
-if (result) {
-        // [핵심] mcToPx 함수를 사용하여 data.js에 설정한 3122, 2889 기준점과 0.4241 배율을 적용합니다.
+    if (!result) {
+        result = allTargets.find(d => 
+            (d.name && d.name.toString().toLowerCase().includes(query)) || 
+            (d.item && d.item.toLowerCase().includes(query)) ||
+            (d.relation && d.relation.toLowerCase().includes(query)) ||
+            (d.monsters && d.monsters.toLowerCase().includes(query)) 
+        );
+    }
+
+    if (result) {
+        // [수정] 3122, 2889 기준점과 0.4241 배율이 적용된 mcToPx 함수 사용
         var targetX = result.mcX || result.x;
         var targetZ = result.mcZ || result.z;
         var pos = mcToPx(targetX, targetZ);
-    
-    map.setView(pos, 1);
+        
+        map.setView(pos, 1);
 
         var popupContent = `<b>${result.name}</b>`;
         if (result._category === 'poi') popupContent = `<b>${result.name}번 광산 💎</b>`;
@@ -201,11 +217,11 @@ window.showMineInfo = function(poi) {
     panel.innerHTML = `
         <div style="border-bottom:3px solid ${poi.color}; padding-bottom:8px; margin-bottom:12px;">
             <b style="font-size:20px; color:#3F3F3F;">${detail.title} <span style="font-size:16px;">(${poi.name}번)</span></b>
-           <div onclick="copyToClipboard('${poi.mcX || poi.x}, 80, ${poi.mcZ || poi.z}')" 
-     title="클릭하여 좌표 복사"
-     style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
-    좌표: <span style="text-decoration:underline;">X ${poi.mcX || poi.x} / Y 80 / Z ${poi.mcZ || poi.z}</span> 📋
-</div>
+            <div onclick="copyToClipboard('${poi.mcX || poi.x}, 80, ${poi.mcZ || poi.z}')" 
+                 title="클릭하여 좌표 복사"
+                 style="font-size:12px; color:#666; margin-top:2px; cursor:pointer; display:inline-block;">
+                좌표: <span style="text-decoration:underline;">X ${poi.mcX || poi.x} / Y 80 / Z ${poi.mcZ || poi.z}</span> 📋
+            </div>
         </div>
         <div style="margin-bottom:15px;">
             <div style="color:#e74c3c; font-weight:bold; font-size:15px; margin-bottom:5px;">고유: ${detail.unique}</div>
