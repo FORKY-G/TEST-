@@ -1,25 +1,25 @@
-/** 1. 좌표 변환 함수 (7090x7090 및 마크 8080 좌표 대응) **/
-// 중복 선언 에러 방지를 위해 var 사용 및 조건부 선언
-if (typeof mcToPx === 'undefined') {
-    var mcToPx = function(mcX, mcZ) {
-        // [수정 포인트] 이미지상의 스폰 픽셀 위치
-        var mcSpawnPxX = 3122; 
-        var mcSpawnPxY = 2889; 
-        
-        // [수정 포인트] 실제 마크 스폰 위치
-        var mcSpawnCoordX = -969; 
-        var mcSpawnCoordZ = -965;
-        
-        // [수정 포인트] 7090px 이미지가 마크 월드 전체(약 13000~15000 범위)를 담고 있으므로
-        // 실측 기반의 배율인 0.5407을 사용해야 아이콘이 지형에 정확히 붙습니다.
-        var scale = 0.5407; 
+// [좌표 표시 컨트롤] 마우스 위치를 마크 좌표로 역계산
+if (typeof L.Control.MousePosition !== 'undefined') {
+    const imgSpawnX = 3122; 
+    const imgSpawnY = -2889; // Leaflet lat 기준 (음수)
+    const mcSpawnX = -969;  
+    const mcSpawnZ = -965;  
+    const scale = 0.5407;
 
-        // Leaflet Y축은 위로 갈수록 증가하므로, 마크 Z가 커질수록(남쪽) 결과값은 작아져야(음수) 합니다.
-        return [
-            -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
-            mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
-        ]; 
-    };
+    L.control.mousePosition({ 
+        position: 'bottomleft', 
+        separator: ', ', 
+        prefix: 'MC 좌표: ',
+        lngFirst: true, 
+        lngFormatter: function(lng) {
+            // X 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / 배율
+            return Math.round(mcSpawnX + (lng - imgSpawnX) / scale);
+        },
+        latFormatter: function(lat) {
+            // Z 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / -배율
+            return Math.round(mcSpawnZ + (lat - imgSpawnY) / -scale);
+        }
+    }).addTo(map);
 }
 
 /** 2. 산(비석), 동상 데이터 **/
