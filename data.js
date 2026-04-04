@@ -1,26 +1,20 @@
-// [좌표 표시 컨트롤] 마우스 위치를 마크 좌표로 역계산
-if (typeof L.Control.MousePosition !== 'undefined') {
-    const imgSpawnX = 3122; 
-    const imgSpawnY = -2889; // Leaflet lat 기준 (음수)
-    const mcSpawnX = -969;  
-    const mcSpawnZ = -965;  
-    const scale = 0.5407;
+/** 1. 좌표 변환 함수 (실측 보정) **/
+const mcToPx = (mcX, mcZ) => {
+    // 이미지상에서 스폰 아이콘이 위치해야 할 절대 픽셀 좌표
+    var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
+    
+    // 실제 마인크래프트 스폰 좌표 (기준점)
+    var mcSpawnCoordX = -969,  // 실제 마크 X
+        mcSpawnCoordZ = -965;  // 실제 마크 Z
+    
+    // 배율 (현재 지도 사이즈 7080x6858 등에 맞춰 조정 필요할 수 있음)
+    var scale = 0.5407; 
 
-    L.control.mousePosition({ 
-        position: 'bottomleft', 
-        separator: ', ', 
-        prefix: 'MC 좌표: ',
-        lngFirst: true, 
-        lngFormatter: function(lng) {
-            // X 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / 배율
-            return Math.round(mcSpawnX + (lng - imgSpawnX) / scale);
-        },
-        latFormatter: function(lat) {
-            // Z 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / -배율
-            return Math.round(mcSpawnZ + (lat - imgSpawnY) / -scale);
-        }
-    }).addTo(map);
-}
+    return [
+        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
+        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
+    ]; 
+};
 
 /** 2. 산(비석), 동상 데이터 **/
 var mountainData = [
