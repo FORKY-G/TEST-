@@ -272,6 +272,28 @@ if (typeof herbData !== 'undefined') {
         herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
     });
 }
+function focusHerb(name) {
+    if (typeof herbLayers !== 'undefined' && herbLayers[name]) {
+        // 모든 약초 레이어를 끄고 싶다면 아래 주석을 해제하세요
+        // resetHerbLayers(); 
+
+        herbLayers[name].addTo(map); // 해당 약초 레이어 활성화
+        
+        // 해당 레이어의 범위(Bounds)를 가져와서 지도를 이동시킵니다.
+        const layerGroup = herbLayers[name];
+        let bounds;
+        
+        layerGroup.eachLayer(function(layer) {
+            if (layer instanceof L.ImageOverlay) {
+                bounds = layer.getBounds();
+            }
+        });
+
+        if (bounds) {
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 2 });
+        }
+    }
+}
 
 /** 메뉴 UI 구성 **/
 var menuOrder = {
