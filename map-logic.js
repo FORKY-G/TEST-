@@ -49,10 +49,15 @@ if (typeof poiData !== 'undefined') {
         groupMines.forEach((mine, index) => {
             if (index === groupMines.length - 1) return;
             var nextMine = groupMines[index + 1];
-            if (!mine.coords || !nextMine.coords) return; // NaN 방어
+            
+            // coords가 이미 존재하면 사용, 없으면 실시간 계산 (방어코드)
+            var startPos = mine.coords || mcToPx(mine.mcX, mine.mcZ);
+            var endPos = nextMine.coords || mcToPx(nextMine.mcX, nextMine.mcZ);
+            
+            if (!startPos || !endPos || isNaN(startPos[0])) return;
 
             var isDotted = (nextMine.lineType || "").toString().toLowerCase().trim() === "dotted";
-            var line = L.polyline([mine.coords, nextMine.coords], { color: '#ff4757', weight: 4, opacity: 0, dashArray: isDotted ? "15, 15" : null, interactive: false }).addTo(map);
+            var line = L.polyline([startPos, endPos], { color: '#ff4757', weight: 4, opacity: 0, dashArray: isDotted ? "15, 15" : null, interactive: false }).addTo(map);
             routeLinesByGroup[groupTag].push(line);
         });
     });
@@ -70,8 +75,9 @@ if (typeof zodiacData !== 'undefined') {
     var zodiacOrderNames = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
     var zodiacPathPoints = zodiacOrderNames.map(name => {
         var found = zodiacData.find(z => z.name.includes(name));
-        return found ? mcToPx(found.x, found.z) : null;
-    }).filter(p => p !== null && !isNaN(p[0])); // NaN 방어
+        if (!found) return null;
+        return found.coords || mcToPx(found.x, found.z);
+    }).filter(p => p !== null && !isNaN(p[0]));
 
     if (zodiacPathPoints.length >= 2) {
         window.zodiacLine = L.polyline(zodiacPathPoints, { color: '#f1c40f', weight: 6, opacity: 0, dashArray: '10, 10', interactive: false }).addTo(poiLayers['십이간지']);
@@ -84,20 +90,20 @@ var questLines = { standard: null, snake: null, pirate: null, haemusa: null };
 if (typeof npcData !== 'undefined') {
     // 1. 상단주 동선
     var qPath = [npcData.find(n => n.name.includes("상단주")), npcData.find(n => n.name.includes("부숴진마차")), npcData.find(n => n.name.includes("자운스님"))].filter(p => p);
-    if (qPath.length >= 2) questLines.standard = L.polyline(qPath.map(p => mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
+    if (qPath.length >= 2) questLines.standard = L.polyline(qPath.map(p => p.coords || mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 
     // 2. 뱀/호리병 동선
     var myeonMun = (typeof huntingInfo !== 'undefined') ? huntingInfo.find(h => h.name === "멸문") : null;
     var sPath = [npcData.find(n => n.name.includes("도사")), npcData.find(n => n.name.includes("도공")), myeonMun, npcData.find(n => n.name.includes("도사"))].filter(p => p);
-    if (sPath.length >= 2) questLines.snake = L.polyline(sPath.map(p => p.center || mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
+    if (sPath.length >= 2) questLines.snake = L.polyline(sPath.map(p => p.center || p.coords || mcToPx(p.x, p.z)), { color: '#6c5ce7', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 
     // 3. 해적선 동선 
     var pPath = [npcData.find(n => n.name.includes("해진")), npcData.find(n => n.name.includes("해적선")), npcData.find(n => n.name.includes("백향초재배지"))].filter(p => p);
-    if (pPath.length >= 2) questLines.pirate = L.polyline(pPath.map(p => mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
+    if (pPath.length >= 2) questLines.pirate = L.polyline(pPath.map(p => p.coords || mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 
     // 4. 해무사 퀘스트 동선
     var hPath = [npcData.find(n => n.name.includes("해무사승려")), npcData.find(n => n.name.includes("연운객")), npcData.find(n => n.name.includes("시녀"))].filter(p => p);
-    if (hPath.length >= 2) questLines.haemusa = L.polyline(hPath.map(p => mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
+    if (hPath.length >= 2) questLines.haemusa = L.polyline(hPath.map(p => p.coords || mcToPx(p.x, p.z)), { color: '#a29bfe', weight: 6, opacity: 0, dashArray: '12, 12', interactive: false }).addTo(questLayers);
 }
 
 /** 6. 마커 생성 및 이벤트 연결 **/
@@ -105,7 +111,7 @@ if (typeof npcData !== 'undefined') {
 // NPC 마커
 if (typeof npcData !== 'undefined') {
     npcData.forEach(d => {
-        var pos = mcToPx(d.x, d.z);
+        var pos = d.coords || mcToPx(d.x, d.z);
         if (!pos || isNaN(pos[0])) return;
         var marker = L.marker(pos, { icon: L.icon({ iconUrl: d.file, iconSize: [32, 32], iconAnchor: [16, 16] }) }).addTo(npcLayers);
         marker.bindTooltip(`<b>${d.name}</b>`, { direction: 'top' });
@@ -126,16 +132,17 @@ if (typeof npcData !== 'undefined') {
 if (typeof huntingInfo !== 'undefined') {
     huntingInfo.forEach(info => {
         var layers = [];
-        if (!info.center || isNaN(info.center[0])) return;
+        var centerPos = info.center || mcToPx(info.x || info.mcX, info.z || info.mcZ);
+        if (!centerPos || isNaN(centerPos[0])) return;
 
         if (info.name === "혈교도" && info.file) { 
             var huntingIcon = L.icon({ iconUrl: info.file, iconSize: [45, 45], iconAnchor: [22, 22] });
-            layers.push(L.marker(info.center, { icon: huntingIcon, interactive: false }));
+            layers.push(L.marker(centerPos, { icon: huntingIcon, interactive: false }));
         } else if (info.file) {
             layers.push(L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false }));
         }
 
-        var clickMarker = L.circleMarker(info.center, { radius: 35, color: 'transparent', fillOpacity: 0, interactive: true });
+        var clickMarker = L.circleMarker(centerPos, { radius: 35, color: 'transparent', fillOpacity: 0, interactive: true });
         clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
         
         if (info.name === "멸문") {
@@ -149,34 +156,36 @@ if (typeof huntingInfo !== 'undefined') {
 }
 
 // 십이간지 마커
-zodiacData.forEach(z => {
-    var pos = mcToPx(z.x, z.z);
-    if (!pos || isNaN(pos[0])) return;
-    var marker = L.marker(pos, { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지']);
-    marker.on('click', () => showZodiacInfo(z));
-    marker.bindTooltip(`<b>${z.name}</b>`, { direction: 'top' });
-    marker.on('mouseover', () => window.zodiacLine?.setStyle({ opacity: 0.9 }));
-    marker.on('mouseout', () => window.zodiacLine?.setStyle({ opacity: 0 }));
-});
+if (typeof zodiacData !== 'undefined') {
+    zodiacData.forEach(z => {
+        var pos = z.coords || mcToPx(z.x, z.z);
+        if (!pos || isNaN(pos[0])) return;
+        var marker = L.marker(pos, { icon: L.divIcon({ className: 'zodiac-icon', html: `<div style="width:60px; height:60px;"></div>`, iconSize: [60, 60], iconAnchor: [30, 30] }) }).addTo(poiLayers['십이간지']);
+        marker.on('click', () => showZodiacInfo(z));
+        marker.bindTooltip(`<b>${z.name}</b>`, { direction: 'top' });
+        marker.on('mouseover', () => window.zodiacLine?.setStyle({ opacity: 0.9 }));
+        marker.on('mouseout', () => window.zodiacLine?.setStyle({ opacity: 0 }));
+    });
+}
 
-// 광산, 산, 탐색, 상자 등 생성 (동일 로직 유지)
-poiData.forEach(poi => {
-    var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
-    if(key && poi.coords && !isNaN(poi.coords[0])) {
-        var marker = L.marker(poi.coords, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
-        if (poi.order !== undefined) addGroupRouteHover(marker, poi.type);
-        if (poi.type === '스폰') marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
-        else { marker.on('click', () => showMineInfo(poi)); marker.bindTooltip(`${poi.name}번 광산`); }
-    }
-});
+// 광산
+if (typeof poiData !== 'undefined') {
+    poiData.forEach(poi => {
+        var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
+        var pos = poi.coords || mcToPx(poi.mcX, poi.mcZ);
+        if(key && pos && !isNaN(pos[0])) {
+            var marker = L.marker(pos, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
+            if (poi.order !== undefined) addGroupRouteHover(marker, poi.type);
+            if (poi.type === '스폰') marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
+            else { marker.on('click', () => showMineInfo(poi)); marker.bindTooltip(`${poi.name}번 광산`); }
+        }
+    });
+}
 
-// 적환단, 해무사 기록서 등 하단 생략 없이 모두 유지...
-// (기존 코드의 redHwanData, haemusaBooks, mountainData, discoveryData, herbData 루프가 이 위치에 옵니다.)
-// [생략하지 않고 기존 로직 그대로 처리됨]
-
+// 적환단
 if (typeof redHwanData !== 'undefined') {
     redHwanData.forEach(d => {
-        var pos = mcToPx(d.x, d.z);
+        var pos = d.coords || mcToPx(d.x, d.z);
         if (!pos || isNaN(pos[0])) return;
         var marker = L.marker(pos, { icon: L.icon({ iconUrl: 'red.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(redHwanLayers);
         marker.on('click', () => { if (typeof showRedHwanInfo === 'function') showRedHwanInfo(d); });
@@ -207,40 +216,48 @@ haemusaBooks.forEach((book, index) => {
 haemusaBookLayers.addTo(map);
 
 // 산(비석)
-mountainData.forEach(m => {
-    var finalPos = m.coords ? m.coords : mcToPx(m.x, m.z);
-    if (!finalPos || isNaN(finalPos[0])) return;
-    var marker = L.marker(finalPos, { icon: m.type === "statue" ? L.divIcon({ className: 'statue-icon', iconSize:[30,30], iconAnchor:[15,30] }) : createSteleIcon() }).addTo(mountainLayers);
-    if (m.type === "statue") marker.bindPopup(`<div style="text-align:center;"><b>${m.name}</b><br><img src="${m.file}" style="width:150px;"><br><span>[${m.x}, ${m.z}]</span></div>`);
-    else marker.on('click', () => showHuntingInfo(m));
-    marker.bindTooltip(`<b>${m.name}</b>`);
-});
+if (typeof mountainData !== 'undefined') {
+    mountainData.forEach(m => {
+        var finalPos = m.coords ? m.coords : mcToPx(m.x, m.z);
+        if (!finalPos || isNaN(finalPos[0])) return;
+        var marker = L.marker(finalPos, { icon: m.type === "statue" ? L.divIcon({ className: 'statue-icon', iconSize:[30,30], iconAnchor:[15,30] }) : createSteleIcon() }).addTo(mountainLayers);
+        if (m.type === "statue") marker.bindPopup(`<div style="text-align:center;"><b>${m.name}</b><br><img src="${m.file}" style="width:150px;"><br><span>[${m.x}, ${m.z}]</span></div>`);
+        else marker.on('click', () => showHuntingInfo(m));
+        marker.bindTooltip(`<b>${m.name}</b>`);
+    });
+}
 
-// 탐색 및 상자
-discoveryData.forEach(d => {
-    var pos = mcToPx(d.x, d.z);
-    if (!pos || isNaN(pos[0])) return;
-    var marker = L.marker(pos, { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(discoveryLayers);
-    marker.on('click', () => showDiscoveryInfo(d));
-});
+// 탐색
+if (typeof discoveryData !== 'undefined') {
+    discoveryData.forEach(d => {
+        var pos = d.coords || mcToPx(d.x, d.z);
+        if (!pos || isNaN(pos[0])) return;
+        var marker = L.marker(pos, { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(discoveryLayers);
+        marker.on('click', () => showDiscoveryInfo(d));
+    });
+}
 
+// 상자
 if (typeof mysteryBoxData !== 'undefined') {
     mysteryBoxData.forEach(d => {
-        var pos = mcToPx(d.x, d.z);
+        var pos = d.coords || mcToPx(d.x, d.z);
         if (!pos || isNaN(pos[0])) return;
         L.marker(pos, { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers).on('click', () => showDiscoveryInfo(d));
     });
 }
 
 // 약초
-herbData.forEach(herb => {
-    if (!herb.coords || isNaN(herb.coords[0])) return;
-    if (!herbLayers[herb.name]) herbLayers[herb.name] = L.layerGroup();
-    var hCol = herbColors[herb.name] || '#8e44ad';
-    var imgOverlay = L.imageOverlay(herb.file, imageBounds, { opacity: 0.6, interactive: false });
-    var dotMarker = L.circleMarker(herb.coords, { radius: 3, color: "#000", weight: 1, fillColor: hCol, fillOpacity: 1 });
-    herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
-});
+if (typeof herbData !== 'undefined') {
+    herbData.forEach(herb => {
+        var pos = herb.coords || mcToPx(herb.mcX, herb.mcZ);
+        if (!pos || isNaN(pos[0])) return;
+        if (!herbLayers[herb.name]) herbLayers[herb.name] = L.layerGroup();
+        var hCol = herbColors[herb.name] || '#8e44ad';
+        var imgOverlay = L.imageOverlay(herb.file, imageBounds, { opacity: 0.6, interactive: false });
+        var dotMarker = L.circleMarker(pos, { radius: 3, color: "#000", weight: 1, fillColor: hCol, fillOpacity: 1 });
+        herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
+    });
+}
 
 /** 메뉴 UI 구성 **/
 var menuOrder = {
