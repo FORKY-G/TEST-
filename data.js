@@ -2,15 +2,19 @@
 // 중복 선언 에러 방지를 위해 var 사용 및 조건부 선언
 if (typeof mcToPx === 'undefined') {
     var mcToPx = function(mcX, mcZ) {
-        // 이미지상의 스폰 픽셀 위치 (기존 유지)
-        var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
+        // [수정 포인트] 이미지상의 스폰 픽셀 위치
+        var mcSpawnPxX = 3122; 
+        var mcSpawnPxY = 2889; 
         
-        // 실제 마크 스폰 위치 (-969, -965)
-        var mcSpawnCoordX = -969, mcSpawnCoordZ = -965;
+        // [수정 포인트] 실제 마크 스폰 위치
+        var mcSpawnCoordX = -969; 
+        var mcSpawnCoordZ = -965;
         
-        // 7090px 이미지가 8080 블록을 표현하므로 배율은 7090 / 8080
-        var scale = 7090 / 8080; 
+        // [수정 포인트] 7090px 이미지가 마크 월드 전체(약 13000~15000 범위)를 담고 있으므로
+        // 실측 기반의 배율인 0.5407을 사용해야 아이콘이 지형에 정확히 붙습니다.
+        var scale = 0.5407; 
 
+        // Leaflet Y축은 위로 갈수록 증가하므로, 마크 Z가 커질수록(남쪽) 결과값은 작아져야(음수) 합니다.
         return [
             -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
             mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
