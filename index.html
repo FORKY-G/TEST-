@@ -168,13 +168,14 @@ html, body {
                    lngFormatter: function(lng) {
     const mcSpawnPxX = 3213;    
     const mcSpawnCoordX = -971; 
-    const scale = 0.4468; // 동일하게 수정
+    const scale = 0.4468;
     return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
 },
 latFormatter: function(lat) {
     const mcSpawnPxY = 2869;    
     const mcSpawnCoordZ = -965; 
-    const scale = 0.4468; // 동일하게 수정
+    const scale = 0.4468;
+    // Leaflet의 lat은 위로 갈수록 커지므로 -lat을 사용합니다.
     return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
 }
                 }).addTo(map);
