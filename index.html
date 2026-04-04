@@ -186,28 +186,30 @@ html, body {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
+// [좌표 표시 컨트롤] 마우스 위치를 마크 좌표로 역계산
 if (typeof L.Control.MousePosition !== 'undefined') {
+    const imgSpawnX = 3122; 
+    const imgSpawnY = -2889; // Leaflet lat 기준 (음수)
+    const mcSpawnX = -969;  
+    const mcSpawnZ = -965;  
+    const scale = 0.5407;
+
     L.control.mousePosition({ 
         position: 'bottomleft', 
         separator: ', ', 
         prefix: 'MC 좌표: ',
-        lngFirst: true,
+        lngFirst: true, 
         lngFormatter: function(lng) {
-            // 이미지 7090px -> 마크 8080블록 대응 (8080/7090)
-            return Math.round((lng - 3122) * (8080 / 7090) + (-969));
+            // X 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / 배율
+            return Math.round(mcSpawnX + (lng - imgSpawnX) / scale);
         },
         latFormatter: function(lat) {
-            // Y축(Z좌표) 계산
-            return Math.round((-lat - 2889) * (8080 / 7090) + (-965));
+            // Z 좌표: 기준점 + (현재픽셀 - 기준점픽셀) / -배율
+            return Math.round(mcSpawnZ + (lat - imgSpawnY) / -scale);
         }
     }).addTo(map);
 }
 
-            // 리사이즈 시 지도 크기 재계산
-            window.addEventListener('resize', () => {
-                if(map) map.invalidateSize();
-            });
-        };
     </script>
 </body>
 </html>
