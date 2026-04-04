@@ -158,7 +158,19 @@ html, body {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
-            L.control.mousePosition({ position: 'bottomleft', separator: ', ', prefix: '좌표: ' }).addTo(map);
-            window.addEventListener('resize', () => map.invalidateSize());
+            // 좌표 표시 컨트롤 (최적화된 마우스 포지션)
+            if (typeof L.Control.MousePosition !== 'undefined') {
+                L.control.mousePosition({ 
+                    position: 'bottomleft', 
+                    separator: ', ', 
+                    prefix: '지도좌표: ' 
+                }).addTo(map);
+            }
+
+            window.addEventListener('resize', () => {
+                if(map) map.invalidateSize();
+            });
         };
     </script>
+</body>
+</html>
