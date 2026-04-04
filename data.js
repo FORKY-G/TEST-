@@ -42,7 +42,7 @@ var mountainData = [
     { name: "제천대성", file: "statue3.png", x: 1513, z: 3593, type: "statue" },
     { name: "UNKNOWN", file: "statue1.png", x: 2903, z: 714, type: "statue" },
     { name: "한월동상", file: "statue2.png", x: -334, z: -5519, type: "statue" }
-].map(m => ({ ...m, coords: mcToPx(m.x, m.z) }));
+].transformData(m => ({ ...m, coords: mcToPx(m.x, m.z) }));
 
 /** 3. 광산 및 포인트 데이터 **/
 const poiData = [ 
@@ -112,7 +112,7 @@ const poiData = [
     { name: "63", type: "황", color: "#f1c40f", mcX: 2705, mcZ: 2461, order : 11, lineType : "dotted" }, 
     { name: "64", type: "황", color: "#f1c40f", mcX: -4029, mcZ: 2321, order : 2, lineType : "solid" }, 
     { name: "65", type: "황", color: "#f1c40f", mcX: -790, mcZ: 4284, order : 7, lineType : "solid" } 
-].map(p => ({ ...p, coords: mcToPx(p.mcX, p.mcZ) }));
+].transformData(p => ({ ...p, coords: mcToPx(p.mcX, p.mcZ) }));
 
 /** 4. 약초 데이터 **/
 const herbData = [
@@ -165,7 +165,7 @@ const herbData = [
     { name: "금향과", file: "hub17.png", mcX: -772, mcZ: 1917 },
     { name: "금양광초", file: "hub2.png", mcX: 3633, mcZ: 1015 },
     { name: "금양광초", file: "hub2.png", mcX: 3070, mcZ: 2541 }
-].map(h => ({ ...h, coords: mcToPx(h.mcX, h.mcZ) }));
+].transformData(h => ({ ...h, coords: mcToPx(h.mcX, h.mcZ) }));
 
 const herbColors = { 
     "홍련업화": "#FF1493", "빙백설화": "#3498db", "철목영지": "#e67e22", 
@@ -179,7 +179,7 @@ const herbColors = {
 /** 5. 십이간지 데이터 **/
 const zodiacData = [ 
     { name: "2.소", x: -616, y: 116, z: 3889 }, { name: "10.닭", x: 5075, y: 106, z: -344 }, { name: "4.토끼", x: 4590, y: 122, z: -3397 }, { name: "6.뱀", x: 2685, y: 145, z: -4051 }, { name: "12.돼지", x: -3657, y: 212, z: 1112 }, { name: "11.개", x: -4455, y: 171, z: -2376 }, { name: "7.말", x: -2365, y: 282, z: 3968 }, { name: "9.원숭이", x: 3280, y: 162, z: 2952 }, { name: "8.양", x: 5093, y: 135, z: 2092 }, { name: "3.호랑이", x: -5500, y: 152, z: -1600 }, { name: "5.용", x: -891, y: 106, z: -536 }, { name: "1.쥐", x: -2900, y: 127, z: -4600 } 
-].map(z => ({ ...z, coords: mcToPx(z.x, z.z) }));
+].transformData(z => ({ ...z, coords: mcToPx(z.x, z.z) }));
 
 /** 6. 사냥터 데이터 **/
 const huntingInfo = [
@@ -199,7 +199,7 @@ const huntingInfo = [
     { name: "협사곡", lv: "160~170", monsters: "산적(Lv.160), 산적궁수(Lv.165), 멧돼지산적(Lv.170)", file: "map13.png", mcX: -282, mcZ: 4318 }, 
     { name: "황야성", lv: "175~185", monsters: "토석병(Lv.175), 토석군(Lv.180), 토석궁사(Lv.185)", file: "map14.png", mcX: -2080, mcZ: 1996 }, 
     { name: "운해궁", lv: "만렙", monsters: "최종구역", file: "map15.png", mcX: -1422, mcZ: 5612 } 
-].map(h => {
+].transformData(h => {
     let mx = h.x !== undefined ? h.x : h.mcX;
     let mz = h.z !== undefined ? h.z : h.mcZ;
     return { ...h, center: mcToPx(mx, mz) };
@@ -248,7 +248,7 @@ var discoveryData = [
     { name: "항아리", x: -7368, y: 88, z: 1546, item: "잔존영석", tool: "탐령구" },
     { name: "항아리", x: 7268, y: 65, z: 5300, item: "봉인된철편", tool: "탐령구" },
     { name: "항아리", x: 4171, y: 74, z: 2643, item: "마모된인장", tool: "탐령구" }
-].map(d => ({ ...d, coords: mcToPx(d.x, d.z) }));
+].transformData(d => ({ ...d, coords: mcToPx(d.x, d.z) }));
 
 /** 9. 적환단 데이터 **/
 var redHwanData = [
@@ -259,7 +259,7 @@ var redHwanData = [
     { name: "5. 적환단", x: 1961, y: 150, z: -6200, file: "red5.png" },
     { name: "6. 적환단", x: -2579, y: 87, z: -5970, file: "red6.png" },
     { name: "7. 적환단", x: -3375, y: 100, z: 3449, file: "red7.png" }
-].map(r => ({ ...r, coords: mcToPx(r.x, r.z) }));
+].transformData(r => ({ ...r, coords: mcToPx(r.x, r.z) }));
 
 /** 10. NPC 데이터 **/
 var npcData = [
@@ -287,7 +287,7 @@ var npcData = [
     { name: "부숴진마차(lv.50)", x: -2706, z: -2372, relation: "<span style='color:#ff4757;'><span style='color:#a29bfe;'>*[히든]상단주2</span>", file: "macha.png" },
     { name: "탐령구제작", x: -2076, z: 425, relation: "철1개, 적동괴2개", file: "gu.png" },
     { name: "정청주제작", x: 2034, z: 3265, relation: "철1개, 적동괴2개, 송진덩어리1개", file: "jungju.png" }
-].map(n => ({ ...n, coords: mcToPx(n.x, n.z) }));
+].transformData(n => ({ ...n, coords: mcToPx(n.x, n.z) }));
 
 /** 11. 상자 데이터 **/
 var mysteryBoxData = [
@@ -304,4 +304,4 @@ var mysteryBoxData = [
     { name: "의문의 상자", x: 7049, y: 142, z: 2874, item: "고급주문서뽑기" },
     { name: "의문의 상자", x: 1124, y: 258, z: 1498, item: "일반부적뽑기"},
     { name: "의문의 상자", x: -3979, y: 80, z: 2501, item: "<span style='color:#ff0000;'>상자3개있음</span>"}
-].map(b => ({ ...b, coords: mcToPx(b.x, b.z) }));
+].transformData(b => ({ ...b, coords: mcToPx(b.x, b.z) }));
