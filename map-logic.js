@@ -1,5 +1,5 @@
-/** 1. 설정 (7080 x 6858 반영) **/
-var imgW = 7080, imgH = 6858;
+/** 1. 설정 (7090 x 7090 반영) **/
+var imgW = 7090, imgH = 7090; // 수정된 이미지 사이즈
 var imageBounds = [[-imgH, 0], [0, imgW]];
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.3); 
 
@@ -19,6 +19,15 @@ map.fitBounds(imageBounds, { padding: [150, 150] });
 var currentZoom = map.getZoom();
 map.setMinZoom(currentZoom); 
 map.setZoom(currentZoom);
+
+/** [중요] 좌표 변환 함수 (8080, -8080 기준) **/
+function mcToPx(mcX, mcZ) {
+    // 실제 마크월드 전체 크기: 8080 (0 ~ 8080, 0 ~ -8080)
+    // 이미지 사이즈: 7090
+    var x = (mcX / 8080) * imgW;
+    var y = (mcZ / -8080) * -imgH; // 마크 Z는 아래로 갈수록 커지므로 이미지 좌표계에 맞춰 변환
+    return [y, x];
+}
 
 /** 2. 아이콘 생성 **/
 function createHtmlIcon(color) {
@@ -168,15 +177,20 @@ if (typeof zodiacData !== 'undefined') {
     });
 }
 
-// 광산
+// 광산 및 스폰 (스폰 좌표 반영: -969, -965)
 if (typeof poiData !== 'undefined') {
     poiData.forEach(poi => {
         var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
-        var pos = poi.coords || mcToPx(poi.mcX, poi.mcZ);
+        
+        // 스폰 지점일 경우 강제로 요청하신 좌표 적용
+        var mcX = (poi.type === '스폰') ? -969 : poi.mcX;
+        var mcZ = (poi.type === '스폰') ? -965 : poi.mcZ;
+        
+        var pos = poi.coords || mcToPx(mcX, mcZ);
         if(key && pos && !isNaN(pos[0])) {
             var marker = L.marker(pos, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
             if (poi.order !== undefined) addGroupRouteHover(marker, poi.type);
-            if (poi.type === '스폰') marker.bindPopup(`<b>스폰 지점</b><br>[ ${poi.mcX}, ${poi.mcZ} ]`);
+            if (poi.type === '스폰') marker.bindPopup(`<b>스폰 지점</b><br>[ ${mcX}, ${mcZ} ]`);
             else { marker.on('click', () => showMineInfo(poi)); marker.bindTooltip(`${poi.name}번 광산`); }
         }
     });
