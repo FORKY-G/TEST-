@@ -89,6 +89,16 @@ html, body {
         height: 40px !important;
         z-index: 3000 !important;
     }
+
+    /* 약초 목록 모바일 위치 추가 */
+    #herb-list-container {
+        top: 110px !important;
+        left: 75% !important; /* 중앙에서 오른쪽 75% 지점으로 배치 */
+        transform: translateX(-50%) !important;
+        width: 45% !important;
+        height: 40px !important;
+        z-index: 3000 !important;
+    }
     
     /* 2. 사냥터 목록 버튼 */
     .menu-container {
@@ -129,6 +139,16 @@ html, body {
     </div>
 </div>
 
+  <div id="herb-list-container" style="position: absolute; top: 25px; left: calc(50% + 320px); z-index: 2000; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+    <div class="herb-group-label" onclick="toggleHerbList()" style="text-align: center; font-weight: bold; cursor: pointer; border-bottom: none; margin: 0; padding: 0; width: 100%;">
+        🌿 약초 목록 <span id="herb-toggle-icon" style="font-size: 10px;">▼</span>
+    </div>
+    <div id="herb-content" style="display: none; position: absolute; top: 43px; left: -3px; width: 150px; background: #C6C6C6; border: 3px solid #000; box-shadow: inset -4px -4px 0px #555555, inset 4px 4px 0px #ffffff; padding: 5px;">
+        <button onclick="resetHerbLayers()" style="width: 100%; margin-bottom: 10px; background: #C6C6C6; border: 2px solid #000; box-shadow: inset -2px -2px 0px #555555, inset 2px 2px 0px #ffffff; cursor: pointer; font-weight: bold; padding: 8px 5px;">모든 약초 해제</button>
+        <ul id="herb-list" style="list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto;"></ul>
+    </div>
+</div>  
+
     <script src="data.js"></script>    
     <script src="map-logic.js"></script> 
     <script src="ui-control.js"></script>
@@ -146,11 +166,17 @@ html, body {
             if(typeof redHwanLayers !== 'undefined') redHwanLayers.addTo(map);
 
             // 리스트 생성 함수 호출 (ui-control.js에 정의되어 있어야 함)
-            if (typeof generateHuntingList === 'function') {
-                generateHuntingList();
-            } else {
-                console.error("generateHuntingList 함수를 찾을 수 없습니다. ui-control.js 파일을 확인하세요.");
-            }
+            // 181행 근처
+if (typeof generateHuntingList === 'function') {
+    generateHuntingList();
+} else {
+    console.error("generateHuntingList 함수를 찾을 수 없습니다. ui-control.js 파일을 확인하세요.");
+}
+
+// 여기에 약초 리스트 생성 호출 추가
+if (typeof generateHerbList === 'function') {
+    generateHerbList();
+}
 
             // 모바일 레이어 설정
             var isMobile = window.innerWidth < 768;
