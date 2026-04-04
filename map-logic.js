@@ -20,15 +20,15 @@ var currentZoom = map.getZoom();
 map.setMinZoom(currentZoom); 
 map.setZoom(currentZoom);
 
-/** [중요] 좌표 변환 함수 (8080, -8080 기준) **/
-// y 계산식을 마크 Z 좌표 특성에 맞게 수정했습니다.
-var mcToPx = mcToPx || function(mcX, mcZ) {
-    // mcX: 0 ~ 8080 -> x: 0 ~ 7090
-    // mcZ: 0 ~ 8080 -> y: 0 ~ -7090 (이미지 좌표계는 아래가 음수)
-    var x = (mcX / 8080) * imgW;
-    var y = -(mcZ / 8080) * imgH; 
-    return [y, x];
-};
+/** [중요] 좌표 변환 함수 **/
+// data.js에서 선언된 mcToPx를 사용하므로 여기서는 중복 선언하지 않고 
+// 혹시 없을 경우를 대비해 기본값만 할당합니다.
+if (typeof mcToPx === 'undefined') {
+    var mcToPx = function(mcX, mcZ) {
+        var scale = 7090 / 8080;
+        return [-(2889 + (mcZ - (-965)) * scale), 3122 + (mcX - (-969)) * scale];
+    };
+}
 
 /** 2. 아이콘 생성 **/
 function createHtmlIcon(color) {
