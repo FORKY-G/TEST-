@@ -1,22 +1,25 @@
 /** 1. 월드맵 좌표 맞추기 (수정본) **/
 const mcToPx = (mcX, mcZ) => {
-    // 기준점 픽셀 (스폰 지점의 이미지상 위치)
+    // 사용자가 지정한 지도 이미지 크기
+    const imgWidth = 7080;
+    const imgHeight = 6858;
+
+    // 실제 마크 좌표 범위 (-8080 ~ 8080 -> 총 16160 블록)
+    const mcTotalRange = 16160; 
+
+    // 기준점 픽셀 (스폰 위치)
     var mcSpawnPxX = 3218; 
     var mcSpawnPxY = 2874;
     
-    // 기준점 마인크래프트 좌표
+    // 기준점 마인크래프트 실제 좌표
     var mcSpawnCoordX = -971; 
     var mcSpawnCoordZ = -965;
     
-    // 맵 사이즈에 따른 스케일 (7080 / 16384 또는 실제 맵 해상도 비율)
-    var scale = 7300 / 16384; 
+    // 배율 계산: 이미지 너비(7080)를 실제 블록 범위(16160)로 나눔
+    var scale = imgWidth / mcTotalRange; 
 
-    // Leaflet은 [Y, X] 순서로 좌표를 받습니다.
-    // 마인크래프트 Z = 지도 Y (상하)
-    // 마인크래프트 X = 지도 X (좌우)
-    
-    // 수정된 계산식: 
-    // 1. 위아래(Y)는 mcZ를 기준으로 계산 (이미지 좌표 특성상 위로 갈수록 픽셀값이 작아지므로 방향 확인 필요)
+    // Leaflet [Y, X] 좌표 반환
+    // Z는 위아래(Y축), X는 좌우(X축)
     var pixelY = -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale);
     var pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
 
