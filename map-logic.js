@@ -21,12 +21,12 @@ map.setMinZoom(currentZoom);
 map.setZoom(currentZoom);
 
 /** [중요] 좌표 변환 함수 (8080, -8080 기준) **/
-// 중복 선언 에러(SyntaxError) 방지를 위해 var로 선언하며, 이미 정의되어 있다면 재사용합니다.
+// y 계산식을 마크 Z 좌표 특성에 맞게 수정했습니다.
 var mcToPx = mcToPx || function(mcX, mcZ) {
-    // 실제 마크월드 전체 크기: 8080 (0 ~ 8080, 0 ~ -8080)
-    // 이미지 사이즈: 7090
+    // mcX: 0 ~ 8080 -> x: 0 ~ 7090
+    // mcZ: 0 ~ 8080 -> y: 0 ~ -7090 (이미지 좌표계는 아래가 음수)
     var x = (mcX / 8080) * imgW;
-    var y = (mcZ / -8080) * -imgH; // 마크 Z는 아래로 갈수록 커지므로 이미지 좌표계에 맞춰 변환
+    var y = -(mcZ / 8080) * imgH; 
     return [y, x];
 };
 
@@ -60,7 +60,7 @@ if (typeof poiData !== 'undefined') {
             if (index === groupMines.length - 1) return;
             var nextMine = groupMines[index + 1];
             
-            // coords가 이미 존재하면 사용, 없으면 실시간 계산 (방어코드)
+            // coords가 이미 존재하면 사용, 없으면 실시간 계산
             var startPos = mine.coords || mcToPx(mine.mcX, mine.mcZ);
             var endPos = nextMine.coords || mcToPx(nextMine.mcX, nextMine.mcZ);
             
@@ -156,7 +156,6 @@ if (typeof huntingInfo !== 'undefined') {
         clickMarker.on('click', (e) => { L.DomEvent.stopPropagation(e); showHuntingInfo(info); });
         
         if (info.name === "멸문") {
-            clickMarker.addTo(map);
             clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
             clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
         }
@@ -178,16 +177,16 @@ if (typeof zodiacData !== 'undefined') {
     });
 }
 
-// 광산 및 스폰 (스폰 좌표 반영: -969, -965)
+// 광산 및 스폰 (스폰 좌표 반영: -969, -965 -> 마크 좌표는 양수로 환산 필요시 확인 필요)
 if (typeof poiData !== 'undefined') {
     poiData.forEach(poi => {
         var key = (poi.type === '스폰') ? '스폰' : (poi.type === '녹') ? '녹색광산' : (poi.type === '청') ? '청색광산' : (poi.type === '황') ? '황색광산' : (poi.type === '적') ? '적색광산' : null;
         
-        // 스폰 지점일 경우 강제로 요청하신 좌표 적용
         var mcX = (poi.type === '스폰') ? -969 : poi.mcX;
         var mcZ = (poi.type === '스폰') ? -965 : poi.mcZ;
         
-        var pos = poi.coords || mcToPx(mcX, mcZ);
+        // 마이너스 좌표 보정 (필요시): 마크 좌표계가 0,0 기준 절대값이라면 그대로 사용
+        var pos = poi.coords || mcToPx(Math.abs(mcX), Math.abs(mcZ));
         if(key && pos && !isNaN(pos[0])) {
             var marker = L.marker(pos, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
             if (poi.order !== undefined) addGroupRouteHover(marker, poi.type);
@@ -218,7 +217,7 @@ var haemusaBooks = [
     { name: "기록서6", x: -5578, y: 174, z: 3275, desc: "해무사 기록서 #6", tool: "그 끝에 도달하는 자만이 운명을 쥐어진 자" }
 ];
 haemusaBooks.forEach((book, index) => {
-    var pos = mcToPx(book.x, book.z);
+    var pos = mcToPx(Math.abs(book.x), Math.abs(book.z));
     if (!pos || isNaN(pos[0])) return;
     var bookIcon = L.divIcon({
         className: 'book-icon',
@@ -233,7 +232,7 @@ haemusaBookLayers.addTo(map);
 // 산(비석)
 if (typeof mountainData !== 'undefined') {
     mountainData.forEach(m => {
-        var finalPos = m.coords ? m.coords : mcToPx(m.x, m.z);
+        var finalPos = m.coords ? m.coords : mcToPx(Math.abs(m.x), Math.abs(m.z));
         if (!finalPos || isNaN(finalPos[0])) return;
         var marker = L.marker(finalPos, { icon: m.type === "statue" ? L.divIcon({ className: 'statue-icon', iconSize:[30,30], iconAnchor:[15,30] }) : createSteleIcon() }).addTo(mountainLayers);
         if (m.type === "statue") marker.bindPopup(`<div style="text-align:center;"><b>${m.name}</b><br><img src="${m.file}" style="width:150px;"><br><span>[${m.x}, ${m.z}]</span></div>`);
@@ -245,7 +244,7 @@ if (typeof mountainData !== 'undefined') {
 // 탐색
 if (typeof discoveryData !== 'undefined') {
     discoveryData.forEach(d => {
-        var pos = d.coords || mcToPx(d.x, d.z);
+        var pos = d.coords || mcToPx(Math.abs(d.x), Math.abs(d.z));
         if (!pos || isNaN(pos[0])) return;
         var marker = L.marker(pos, { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(discoveryLayers);
         marker.on('click', () => showDiscoveryInfo(d));
@@ -255,7 +254,7 @@ if (typeof discoveryData !== 'undefined') {
 // 상자
 if (typeof mysteryBoxData !== 'undefined') {
     mysteryBoxData.forEach(d => {
-        var pos = d.coords || mcToPx(d.x, d.z);
+        var pos = d.coords || mcToPx(Math.abs(d.x), Math.abs(d.z));
         if (!pos || isNaN(pos[0])) return;
         L.marker(pos, { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers).on('click', () => showDiscoveryInfo(d));
     });
@@ -274,7 +273,7 @@ if (typeof herbData !== 'undefined') {
     });
 }
 
-// 약초 목록 연동 함수 (수정하지 않음)
+// 약초 목록 연동 함수
 function focusHerb(name) {
     if (typeof herbLayers !== 'undefined' && herbLayers[name]) {
         herbLayers[name].addTo(map); 
