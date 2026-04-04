@@ -1,19 +1,22 @@
-/** 1. 좌표 변환 함수 (7090x7090 정사각 대응 및 45번 광산 실측 보정) **/
-const mcToPx = (mcX, mcZ) => {
-    // 이미지상의 스폰 픽셀 위치 (기존 유지)
-    var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
-    
-    // 실제 마크 스폰 위치 (최신 데이터 반영: -969, -965)
-    var mcSpawnCoordX = -969, mcSpawnCoordZ = -965;
-    
-    // 7090x7090 및 45번 광산 실측치 기반 정밀 배율
-    var scale = 0.5407; 
+/** 1. 좌표 변환 함수 (7090x7090 및 마크 8080 좌표 대응) **/
+// 중복 선언 에러 방지를 위해 var 사용 및 조건부 선언
+if (typeof mcToPx === 'undefined') {
+    var mcToPx = function(mcX, mcZ) {
+        // 이미지상의 스폰 픽셀 위치 (기존 유지)
+        var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
+        
+        // 실제 마크 스폰 위치 (-969, -965)
+        var mcSpawnCoordX = -969, mcSpawnCoordZ = -965;
+        
+        // 7090px 이미지가 8080 블록을 표현하므로 배율은 7090 / 8080
+        var scale = 7090 / 8080; 
 
-    return [
-        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
-        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
-    ]; 
-};
+        return [
+            -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
+            mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
+        ]; 
+    };
+}
 
 /** 2. 산(비석), 동상 데이터 **/
 var mountainData = [
