@@ -1,16 +1,30 @@
-const mcToPx = (mcX, mcZ) => {
-    // 7009x7009 이미지에서 스폰 아이콘이 찍혀야 할 픽셀 좌표
-    var mcSpawnPxX = 3086; 
-    var mcSpawnPxY = 2855; 
+/** 1. 좌표 변환 함수 (7009x7009 사이즈 완벽 대응) **/
+// 'const' 대신 'var'를 사용하여 중복 선언 에러를 방지합니다.
+var mcToPx = function(mcX, mcZ) {
+    // 7009x7009 이미지에서 스폰 아이콘(-969, -965)이 위치한 실제 픽셀 좌표
+    // (이 값은 이미지마다 다를 수 있으니 확인 후 미세조정 필요)
+    var mcSpawnPxX = 3086;  
+    var mcSpawnPxY = 2855;  
     
     var mcSpawnCoordX = -969; 
     var mcSpawnCoordZ = -965;
-    var scale = 0.5407; 
+    
+    // [중요] 7009px 지도에 맞는 정확한 배율 (7009 / 8080)
+    var scale = 0.86745; 
 
     return [
         -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
         mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
     ]; 
+};
+
+/** 데이터 처리 공통 함수 (x, z든 mcX, mcZ든 다 처리) **/
+var transformData = function(dataArray) {
+    return dataArray.map(item => {
+        var finalX = item.mcX !== undefined ? item.mcX : (item.x !== undefined ? item.x : 0);
+        var finalZ = item.mcZ !== undefined ? item.mcZ : (item.z !== undefined ? item.z : 0);
+        return { ...item, coords: mcToPx(finalX, finalZ) };
+    });
 };
 
 /** 2. 산(비석), 동상 데이터 **/
