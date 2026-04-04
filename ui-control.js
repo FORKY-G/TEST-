@@ -1,9 +1,78 @@
-/** 1. 정보창 표시 공통 함수 (사냥터, 산, 비석) **/
+/** 1. 사냥터 목록 생성 및 UI 제어 **/
+
+// 사냥터 목록을 HTML에 출력하는 함수 (에러 해결 핵심)
+window.generateHuntingList = function() {
+    const listElement = document.getElementById('hunting-list');
+    if (!listElement || typeof huntingInfo === 'undefined') return;
+    
+    listElement.innerHTML = ""; // 초기화
+    huntingInfo.forEach(info => {
+        const li = document.createElement('li');
+        li.style.margin = "5px 0"; 
+        li.style.padding = "5px"; 
+        li.style.borderBottom = "1px solid #888";
+        li.innerHTML = `<span class="hunt-name-clickable" style="font-size: 14px; display: block; color: #333; cursor: pointer;" onclick="moveAndShowHunt('${info.name}')">${info.name} <small style="color:#666;">(${info.lv || '?'})</small></span>`;
+        listElement.appendChild(li);
+    });
+};
+
+// 사냥터 클릭 시 이동 및 정보창 표시
+window.moveAndShowHunt = function(name) {
+    var info = huntingInfo.find(h => h.name === name);
+    if (!info) return;
+
+    // 레이어가 꺼져있으면 켜기
+    if (typeof huntingLayers !== 'undefined' && huntingLayers[name]) {
+        if (!map.hasLayer(huntingLayers[name])) {
+            map.addLayer(huntingLayers[name]);
+            updateLayerCheckbox(name, true);
+        }
+    }
+    
+    var pos = info.center || mcToPx(info.x, info.z);
+    if (pos && !isNaN(pos[0])) {
+        map.setView(pos, 1); 
+        showHuntingInfo(info);
+    }
+};
+
+// 사냥터 목록 열기/닫기 토글
+window.toggleHuntingList = function() {
+    var content = document.getElementById('hunting-content');
+    var icon = document.getElementById('toggle-icon');
+    if (content.style.display === "none") {
+        content.style.display = "block";
+        icon.innerText = "▲";
+    } else {
+        content.style.display = "none";
+        icon.innerText = "▼";
+    }
+};
+
+// 모든 사냥터 레이어 끄기
+window.resetHuntingLayers = function() {
+    if (typeof huntingLayers === 'undefined') return;
+    Object.keys(huntingLayers).forEach(name => {
+        if (map.hasLayer(huntingLayers[name])) map.removeLayer(huntingLayers[name]);
+        updateLayerCheckbox(name, false);
+    });
+};
+
+// 레이어 체크박스 상태 동기화
+window.updateLayerCheckbox = function(name, isAdd) {
+    document.querySelectorAll('.leaflet-control-layers-overlays label').forEach(label => {
+        if (label.innerText.trim().includes(name)) {
+            var cb = label.querySelector('input');
+            if (cb) cb.checked = isAdd;
+        }
+    });
+};
+
+/** 2. 정보창 표시 공통 함수 (사냥터, 산, 비석) **/
 window.showHuntingInfo = function(info) {
     var panel = document.getElementById('hunting-info-panel');
     if (!panel) return;
 
-    // 좌표 표시용 헬퍼 (X, Y, Z 통합)
     var displayX = info.x !== undefined ? info.x : (info.mcX !== undefined ? info.mcX : "확인불가");
     var displayY = info.y !== undefined ? info.y : "80"; 
     var displayZ = info.z !== undefined ? info.z : (info.mcZ !== undefined ? info.mcZ : "확인불가");
@@ -16,7 +85,6 @@ window.showHuntingInfo = function(info) {
         </div>
     `;
 
-    // 멸문(이미지 포함)과 일반 사냥터 분기 처리
     if (info.name === "멸문") {
         panel.innerHTML = `
             <div style="border: 2px solid #6c5ce7; padding: 12px; background: #fff; border-radius: 8px;">
@@ -42,13 +110,12 @@ window.showHuntingInfo = function(info) {
     panel.style.display = 'block';
 };
 
-/** 2. 통합 검색 기능 (핵심 로직) **/
+/** 3. 통합 검색 기능 **/
 window.executeSearch = function() {
     var input = document.getElementById('search-input');
     var query = input.value.trim().toLowerCase();
     if (!query) return;
 
-    // 모든 데이터 소스 통합
     var allTargets = [];
     if (typeof huntingInfo !== 'undefined') allTargets = allTargets.concat(huntingInfo.map(d => ({...d, _type: 'hunt'})));
     if (typeof poiData !== 'undefined') allTargets = allTargets.concat(poiData.map(d => ({...d, _type: 'poi'})));
@@ -58,7 +125,6 @@ window.executeSearch = function() {
     if (typeof discoveryData !== 'undefined') allTargets = allTargets.concat(discoveryData.map(d => ({...d, _type: 'discovery'})));
     if (typeof zodiacData !== 'undefined') allTargets = allTargets.concat(zodiacData.map(d => ({...d, _type: 'zodiac'})));
 
-    // 검색 순위: 1. 정확한 이름 일치 -> 2. 이름 포함 -> 3. 몬스터/아이템 이름 포함
     var result = allTargets.find(d => d.name && d.name.toString().toLowerCase() === query) ||
                  allTargets.find(d => (d.name && d.name.toLowerCase().includes(query)) || 
                                      (d.monsters && d.monsters.toLowerCase().includes(query)) ||
@@ -66,18 +132,23 @@ window.executeSearch = function() {
 
     if (result) {
         var pos = result.coords || result.center || mcToPx(result.x, result.z);
-        map.setView(pos, 1); // 해당 위치로 이동 (줌 레벨 1)
+        
+        // NaN 방어 코드
+        if (!pos || isNaN(pos[0]) || isNaN(pos[1])) {
+            alert("좌표 데이터에 오류가 있어 이동할 수 없습니다.");
+            return;
+        }
 
-        // 카테고리에 맞는 정보창 띄우기
+        map.setView(pos, 1); 
+
         if (result._type === 'poi') showMineInfo(result);
-        else if (result._type === 'npc') showNPCInfo(result);
-        else if (result._type === 'redhwan') showRedHwanInfo(result);
-        else if (result._type === 'zodiac') showZodiacInfo(result);
-        else if (result._type === 'discovery') showDiscoveryInfo(result);
+        else if (result._type === 'npc') typeof showNPCInfo === 'function' ? showNPCInfo(result) : showHuntingInfo(result);
+        else if (result._type === 'redhwan') typeof showRedHwanInfo === 'function' ? showRedHwanInfo(result) : showHuntingInfo(result);
+        else if (result._type === 'zodiac') typeof showZodiacInfo === 'function' ? showZodiacInfo(result) : showHuntingInfo(result);
+        else if (result._type === 'discovery') typeof showDiscoveryInfo === 'function' ? showDiscoveryInfo(result) : showHuntingInfo(result);
         else if (result._type === 'herb') moveAndShowHerb(result.name, result.mcX, result.mcZ, '#8e44ad');
         else showHuntingInfo(result);
 
-        // 지도 팝업 추가 표시
         L.popup().setLatLng(pos).setContent(`<b>${result.name}</b>`).openOn(map);
         input.value = "";
     } else {
@@ -85,7 +156,7 @@ window.executeSearch = function() {
     }
 };
 
-/** 3. 광산 정보창 (동선 포함) **/
+/** 4. 광산 정보창 **/
 window.showMineInfo = function(poi) {
     var panel = document.getElementById('hunting-info-panel');
     var detail = (typeof mineDetailInfo !== 'undefined') ? mineDetailInfo[poi.type] : null;
@@ -110,9 +181,10 @@ window.showMineInfo = function(poi) {
     panel.style.display = 'block';
 };
 
-/** 4. 약초 정보창 (목록 표시) **/
+/** 5. 약초 정보창 **/
 window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     var panel = document.getElementById('hunting-info-panel');
+    if (typeof herbData === 'undefined') return;
     var allLocations = herbData.filter(h => h.name === name);
     
     var listHtml = allLocations.map(h => 
@@ -132,9 +204,8 @@ window.moveAndShowHerb = function(name, mcX, mcZ, color) {
     panel.style.display = 'block';
 };
 
-/** 5. 유틸리티 함수들 **/
+/** 6. 유틸리티 함수 **/
 
-// 좌표 복사 및 토스트 알림
 window.copyToClipboard = function(text) {
     navigator.clipboard.writeText(text).then(() => {
         var toast = document.createElement("div");
@@ -145,13 +216,13 @@ window.copyToClipboard = function(text) {
     });
 };
 
-// 정보창 닫기
 window.panelClose = function() {
-    document.getElementById('hunting-info-panel').style.display = 'none';
+    var panel = document.getElementById('hunting-info-panel');
+    if(panel) panel.style.display = 'none';
 };
 
-// 약초 레이어 전체 초기화
 window.resetHerbLayers = function() {
+    if (typeof herbLayers === 'undefined') return;
     Object.keys(herbLayers).forEach(name => {
         if (map.hasLayer(herbLayers[name])) map.removeLayer(herbLayers[name]);
     });
