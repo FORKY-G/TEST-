@@ -1,17 +1,16 @@
+/** 1. 월드맵 좌표 맞추기 **/
 const mcToPx = (mcX, mcZ) => {
-    const mcSpawnPxX = 3122; 
-    const mcSpawnPxY = 2889;
-    const mcSpawnCoordX = -971; 
-    const mcSpawnCoordZ = -965;
+    // 스폰 기준점 (현재 정확함)
+    var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
+    var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
     
-    // 이 scale 값을 미세하게 조정하며 저장-새로고침을 반복해 보세요.
-    // 0.438118... (7080/16160) 대신 소수점 4자리부터 바꿔봅니다.
-    const scale = 0.4381; 
+    // 수정된 정밀 배율 (0.4455 -> 0.4503)
+    var scale = 0.4503; 
 
-    const pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
-    const pixelY = mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale;
-
-    return [-pixelY, pixelX]; 
+    return [
+        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
+        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
+    ]; 
 };
 
 /** 2. 산(비석), 동상 데이터 **/
