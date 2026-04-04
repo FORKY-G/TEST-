@@ -1,21 +1,16 @@
 const mcToPx = (mcX, mcZ) => {
-    // 포토샵에서 찍으신 정확한 스폰 픽셀 좌표
     const mcSpawnPxX = 3122; 
     const mcSpawnPxY = 2889;
-    
-    // 실제 게임 내 스폰 좌표
     const mcSpawnCoordX = -971; 
     const mcSpawnCoordZ = -965;
     
-    // 7080(이미지 너비) / 16160(전체 블록 범위)
-    const scale = 7080 / 16160; 
+    // 이 scale 값을 미세하게 조정하며 저장-새로고침을 반복해 보세요.
+    // 0.438118... (7080/16160) 대신 소수점 4자리부터 바꿔봅니다.
+    const scale = 0.4381; 
 
-    // 마인크래프트 X는 지도의 가로(X), Z는 지도의 세로(Y)입니다.
     const pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
     const pixelY = mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale;
 
-    // Leaflet은 [위도(Y), 경도(X)] 순서이며, 
-    // 이미지 좌표계 특성상 Y축에 마이너스를 붙여야 위아래가 맞습니다.
     return [-pixelY, pixelX]; 
 };
 
