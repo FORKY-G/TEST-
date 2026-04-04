@@ -288,57 +288,51 @@ questLines.haemusa?.setStyle({ opacity: 0 });
 
 }
 
-// 사냥터 (혈교지만 아이콘으로 표시, 나머지는 배경 유지)
-// 사냥터 (혈교도만 아이콘으로 표시, 나머지는 배경 유지)
+// 사냥터 (혈교지/혈교도 아이콘 처리 및 정보창 연결)
 if (typeof huntingInfo !== 'undefined') {
-huntingInfo.forEach(info => {
-var layers = [];
+    huntingInfo.forEach(info => {
+        var layers = [];
 
-        // 1. [혈교지 전용] 이름이 "혈교지"인 경우만 아이콘 마커 생성
-        if (info.name === "혈교지" && info.file) { 
-        // 1. [혈교도 전용] 이름이 "혈교도"인 경우만 아이콘 마커 생성
-        if (info.name === "혈교도" && info.file) { 
-var huntingIcon = L.icon({
-iconUrl: info.file,
-                iconSize: [45, 45],   // 혈교지 아이콘 크기
-                iconSize: [45, 45],   // 혈교도 아이콘 크기
-iconAnchor: [22, 22]
-});
-var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
-layers.push(iconMarker);
-} 
-// 2. [그 외 모든 사냥터] 화검문 포함, 나머지는 전부 지도 전체 배경으로 씌움
-else if (info.file) {
-var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
-layers.push(imgOverlay);
+        // 1. [아이콘 마커] 이름이 "혈교지" 또는 "혈교도"인 경우
+        if ((info.name === "혈교지" || info.name === "혈교도") && info.file) { 
+            var huntingIcon = L.icon({
+                iconUrl: info.file,
+                iconSize: [45, 45],
+                iconAnchor: [22, 22]
+            });
+            var iconMarker = L.marker(info.center, { icon: huntingIcon, interactive: false });
+            layers.push(iconMarker);
+        } 
+        // 2. [그 외 모든 사냥터] 배경 이미지 오버레이
+        else if (info.file) {
+            var imgOverlay = L.imageOverlay(info.file, imageBounds, { opacity: 0.6, interactive: false });
+            layers.push(imgOverlay);
+        }
+
+        // 3. [공통] 클릭 영역 (CircleMarker) - 정보창 띄우기용
+        var clickMarker = L.circleMarker(info.center, { 
+            radius: 35, 
+            color: 'transparent', 
+            fillOpacity: 0, 
+            interactive: true 
+        });
+
+        clickMarker.on('click', (e) => { 
+            L.DomEvent.stopPropagation(e); 
+            showHuntingInfo(info); 
+        });
+
+        // 4. [특수] 멸문 효과 유지
+        if (info.name === "멸문") {
+            clickMarker.addTo(map);
+            clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
+            clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
+        }
+
+        layers.push(clickMarker);
+        huntingLayers[info.name] = L.layerGroup(layers);
+    });
 }
-
-// 3. [공통] 클릭 영역 (CircleMarker) - 정보창 띄우기용
-var clickMarker = L.circleMarker(info.center, { 
-radius: 35, 
-color: 'transparent', 
-fillOpacity: 0, 
-interactive: true 
-});
-
-clickMarker.on('click', (e) => { 
-L.DomEvent.stopPropagation(e); 
-showHuntingInfo(info); 
-});
-
-// 4. [기존] 멸문 효과 유지
-if (info.name === "멸문") {
-clickMarker.addTo(map);
-clickMarker.on('mouseover', () => questLines.snake?.setStyle({ opacity: 0.9 }));
-clickMarker.on('mouseout', () => questLines.snake?.setStyle({ opacity: 0 }));
-}
-
-layers.push(clickMarker);
-huntingLayers[info.name] = L.layerGroup(layers);
-});
-}
-
-
 
 // 십이간지 마커
 
