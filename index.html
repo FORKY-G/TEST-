@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdn.rawgit.com/ardhi/Leaflet.MousePosition/master/src/L.Control.MousePosition.js"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
     <style>
 html, body { 
     margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
@@ -156,7 +157,13 @@ html, body {
     <script>
         // 페이지가 완전히 로드된 후 실행 (함수 미정의 에러 방지)
         window.onload = function() {
-            // 레이어 추가
+            // [에러 방지] map 객체가 존재하는지 먼저 확인
+            if (typeof map === 'undefined' || map === null) {
+                console.error("Leaflet 지도가 초기화되지 않았습니다. map-logic.js를 확인하세요.");
+                return;
+            }
+
+            // 초기 레이어 자동 추가
             if(typeof poiLayers !== 'undefined') {
                 if(poiLayers['스폰']) poiLayers['스폰'].addTo(map);
                 if(poiLayers['십이간지']) poiLayers['십이간지'].addTo(map);
@@ -165,47 +172,41 @@ html, body {
             if(typeof mountainLayers !== 'undefined') mountainLayers.addTo(map);
             if(typeof redHwanLayers !== 'undefined') redHwanLayers.addTo(map);
 
-            // 리스트 생성 함수 호출 (ui-control.js에 정의되어 있어야 함)
-            // 181행 근처
-if (typeof generateHuntingList === 'function') {
-    generateHuntingList();
-} else {
-    console.error("generateHuntingList 함수를 찾을 수 없습니다. ui-control.js 파일을 확인하세요.");
-}
+            // 리스트 생성 함수 호출 (ui-control.js)
+            if (typeof generateHuntingList === 'function') {
+                generateHuntingList();
+            }
+            if (typeof generateHerbList === 'function') {
+                generateHerbList();
+            }
 
-// 여기에 약초 리스트 생성 호출 추가
-if (typeof generateHerbList === 'function') {
-    generateHerbList();
-}
-
-            // 모바일 레이어 설정
+            // 메뉴 컨트롤 설정 (모바일 여부에 따라 펼침/닫힘 결정)
             var isMobile = window.innerWidth < 768;
             if(typeof menuOrder !== 'undefined') {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
-            // [수정 포인트] 좌표 표시 컨트롤: 7090x7090 및 마크 8080x8080 대응
-          if (typeof L.Control.MousePosition !== 'undefined') {
-    L.control.mousePosition({ 
-        position: 'bottomleft', 
-        separator: ', ', 
-        prefix: 'MC 좌표: ',
-        lngFirst: true, // X 먼저 표시
-        lngFormatter: function(lng) {
-            // 7090픽셀이 마크 8080블록에 대응함 (0,0 기준 중앙 정렬 가정 시 배율 1.1396)
-            // 배율: 8080 / 7090 ≈ 1.139633
-            const scale = 8080 / 7090; 
-            // Leaflet 좌표(lng)를 마크 X 좌표로 변환
-            return Math.round(lng * scale);
-        },
-        latFormatter: function(lat) {
-            const scale = 8080 / 7090; 
-            // Leaflet의 lat은 아래가 마이너스이므로 마이너스 부호를 반전시켜 Z 좌표로 변환
-            return Math.round(-lat * scale);
-        }
+            // [좌표 표시 컨트롤 최적화] 7090x7090 지도 -> 마크 8080x8080 좌표 대응
+            if (typeof L.Control.MousePosition !== 'undefined') {
+                L.control.mousePosition({ 
+                    position: 'bottomleft', 
+                    separator: ', ', 
+                    prefix: 'MC 좌표: ',
+                    lngFirst: true, // X축 먼저 표시
+                    lngFormatter: function(lng) {
+                        // 이미지 7090px가 마크 8080블록에 대응
+                        const scale = 8080 / 7090; 
+                        return Math.round(lng * scale);
+                    },
+                    latFormatter: function(lat) {
+                        const scale = 8080 / 7090; 
+                        // Leaflet은 하단이 음수이므로 부호 반전(-)을 통해 마크 Z 좌표와 일치시킴
+                        return Math.round(-lat * scale);
+                    }
                 }).addTo(map);
             }
 
+            // 리사이즈 시 지도 크기 재계산
             window.addEventListener('resize', () => {
                 if(map) map.invalidateSize();
             });
