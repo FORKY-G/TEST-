@@ -1,9 +1,13 @@
+/** 1. 좌표 변환 함수 (7090x7090 정사각 대응 및 45번 광산 실측 보정) **/
 const mcToPx = (mcX, mcZ) => {
-
+    // 이미지상의 스폰 픽셀 위치 (기존 유지)
     var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
-    var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
     
-    var scale = 0.4241; 
+    // 실제 마크 스폰 위치 (최신 데이터 반영: -969, -965)
+    var mcSpawnCoordX = -969, mcSpawnCoordZ = -965;
+    
+    // 7090x7090 및 45번 광산 실측치 기반 정밀 배율
+    var scale = 0.5407; 
 
     return [
         -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
@@ -184,7 +188,6 @@ const huntingInfo = [
     { name: "황야성", lv: "175~185", monsters: "토석병(Lv.175), 토석군(Lv.180), 토석궁사(Lv.185)", file: "map14.png", mcX: -2080, mcZ: 1996 }, 
     { name: "운해궁", lv: "만렙", monsters: "최종구역", file: "map15.png", mcX: -1422, mcZ: 5612 } 
 ].map(h => {
-    // x, z가 있으면 쓰고 없으면 mcX, mcZ를 사용
     let mx = h.x !== undefined ? h.x : h.mcX;
     let mz = h.z !== undefined ? h.z : h.mcZ;
     return { ...h, center: mcToPx(mx, mz) };
