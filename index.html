@@ -186,25 +186,22 @@ html, body {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
-            // [좌표 표시 컨트롤 최적화] 7090x7090 지도 -> 마크 8080x8080 좌표 대응
-            if (typeof L.Control.MousePosition !== 'undefined') {
-                L.control.mousePosition({ 
-                    position: 'bottomleft', 
-                    separator: ', ', 
-                    prefix: 'MC 좌표: ',
-                    lngFirst: true, // X축 먼저 표시
-                    lngFormatter: function(lng) {
-                        // 이미지 7090px가 마크 8080블록에 대응
-                        const scale = 8080 / 7090; 
-                        return Math.round(lng * scale);
-                    },
-                    latFormatter: function(lat) {
-                        const scale = 8080 / 7090; 
-                        // Leaflet은 하단이 음수이므로 부호 반전(-)을 통해 마크 Z 좌표와 일치시킴
-                        return Math.round(-lat * scale);
-                    }
-                }).addTo(map);
-            }
+if (typeof L.Control.MousePosition !== 'undefined') {
+    L.control.mousePosition({ 
+        position: 'bottomleft', 
+        separator: ', ', 
+        prefix: 'MC 좌표: ',
+        lngFirst: true,
+        lngFormatter: function(lng) {
+            // 이미지 7090px -> 마크 8080블록 대응 (8080/7090)
+            return Math.round((lng - 3122) * (8080 / 7090) + (-969));
+        },
+        latFormatter: function(lat) {
+            // Y축(Z좌표) 계산
+            return Math.round((-lat - 2889) * (8080 / 7090) + (-965));
+        }
+    }).addTo(map);
+}
 
             // 리사이즈 시 지도 크기 재계산
             window.addEventListener('resize', () => {
