@@ -104,13 +104,17 @@ window.updateLayerCheckbox = function(name, isAdd) {
     });
 };
 
-// 약초 전용 정보 (수정됨: 클릭 시 좌표 복사 기능 추가)
+// 약초 전용 정보 및 레이어 활성화
 window.moveAndShowHerb = function(name, mcX, mcZ, color) {
-    if (!map.hasLayer(herbLayers[name])) { map.addLayer(herbLayers[name]); }
-    var panel = document.getElementById('hunting-info-panel');
+    // 약초 레이어가 꺼져있다면 켭니다.
+    if (herbLayers && herbLayers[name] && !map.hasLayer(herbLayers[name])) { 
+        map.addLayer(herbLayers[name]); 
+        updateLayerCheckbox(name, true); // 우측 체크박스도 동기화
+    }
     
+    var panel = document.getElementById('hunting-info-panel');
     var allLocations = herbData.filter(h => h.name === name);
-    // 좌표 클릭 시 복사되도록 HTML 개선
+    
     var coordsHtml = allLocations.map(h => `
         <div style="margin-bottom:5px; cursor:pointer;" onclick="copyToClipboard('${h.mcX}, 80, ${h.mcZ}')" title="클릭하여 좌표 복사">
             <span style="background:#444; color:#fff; padding:2px 5px; border-radius:3px; font-size:11px; margin-right:5px;">복사</span>
@@ -128,7 +132,12 @@ window.moveAndShowHerb = function(name, mcX, mcZ, color) {
 
 // 모든 약초 레이어 초기화
 window.resetHerbLayers = function() {
-    Object.keys(herbLayers).forEach(function(name) { if (map.hasLayer(herbLayers[name])) { map.removeLayer(herbLayers[name]); }});
+    Object.keys(herbLayers).forEach(function(name) { 
+        if (map.hasLayer(herbLayers[name])) { 
+            map.removeLayer(herbLayers[name]); 
+            updateLayerCheckbox(name, false);
+        }
+    });
     document.getElementById('hunting-info-panel').style.display = 'none';
 };
 
