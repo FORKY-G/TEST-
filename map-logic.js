@@ -1,5 +1,5 @@
 /** 1. 설정 (7090 x 7090 반영) **/
-var imgW = 7090, imgH = 7090; // 수정된 이미지 사이즈
+var imgW = 7090, imgH = 7090; 
 var imageBounds = [[-imgH, 0], [0, imgW]];
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.3); 
 
@@ -20,15 +20,12 @@ var currentZoom = map.getZoom();
 map.setMinZoom(currentZoom); 
 map.setZoom(currentZoom);
 
-/** [중요] 좌표 변환 함수 **/
-// data.js에서 선언된 mcToPx를 사용하므로 여기서는 중복 선언하지 않고 
-// 혹시 없을 경우를 대비해 기본값만 할당합니다.
-if (typeof mcToPx === 'undefined') {
-    var mcToPx = function(mcX, mcZ) {
-        var scale = 7090 / 8080;
-        return [-(2889 + (mcZ - (-965)) * scale), 3122 + (mcX - (-969)) * scale];
-    };
-}
+/** [중요] 좌표 변환 함수 통합 **/
+// data.js에서 정의한 함수를 사용하되, 혹시 모를 에러 방지를 위한 방어 코드만 남깁니다.
+var mcToPx = mcToPx || function(mcX, mcZ) {
+    var scale = 7090 / 8080;
+    return [-(2889 + (mcZ - (-965)) * scale), 3122 + (mcX - (-969)) * scale];
+};
 
 /** 2. 아이콘 생성 **/
 function createHtmlIcon(color) {
