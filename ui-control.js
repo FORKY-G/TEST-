@@ -143,17 +143,12 @@ window.executeSearch = function() {
 
     var result = allTargets.find(d => d.name && d.name.toString().toLowerCase() === query);
 
-    if (!result) {
-        result = allTargets.find(d => 
-            (d.name && d.name.toString().toLowerCase().includes(query)) || 
-            (d.item && d.item.toLowerCase().includes(query)) ||
-            (d.relation && d.relation.toLowerCase().includes(query)) ||
-            (d.monsters && d.monsters.toLowerCase().includes(query)) 
-        );
-    }
-
-    if (result) {
-       var pos = mcToPx(result.mcX || result.x, result.mcZ || result.z);
+if (result) {
+        // [핵심] mcToPx 함수를 사용하여 data.js에 설정한 3122, 2889 기준점과 0.4241 배율을 적용합니다.
+        var targetX = result.mcX || result.x;
+        var targetZ = result.mcZ || result.z;
+        var pos = mcToPx(targetX, targetZ);
+    
     map.setView(pos, 1);
 
         var popupContent = `<b>${result.name}</b>`;
