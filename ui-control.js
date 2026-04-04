@@ -153,9 +153,8 @@ window.executeSearch = function() {
     }
 
     if (result) {
-        // 우선순위: coords -> center -> mcToPx 계산
-        var pos = result.coords ? result.coords : (result.center ? result.center : mcToPx(result.mcX || result.x, result.mcZ || result.z));
-        map.setView(pos, 1); 
+       var pos = mcToPx(result.mcX || result.x, result.mcZ || result.z);
+    map.setView(pos, 1);
 
         var popupContent = `<b>${result.name}</b>`;
         if (result._category === 'poi') popupContent = `<b>${result.name}번 광산 💎</b>`;
