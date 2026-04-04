@@ -158,12 +158,26 @@ html, body {
                 L.control.layers(null, menuOrder, { collapsed: isMobile }).addTo(map);
             }
             
-            // 좌표 표시 컨트롤 (최적화된 마우스 포지션)
+            // [수정 포인트] 좌표 표시 컨트롤: 포토샵 픽셀과 마크 좌표를 1:1로 매칭
             if (typeof L.Control.MousePosition !== 'undefined') {
                 L.control.mousePosition({ 
                     position: 'bottomleft', 
                     separator: ', ', 
-                    prefix: '지도좌표: ' 
+                    prefix: 'MC 좌표: ',
+                    lngFirst: true, // X(경도) 먼저 표시
+                    lngFormatter: function(lng) {
+                        const mcSpawnPxX = 3122;    // 포토샵 기준 X
+                        const mcSpawnCoordX = -971; // 실제 게임 X
+                        const scale = 7080 / 16160; // 맵 너비 / 전체 블록 범위
+                        return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
+                    },
+                    latFormatter: function(lat) {
+                        const mcSpawnPxY = 2889;    // 포토샵 기준 Y
+                        const mcSpawnCoordZ = -965; // 실제 게임 Z
+                        const scale = 7080 / 16160; 
+                        // Leaflet 좌표(lat)는 위로 갈수록 커지므로 이미지 좌표계에 맞춰 -lat 사용
+                        return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
+                    }
                 }).addTo(map);
             }
 
