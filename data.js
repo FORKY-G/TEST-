@@ -1,13 +1,10 @@
-/** 1. 좌표 변환 함수 (실측 보정) **/
 const mcToPx = (mcX, mcZ) => {
-    // 이미지상에서 스폰 아이콘이 위치해야 할 절대 픽셀 좌표
-    var mcSpawnPxX = 3122, mcSpawnPxY = 2889; 
+    // 7009x7009 이미지에서 스폰 아이콘이 찍혀야 할 픽셀 좌표
+    var mcSpawnPxX = 3086; 
+    var mcSpawnPxY = 2855; 
     
-    // 실제 마인크래프트 스폰 좌표 (기준점)
-    var mcSpawnCoordX = -969,  // 실제 마크 X
-        mcSpawnCoordZ = -965;  // 실제 마크 Z
-    
-    // 배율 (현재 지도 사이즈 7080x6858 등에 맞춰 조정 필요할 수 있음)
+    var mcSpawnCoordX = -969; 
+    var mcSpawnCoordZ = -965;
     var scale = 0.5407; 
 
     return [
