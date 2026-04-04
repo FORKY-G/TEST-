@@ -21,13 +21,14 @@ map.setMinZoom(currentZoom);
 map.setZoom(currentZoom);
 
 /** [중요] 좌표 변환 함수 (8080, -8080 기준) **/
-function mcToPx(mcX, mcZ) {
+// 중복 선언 에러(SyntaxError) 방지를 위해 var로 선언하며, 이미 정의되어 있다면 재사용합니다.
+var mcToPx = mcToPx || function(mcX, mcZ) {
     // 실제 마크월드 전체 크기: 8080 (0 ~ 8080, 0 ~ -8080)
     // 이미지 사이즈: 7090
     var x = (mcX / 8080) * imgW;
     var y = (mcZ / -8080) * -imgH; // 마크 Z는 아래로 갈수록 커지므로 이미지 좌표계에 맞춰 변환
     return [y, x];
-}
+};
 
 /** 2. 아이콘 생성 **/
 function createHtmlIcon(color) {
@@ -213,7 +214,7 @@ var haemusaBooks = [
     { name: "기록서2", x: -5625, y: 149, z: 3432, desc: "해무사 기록서 #2", tool: "그대만의 길을." },
     { name: "기록서3", x: -5555, y: 90, z: 3405, desc: "해무사 기록서 #3", tool: "길이 없음에도 길이 있고," },
     { name: "기록서4", x: -5770, y: 140, z: 3332, desc: "해무사 기록서 #4", tool: "길이 있는 곳에도 길이 없음이라." },
-    { name: "기록서5", x: -5749, y: 124, z: 3215, desc: "해무사 기록서 #5", tool: "길 끝에 길이 있으며," },
+    { name: "기록서5", x: -5749, y: 124, z: 3215, desc: "길 끝에 길이 있으며," },
     { name: "기록서6", x: -5578, y: 174, z: 3275, desc: "해무사 기록서 #6", tool: "그 끝에 도달하는 자만이 운명을 쥐어진 자" }
 ];
 haemusaBooks.forEach((book, index) => {
@@ -266,20 +267,17 @@ if (typeof herbData !== 'undefined') {
         var pos = herb.coords || mcToPx(herb.mcX, herb.mcZ);
         if (!pos || isNaN(pos[0])) return;
         if (!herbLayers[herb.name]) herbLayers[herb.name] = L.layerGroup();
-        var hCol = herbColors[herb.name] || '#8e44ad';
+        var hCol = (typeof herbColors !== 'undefined' && herbColors[herb.name]) || '#8e44ad';
         var imgOverlay = L.imageOverlay(herb.file, imageBounds, { opacity: 0.6, interactive: false });
         var dotMarker = L.circleMarker(pos, { radius: 3, color: "#000", weight: 1, fillColor: hCol, fillOpacity: 1 });
         herbLayers[herb.name].addLayer(imgOverlay).addLayer(dotMarker);
     });
 }
+
+// 약초 목록 연동 함수 (수정하지 않음)
 function focusHerb(name) {
     if (typeof herbLayers !== 'undefined' && herbLayers[name]) {
-        // 모든 약초 레이어를 끄고 싶다면 아래 주석을 해제하세요
-        // resetHerbLayers(); 
-
-        herbLayers[name].addTo(map); // 해당 약초 레이어 활성화
-        
-        // 해당 레이어의 범위(Bounds)를 가져와서 지도를 이동시킵니다.
+        herbLayers[name].addTo(map); 
         const layerGroup = herbLayers[name];
         let bounds;
         
