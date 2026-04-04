@@ -165,19 +165,18 @@ html, body {
                     separator: ', ', 
                     prefix: 'MC 좌표: ',
                     lngFirst: true, // X(경도) 먼저 표시
-                    lngFormatter: function(lng) {
-                        const mcSpawnPxX = 3122;    // 포토샵 기준 X
-                        const mcSpawnCoordX = -971; // 실제 게임 X
-                        const scale = 7080 / 16160; // 맵 너비 / 전체 블록 범위
-                        return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
-                    },
-                    latFormatter: function(lat) {
-                        const mcSpawnPxY = 2889;    // 포토샵 기준 Y
-                        const mcSpawnCoordZ = -965; // 실제 게임 Z
-                        const scale = 7080 / 16160; 
-                        // Leaflet 좌표(lat)는 위로 갈수록 커지므로 이미지 좌표계에 맞춰 -lat 사용
-                        return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
-                    }
+                   lngFormatter: function(lng) {
+    const mcSpawnPxX = 3213;    
+    const mcSpawnCoordX = -971; 
+    const scale = 0.4468; // 동일하게 수정
+    return Math.round(((lng - mcSpawnPxX) / scale) + mcSpawnCoordX);
+},
+latFormatter: function(lat) {
+    const mcSpawnPxY = 2869;    
+    const mcSpawnCoordZ = -965; 
+    const scale = 0.4468; // 동일하게 수정
+    return Math.round(((-lat - mcSpawnPxY) / scale) + mcSpawnCoordZ);
+}
                 }).addTo(map);
             }
 
