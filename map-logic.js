@@ -1,5 +1,24 @@
-/** 1. 설정 (7090 x 7090 반영) **/
-var imgW = 7090, imgH = 7090; 
+// 파일 최상단에 추가 (중복 선언 에러 방지)
+var mcToPx = mcToPx || function(mcX, mcZ) {
+    // 7009x7009 이미지 기준 스폰 픽셀 위치
+    var mcSpawnPxX = 3086; 
+    var mcSpawnPxY = 2855; 
+    
+    // 실제 마크 스폰 좌표
+    var mcSpawnCoordX = -969; 
+    var mcSpawnCoordZ = -965;
+    
+    // 7009 사이즈 대응 정밀 배율
+    var scale = 0.5407; 
+
+    return [
+        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
+        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
+    ]; 
+};
+
+// 이미지 사이즈 변수도 7009로 확실히 고정
+var imgW = 7009, imgH = 7009; 
 var imageBounds = [[-imgH, 0], [0, imgW]];
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.3); 
 
