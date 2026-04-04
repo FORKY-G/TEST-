@@ -1,11 +1,12 @@
-/** 1. 월드맵 좌표 맞추기 (정밀 보정본) **/
+/** 1. 월드맵 좌표 맞추기 (4개 모서리 광산 데이터 기준 최종 보정) **/
 const mcToPx = (mcX, mcZ) => {
-    // 기준점은 그대로 유지
-    var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
+    // 스폰 지점 마우스 좌표 오차를 반영하여 기준점 미세 조정
+    // X: 3218 -> 3213 / Y: 2874 -> 2869
+    var mcSpawnPxX = 3213, mcSpawnPxY = 2869; 
     var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
     
-    // 배율을 낮춰서 바깥으로 나간 아이콘을 안으로 당깁니다.
-    var scale = 0.4418; 
+    // 4개 방위(45번, 30번, 33번, 35번) 오차 평균을 반영한 정밀 배율
+    var scale = 0.4468; 
 
     return [
         -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
