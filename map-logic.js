@@ -1,23 +1,4 @@
-// 파일 최상단에 추가 (중복 선언 에러 방지)
-var mcToPx = mcToPx || function(mcX, mcZ) {
-    // 7009x7009 이미지 기준 스폰 픽셀 위치
-    var mcSpawnPxX = 3086; 
-    var mcSpawnPxY = 2855; 
-    
-    // 실제 마크 스폰 좌표
-    var mcSpawnCoordX = -969; 
-    var mcSpawnCoordZ = -965;
-    
-    // 7009 사이즈 대응 정밀 배율
-    var scale = 0.5407; 
-
-    return [
-        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
-        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
-    ]; 
-};
-
-// 이미지 사이즈 변수도 7009로 확실히 고정
+/** 1. 설정 (7009 x 7009 고정) **/
 var imgW = 7009, imgH = 7009; 
 var imageBounds = [[-imgH, 0], [0, imgW]];
 var paddedBounds = L.latLngBounds(imageBounds).pad(0.3); 
@@ -39,11 +20,28 @@ var currentZoom = map.getZoom();
 map.setMinZoom(currentZoom); 
 map.setZoom(currentZoom);
 
-/** [중요] 좌표 변환 함수 통합 **/
-// data.js에서 정의한 함수를 사용하되, 혹시 모를 에러 방지를 위한 방어 코드만 남깁니다.
-var mcToPx = mcToPx || function(mcX, mcZ) {
-    var scale = 7090 / 8080;
-    return [-(2889 + (mcZ - (-965)) * scale), 3122 + (mcX - (-969)) * scale];
+/** 2. 좌표 변환 함수 (통합 및 절대값 제거) **/
+// 중복 선언 방지를 위해 var 사용, 배율은 7009 기준으로 고정
+var mcToPx = function(mcX, mcZ) {
+    var mcSpawnPxX = 3086;  
+    var mcSpawnPxY = 2855;  
+    var mcSpawnCoordX = -969; 
+    var mcSpawnCoordZ = -965;
+    var scale = 0.86745; // 7009px / 8080blocks
+
+    return [
+        -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
+        mcSpawnPxX + (mcX - mcSpawnCoordX) * scale
+    ]; 
+};
+
+/** 3. 데이터 처리 보조 함수 **/
+// x, z든 mcX, mcZ든 좌표를 찾아서 변환해줍니다.
+var getPos = function(obj) {
+    if (obj.coords) return obj.coords;
+    var x = obj.mcX !== undefined ? obj.mcX : (obj.x !== undefined ? obj.x : 0);
+    var z = obj.mcZ !== undefined ? obj.mcZ : (obj.z !== undefined ? obj.z : 0);
+    return mcToPx(x, z);
 };
 
 /** 2. 아이콘 생성 **/
@@ -202,7 +200,7 @@ if (typeof poiData !== 'undefined') {
         var mcZ = (poi.type === '스폰') ? -965 : poi.mcZ;
         
         // 마이너스 좌표 보정 (필요시): 마크 좌표계가 0,0 기준 절대값이라면 그대로 사용
-        var pos = poi.coords || mcToPx(Math.abs(mcX), Math.abs(mcZ));
+        var pos = poi.coords || mcToPx(book.abs(mcX), book.abs(mcZ));
         if(key && pos && !isNaN(pos[0])) {
             var marker = L.marker(pos, {icon: createHtmlIcon(poi.color)}).addTo(poiLayers[key]);
             if (poi.order !== undefined) addGroupRouteHover(marker, poi.type);
@@ -233,7 +231,7 @@ var haemusaBooks = [
     { name: "기록서6", x: -5578, y: 174, z: 3275, desc: "해무사 기록서 #6", tool: "그 끝에 도달하는 자만이 운명을 쥐어진 자" }
 ];
 haemusaBooks.forEach((book, index) => {
-    var pos = mcToPx(Math.abs(book.x), Math.abs(book.z));
+    var pos = mcToPx(book.abs(book.x), book.abs(book.z));
     if (!pos || isNaN(pos[0])) return;
     var bookIcon = L.divIcon({
         className: 'book-icon',
@@ -248,7 +246,7 @@ haemusaBookLayers.addTo(map);
 // 산(비석)
 if (typeof mountainData !== 'undefined') {
     mountainData.forEach(m => {
-        var finalPos = m.coords ? m.coords : mcToPx(Math.abs(m.x), Math.abs(m.z));
+        var finalPos = m.coords ? m.coords : mcToPx(book.abs(m.x), book.abs(m.z));
         if (!finalPos || isNaN(finalPos[0])) return;
         var marker = L.marker(finalPos, { icon: m.type === "statue" ? L.divIcon({ className: 'statue-icon', iconSize:[30,30], iconAnchor:[15,30] }) : createSteleIcon() }).addTo(mountainLayers);
         if (m.type === "statue") marker.bindPopup(`<div style="text-align:center;"><b>${m.name}</b><br><img src="${m.file}" style="width:150px;"><br><span>[${m.x}, ${m.z}]</span></div>`);
@@ -260,7 +258,7 @@ if (typeof mountainData !== 'undefined') {
 // 탐색
 if (typeof discoveryData !== 'undefined') {
     discoveryData.forEach(d => {
-        var pos = d.coords || mcToPx(Math.abs(d.x), Math.abs(d.z));
+        var pos = d.coords || mcToPx(book.abs(d.x), book.abs(d.z));
         if (!pos || isNaN(pos[0])) return;
         var marker = L.marker(pos, { icon: L.divIcon({ className: 'discovery-icon', html: `⚱️`, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(discoveryLayers);
         marker.on('click', () => showDiscoveryInfo(d));
@@ -270,7 +268,7 @@ if (typeof discoveryData !== 'undefined') {
 // 상자
 if (typeof mysteryBoxData !== 'undefined') {
     mysteryBoxData.forEach(d => {
-        var pos = d.coords || mcToPx(Math.abs(d.x), Math.abs(d.z));
+        var pos = d.coords || mcToPx(book.abs(d.x), book.abs(d.z));
         if (!pos || isNaN(pos[0])) return;
         L.marker(pos, { icon: L.icon({ iconUrl: 'box.png', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(mysteryBoxLayers).on('click', () => showDiscoveryInfo(d));
     });
