@@ -1,10 +1,29 @@
-/** 1. 월드맵 좌표 맞추기 **/
+/** 1. 월드맵 좌표 맞추기 (최종 정밀 수정본) **/
 const mcToPx = (mcX, mcZ) => {
-    var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
-    var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
-    var scale = 7300 / 16384; 
-    return [-(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), mcSpawnPxX + (mcX - mcSpawnCoordX) * scale]; 
+    // 포토샵 기준 스폰 픽셀 좌표
+    const mcSpawnPxX = 3122; 
+    const mcSpawnPxY = 2889;
+    
+    // 스폰 지점의 실제 인게임 좌표
+    const mcSpawnCoordX = -969; 
+    const mcSpawnCoordZ = -965;
+    
+    // 실제 월드 전체 크기 (8080 - (-8080) = 16160)
+    const worldTotalBlocks = 16160; 
+
+    // 가로와 세로의 비율이 미세하게 다를 수 있으므로 각각 계산합니다.
+    const scaleX = 7080 / worldTotalBlocks; 
+    const scaleY = 6858 / worldTotalBlocks; 
+
+    // 최종 픽셀 위치 계산
+    const targetX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scaleX;
+    const targetY = mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scaleY;
+
+    // Leaflet 등 웹맵 라이브러리 형식에 맞춰 [Y, X]로 반환
+    // 지도 방향에 따라 -를 붙이거나 뺄 수 있습니다.
+    return [-targetY, targetX]; 
 };
+
 
 /** 2. 산(비석),동상 데이터 **/
 var mountainData = [
