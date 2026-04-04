@@ -1,10 +1,26 @@
-/** 1. 월드맵 좌표 맞추기 (이미지 사이즈: 7080x6858 반영) **/
+/** 1. 월드맵 좌표 맞추기 (수정본) **/
 const mcToPx = (mcX, mcZ) => {
-    // DaGyeom님이 말씀하신 7080x6858 기준 (오차 발생 시 이 수치들을 미세 조정하면 됩니다)
-    var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
-    var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
+    // 기준점 픽셀 (스폰 지점의 이미지상 위치)
+    var mcSpawnPxX = 3218; 
+    var mcSpawnPxY = 2874;
+    
+    // 기준점 마인크래프트 좌표
+    var mcSpawnCoordX = -971; 
+    var mcSpawnCoordZ = -965;
+    
+    // 맵 사이즈에 따른 스케일 (7080 / 16384 또는 실제 맵 해상도 비율)
     var scale = 7300 / 16384; 
-    return [-(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), mcSpawnPxX + (mcX - mcSpawnCoordX) * scale]; 
+
+    // Leaflet은 [Y, X] 순서로 좌표를 받습니다.
+    // 마인크래프트 Z = 지도 Y (상하)
+    // 마인크래프트 X = 지도 X (좌우)
+    
+    // 수정된 계산식: 
+    // 1. 위아래(Y)는 mcZ를 기준으로 계산 (이미지 좌표 특성상 위로 갈수록 픽셀값이 작아지므로 방향 확인 필요)
+    var pixelY = -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale);
+    var pixelX = mcSpawnPxX + (mcX - mcSpawnCoordX) * scale;
+
+    return [pixelY, pixelX]; 
 };
 
 /** 2. 산(비석), 동상 데이터 **/
