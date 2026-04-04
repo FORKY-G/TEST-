@@ -1,11 +1,11 @@
-/** 1. 월드맵 좌표 맞추기 **/
+/** 1. 월드맵 좌표 맞추기 (정밀 보정본) **/
 const mcToPx = (mcX, mcZ) => {
-    // 스폰 기준점 (현재 정확함)
+    // 기준점은 그대로 유지
     var mcSpawnPxX = 3218, mcSpawnPxY = 2874;
     var mcSpawnCoordX = -971, mcSpawnCoordZ = -965;
     
-    // 수정된 정밀 배율 (0.4455 -> 0.4503)
-    var scale = 0.4503; 
+    // 배율을 낮춰서 바깥으로 나간 아이콘을 안으로 당깁니다.
+    var scale = 0.4418; 
 
     return [
         -(mcSpawnPxY + (mcZ - mcSpawnCoordZ) * scale), 
