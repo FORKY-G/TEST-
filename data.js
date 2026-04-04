@@ -207,3 +207,5 @@ var mysteryBoxData = [
 { name: "의문의 상자", x: 1124, y: 258, z: 1498, item: "일반부적뽑기"},
 { name: "의문의 상자", x: -3979, y: 80, z: 2501, item: "<span style='color:#ff0000;'>상자3개있음</span>"}
 ];
+
+/** 12. NPC 데이터 **/
